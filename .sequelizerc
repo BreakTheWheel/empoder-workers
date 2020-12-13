@@ -1,0 +1,16 @@
+// see: https://github.com/sequelize/cli
+
+/**
+ * !!! Important !!!
+ * It is necessary to transpile souce codes prior to executing sequelize commands
+ */
+
+const path = require('path')
+const basePath = './src'
+
+module.exports = {
+  'config': path.resolve(basePath, 'config/database.js'),
+  'migrations-path': path.resolve(basePath, 'database/migrations'),
+  'models-path': path.resolve(basePath, 'database/models'),
+  'seeders-path': path.resolve(basePath, 'database/seeders'),
+}
