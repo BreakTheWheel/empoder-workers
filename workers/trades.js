@@ -14,41 +14,55 @@ async function storeTrade(trade) {
   }
 }
 
+function connect() {
+  client.onerror = event => {
+    logger.error({ event }, 'Connection error')
+
+    setTimeout(() => {
+      logger.warn('Reconnecting after error')
+      connect()
+    }, 500)
+  }
+
+  client.onopen = () => {
+    logger.info('Socket opened')
+    client.send(JSON.stringify({ type: 'subscribe', symbol: 'AAPL' }))
+    client.send(JSON.stringify({ type: 'subscribe', symbol: 'BINANCE:ETHUSDT' }))
+  }
+
+  client.onclose = event => {
+    logger.error({ event }, 'Connection closed')
+
+    setTimeout(() => {
+      logger.warn('Reconnecting after closing connection')
+      connect()
+    }, 500)
+  }
+
+  client.onmessage = event => {
+    const obj = JSON.parse(event.data)
+
+    logger.info({ data: obj }, 'incoming trade')
+
+    try {
+      const data = obj.data[0]
+
+      storeTrade({
+        symbol: data.s,
+        price: data.p,
+        timestamp: moment.unix(data.t / 1000).utc().toDate(),
+        unixTimestampMs: data.t,
+        volume: data.v,
+      })
+    } catch (err) {
+      logger.error({ err }, 'failed parsing data')
+    }
+  }
+}
+
 module.exports = {
   start: () => {
     logger.info('Starting worker')
-    client.onerror = event => {
-      logger.error({ event }, 'Connection error')
-    }
-
-    client.onopen = () => {
-      logger.info('Socket opened')
-      client.send(JSON.stringify({ type: 'subscribe', symbol: 'AAPL' }))
-      client.send(JSON.stringify({ type: 'subscribe', symbol: 'BINANCE:ETHUSDT' }))
-    }
-
-    client.onclose = event => {
-      logger.error({ event }, 'Connection closed')
-    }
-
-    client.onmessage = event => {
-      const obj = JSON.parse(event.data)
-
-      logger.info({ data: obj }, 'incoming trade')
-
-      try {
-        const data = obj.data[0]
-
-        storeTrade({
-          symbol: data.s,
-          price: data.p,
-          timestamp: moment.unix(data.t / 1000).utc().toDate(),
-          unixTimestampMs: data.t,
-          volume: data.v,
-        })
-      } catch (err) {
-        logger.error({ err }, 'failed parsing data')
-      }
-    }
+    connect()
   },
 }
