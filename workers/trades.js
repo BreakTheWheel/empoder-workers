@@ -23,12 +23,13 @@ function wait() {
   })
 }
 
-async function connect() {
-  if (stopped) {
-    await wait()
 
-    connect()
-  }
+function connect() {
+  // if (stopped) {
+  //   await wait()
+
+  //   connect()
+  // }
 
   const client = new w3cwebsocket(`wss://ws.finnhub.io?token=${process.env.FIN_HUB_TOKEN}`)
 
