@@ -30,8 +30,8 @@ module.exports = (sequelize, Sequelize) => {
       field: 'unix_timestamp_ms',
     },
     conditions: {
-      allowNull: false,
-      type: Sequelize.ARRAY(Sequelize.INT),
+      allowNull: true,
+      type: Sequelize.ARRAY(Sequelize.INTEGER),
     },
   },
     {
