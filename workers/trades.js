@@ -3,6 +3,7 @@ const { w3cwebsocket } = require('websocket')
 const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
+const Promise = require('bluebird')
 
 async function storeTrade(trade) {
   try {
@@ -12,7 +13,23 @@ async function storeTrade(trade) {
   }
 }
 
-function connect() {
+const stopped = process.env.STOPPED === 'true'
+
+function wait() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve()
+    }, 1000)
+  })
+}
+
+async function connect() {
+  if (stopped) {
+    await wait()
+
+    connect()
+  }
+
   const client = new w3cwebsocket(`wss://ws.finnhub.io?token=${process.env.FIN_HUB_TOKEN}`)
 
   client.onerror = event => {
@@ -27,7 +44,6 @@ function connect() {
   client.onopen = () => {
     logger.info('Socket opened')
     client.send(JSON.stringify({ type: 'subscribe', symbol: 'AAPL' }))
-    client.send(JSON.stringify({ type: 'subscribe', symbol: 'BINANCE:ETHUSDT' }))
   }
 
   client.onclose = event => {
@@ -53,6 +69,7 @@ function connect() {
         timestamp: moment.unix(data.t / 1000).utc().toDate(),
         unixTimestampMs: data.t,
         volume: data.v,
+        conditions: data.c,
       })
     } catch (err) {
       logger.error({ err }, 'failed parsing data')

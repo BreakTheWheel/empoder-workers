@@ -29,6 +29,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.BIGINT,
       field: 'unix_timestamp_ms',
     },
+    conditions: {
+      allowNull: false,
+      type: Sequelize.ARRAY(Sequelize.INT),
+    },
   },
     {
       tableName: 'trades',
