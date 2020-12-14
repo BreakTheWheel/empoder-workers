@@ -62,7 +62,7 @@ module.exports = env => ({
   },
   logging: {
     stdout: {
-      enabled: false,
+      enabled: true,
       level: 'debug',
     },
   },

@@ -1,4 +1,3 @@
-const cluster = require('cluster')
 const bunyan = require('bunyan')
 const config = require('../config')
 
@@ -12,9 +11,8 @@ if (config.logging.stdout.enabled) {
   })
 }
 
-const suffix = cluster.isMaster ? 'master' : 'worker'
 const logger = bunyan.createLogger({
-  name: `${config.appName}.${suffix}`,
+  name: 'empoder-worker',
   streams: logStreams,
 })
 

@@ -16,6 +16,7 @@ async function storeTrade(trade) {
 
 module.exports = {
   start: () => {
+    logger.info('Starting worker')
     client.onerror = event => {
       logger.error({ event }, 'Connection error')
     }
@@ -31,9 +32,9 @@ module.exports = {
     }
 
     client.onmessage = event => {
-      logger.info(event.data, 'incoming trade')
-
       const obj = JSON.parse(event.data)
+
+      logger.info({ data: obj }, 'incoming trade')
 
       try {
         const data = obj.data[0]
