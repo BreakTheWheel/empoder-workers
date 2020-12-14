@@ -4,8 +4,6 @@ const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 
-const client = new w3cwebsocket(`wss://ws.finnhub.io?token=${process.env.FIN_HUB_TOKEN}`)
-
 async function storeTrade(trade) {
   try {
     await db.Trade.create(trade)
@@ -15,6 +13,8 @@ async function storeTrade(trade) {
 }
 
 function connect() {
+  const client = new w3cwebsocket(`wss://ws.finnhub.io?token=${process.env.FIN_HUB_TOKEN}`)
+
   client.onerror = event => {
     logger.error({ event }, 'Connection error')
 
