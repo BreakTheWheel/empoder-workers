@@ -1,9 +1,9 @@
 require('dotenv').config()
 const { w3cwebsocket } = require('websocket')
 const moment = require('moment')
+// const Promise = require('bluebird')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
-const Promise = require('bluebird')
 
 async function storeTrade(trade) {
   try {
@@ -13,24 +13,33 @@ async function storeTrade(trade) {
   }
 }
 
-const stopped = process.env.STOPPED === 'true'
+// function wait() {
+//   return new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//       resolve()
+//     }, 1000)
+//   })
+// }
 
-function wait() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve()
-    }, 1000)
-  })
+function getSymbols() {
+  const syms = [
+    { type: 'subscribe', symbol: 'AAPL' },
+    { type: 'subscribe', symbol: 'TSLA' },
+    { type: 'subscribe', symbol: 'ROKU' },
+    { type: 'subscribe', symbol: 'NVTA' },
+    { type: 'subscribe', symbol: 'CRSP' },
+    { type: 'subscribe', symbol: 'SQ' },
+    { type: 'subscribe', symbol: 'TDOC' },
+    { type: 'subscribe', symbol: 'Z' },
+    { type: 'subscribe', symbol: 'SPOT' },
+    { type: 'subscribe', symbol: 'EDIT' },
+  ]
+
+  return syms
 }
 
 
 function connect() {
-  // if (stopped) {
-  //   await wait()
-
-  //   connect()
-  // }
-
   const client = new w3cwebsocket(`wss://ws.finnhub.io?token=${process.env.FIN_HUB_TOKEN}`)
 
   client.onerror = event => {
@@ -44,7 +53,9 @@ function connect() {
 
   client.onopen = () => {
     logger.info('Socket opened')
-    client.send(JSON.stringify({ type: 'subscribe', symbol: 'AAPL' }))
+    for (const sym of getSymbols()) {
+      client.send(JSON.stringify(sym))
+    }
   }
 
   client.onclose = event => {
