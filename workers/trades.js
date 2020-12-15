@@ -1,4 +1,5 @@
 require('dotenv').config()
+
 const { w3cwebsocket } = require('websocket')
 const moment = require('moment')
 // const Promise = require('bluebird')
@@ -33,6 +34,46 @@ function getSymbols() {
     { type: 'subscribe', symbol: 'Z' },
     { type: 'subscribe', symbol: 'SPOT' },
     { type: 'subscribe', symbol: 'EDIT' },
+    { type: 'subscribe', symbol: 'SMG' },
+    // { type: 'subscribe', symbol: 'CURLF' },
+    // { type: 'subscribe', symbol: 'GTBIF' },
+    { type: 'subscribe', symbol: 'CRLBF' },
+    { type: 'subscribe', symbol: 'GWPH' },
+    // { type: 'subscribe', symbol: 'TCNNF' },
+    // { type: 'subscribe', symbol: 'HRVSF' },
+    // { type: 'subscribe', symbol: 'TCNNF' },
+    // { type: 'subscribe', symbol: 'HRVSF' },
+    { type: 'subscribe', symbol: 'GRWG' },
+    // { type: 'subscribe', symbol: 'CCHWF' },
+    // { type: 'subscribe', symbol: 'AYRWF' },
+    // { type: 'subscribe', symbol: 'TLLTF' },
+    { type: 'subscribe', symbol: 'TPB' },
+    { type: 'subscribe', symbol: 'GNLN' },
+    // { type: 'subscribe', symbol: 'ITHUF' },
+    // { type: 'subscribe', symbol: 'MMNFF' },
+    { type: 'subscribe', symbol: 'IIPR' },
+    // { type: 'subscribe', symbol: 'ACRGH' },
+    { type: 'subscribe', symbol: 'TLRY' },
+    // { type: 'subscribe', symbol: 'KSHB' },
+    // { type: 'subscribe', symbol: 'CWBHF' },
+    // { type: 'subscribe', symbol: 'JUSHF' },
+    // { type: 'subscribe', symbol: 'PLNHF' },
+    // { type: 'subscribe', symbol: 'HBORF' },
+    { type: 'subscribe', symbol: 'VFF' },
+    // { type: 'subscribe', symbol: 'CNTMF' },
+    // { type: 'subscribe', symbol: 'INDXF' },
+    // { type: 'subscribe', symbol: 'MRMD' },
+    { type: 'subscribe', symbol: 'CGC' },
+    { type: 'subscribe', symbol: 'ACB' },
+    { type: 'subscribe', symbol: 'APHA' },
+    // { type: 'subscribe', symbol: 'TRSSF' },
+    // { type: 'subscribe', symbol: 'FFLWF' },
+    { type: 'subscribe', symbol: 'HEXO' },
+    // { type: 'subscribe', symbol: 'HITIF' },
+    { type: 'subscribe', symbol: 'OGI' },
+    // { type: 'subscribe', symbol: 'ZBISF' },
+    // { type: 'subscribe', symbol: 'LHSIF' },
+    // { type: 'subscribe', symbol: 'VLNCF' },
   ]
 
   return syms
@@ -89,9 +130,19 @@ function connect() {
   }
 }
 
+// let alreadyRunning = false
+
+// function checkFlag() {
+//   setInterval(() => {
+//     logger.info('Checking setting')
+//   }, 30000)
+// }
+
 module.exports = {
-  start: () => {
+  start: async () => {
     logger.info('Starting worker')
+    // checkFlag()
+
     connect()
   },
 }
