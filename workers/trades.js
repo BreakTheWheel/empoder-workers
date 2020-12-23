@@ -6,11 +6,11 @@ const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 
-async function storeTrade(trade) {
+async function storeTrades(trades) {
   try {
-    await db.Trade.create(trade)
+    await db.Trade.bulkCreate(trades)
   } catch (err) {
-    logger.error({ err }, 'storing trade failed')
+    logger.error({ err }, 'storing trades failed')
   }
 }
 
@@ -114,16 +114,18 @@ function connect() {
     logger.info({ data: obj }, 'incoming trade')
 
     try {
-      const data = obj.data[0]
-
-      storeTrade({
-        symbol: data.s,
-        price: data.p,
-        timestamp: moment.unix(data.t / 1000).utc().toDate(),
-        unixTimestampMs: data.t,
-        volume: data.v,
-        conditions: data.c,
+      const trades = obj.data.map(data => {
+        return {
+          symbol: data.s,
+          price: data.p,
+          timestamp: moment.unix(data.t / 1000).utc().toDate(),
+          unixTimestampMs: data.t,
+          volume: data.v,
+          conditions: data.c,
+        }
       })
+
+      storeTrades(trades)
     } catch (err) {
       logger.error({ err }, 'failed parsing data')
     }
