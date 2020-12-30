@@ -2,7 +2,6 @@ require('dotenv').config()
 
 const { w3cwebsocket } = require('websocket')
 const moment = require('moment')
-// const Promise = require('bluebird')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 
@@ -12,11 +11,11 @@ function storeTrades(trades) {
   })
 }
 
-function wait() {
-  return new Promise((resolve, reject) => {
+function wait(ms) {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve()
-    }, 1000)
+    }, ms)
   })
 }
 
@@ -104,6 +103,8 @@ function connect() {
   client.onmessage = event => {
     const obj = JSON.parse(event.data)
 
+    logger.info({ data: obj }, 'incoming trade')
+
     try {
       const trades = obj.data.map(data => {
         return {
@@ -118,29 +119,29 @@ function connect() {
 
       storeTrades(trades)
     } catch (err) {
-      logger.info({ data: obj }, 'incoming')
-
       logger.error({ err }, 'failed parsing data')
     }
   }
 }
 
-// let alreadyRunning = false
-
-// function checkFlag() {
-//   setInterval(() => {
-//     logger.info('Checking setting')
-//   }, 30000)
-// }
 
 module.exports = {
   start: async () => {
     while (true) {
+      const stopped = process.env.STOPPED === 'true'
+
+      if (stopped) {
+        logger.info('Stopped')
+        await wait(20000)
+
+        continue
+      }
+
       if (!client) {
         connect()
       }
 
-      await wait()
+      await wait(1000)
     }
   },
 }
