@@ -146,6 +146,6 @@ module.exports = {
     logger.info('Starting worker')
     // checkFlag()
 
-    //connect()
+    connect()
   },
 }
