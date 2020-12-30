@@ -6,9 +6,9 @@ const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 
-async function storeTrades(trades) {
+function storeTrades(trades) {
   try {
-    await db.Trade.bulkCreate(trades)
+    db.Trade.bulkCreate(trades)
   } catch (err) {
     logger.error({ err }, 'storing trades failed')
   }

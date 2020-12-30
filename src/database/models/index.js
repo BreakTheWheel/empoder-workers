@@ -4,6 +4,8 @@ const user = require('./user')
 const passwordResetRequest = require('./passwordResetRequest')
 const appleSubscription = require('./appleSubscription')
 const trade = require('./trade')
+const priceTarget = require('./priceTarget')
+const stockSymbol = require('./stockSymbol')
 
 const models = {
   administrator,
@@ -12,6 +14,8 @@ const models = {
   passwordResetRequest,
   appleSubscription,
   trade,
+  priceTarget,
+  stockSymbol,
 }
 
 module.exports = models
