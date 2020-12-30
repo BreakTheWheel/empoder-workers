@@ -85,6 +85,7 @@ function connect() {
 
   client.onerror = event => {
     logger.error({ event }, 'Connection error')
+    client.close()
 
     setTimeout(() => {
       connect()
@@ -101,10 +102,11 @@ function connect() {
 
   client.onclose = event => {
     logger.error({ event }, 'Connection closed')
+    client.close()
 
     setTimeout(() => {
       connect()
-    }, 1000)
+    }, 2000)
   }
 
   client.onmessage = event => {
@@ -144,6 +146,6 @@ module.exports = {
     logger.info('Starting worker')
     // checkFlag()
 
-    connect()
+    //connect()
   },
 }
