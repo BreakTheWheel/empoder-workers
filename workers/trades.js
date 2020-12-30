@@ -87,13 +87,13 @@ function connect() {
     logger.error({ event }, 'Connection error')
 
     setTimeout(() => {
-      logger.warn('Reconnecting after error')
       connect()
-    }, 500)
+    }, 1000)
   }
 
   client.onopen = () => {
     logger.info('Socket opened')
+
     for (const sym of getSymbols()) {
       client.send(JSON.stringify(sym))
     }
@@ -103,9 +103,8 @@ function connect() {
     logger.error({ event }, 'Connection closed')
 
     setTimeout(() => {
-      logger.warn('Reconnecting after closing connection')
       connect()
-    }, 500)
+    }, 1000)
   }
 
   client.onmessage = event => {
