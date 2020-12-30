@@ -7,20 +7,18 @@ const db = require('../src/database')
 const logger = require('../src/common/logger')
 
 function storeTrades(trades) {
-  try {
-    db.Trade.bulkCreate(trades)
-  } catch (err) {
+  db.Trade.bulkCreate(trades).catch(err => {
     logger.error({ err }, 'storing trades failed')
-  }
+  })
 }
 
-// function wait() {
-//   return new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//       resolve()
-//     }, 1000)
-//   })
-// }
+function wait() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve()
+    }, 1000)
+  })
+}
 
 function getSymbols() {
   const syms = [
@@ -79,17 +77,14 @@ function getSymbols() {
   return syms
 }
 
+let client
 
 function connect() {
-  const client = new w3cwebsocket(`wss://ws.finnhub.io?token=${process.env.FIN_HUB_TOKEN}`)
+  client = new w3cwebsocket(`wss://ws.finnhub.io?token=${process.env.FIN_HUB_TOKEN}`)
 
   client.onerror = event => {
     logger.error({ event }, 'Connection error')
     client.close()
-
-    setTimeout(() => {
-      connect()
-    }, 1000)
   }
 
   client.onopen = () => {
@@ -102,17 +97,12 @@ function connect() {
 
   client.onclose = event => {
     logger.error({ event }, 'Connection closed')
-    client.close()
 
-    setTimeout(() => {
-      connect()
-    }, 2000)
+    client = null
   }
 
   client.onmessage = event => {
     const obj = JSON.parse(event.data)
-
-    logger.info({ data: obj }, 'incoming trade')
 
     try {
       const trades = obj.data.map(data => {
@@ -128,6 +118,8 @@ function connect() {
 
       storeTrades(trades)
     } catch (err) {
+      logger.info({ data: obj }, 'incoming')
+
       logger.error({ err }, 'failed parsing data')
     }
   }
@@ -143,9 +135,12 @@ function connect() {
 
 module.exports = {
   start: async () => {
-    logger.info('Starting worker')
-    // checkFlag()
+    while (true) {
+      if (!client) {
+        connect()
+      }
 
-    // connect()
+      await wait()
+    }
   },
 }
