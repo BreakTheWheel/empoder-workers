@@ -6,6 +6,7 @@ const appleSubscription = require('./appleSubscription')
 const trade = require('./trade')
 const priceTarget = require('./priceTarget')
 const stockSymbol = require('./stockSymbol')
+const newsArticle = require('./newsArticle')
 
 const models = {
   administrator,
@@ -16,6 +17,7 @@ const models = {
   trade,
   priceTarget,
   stockSymbol,
+  newsArticle,
 }
 
 module.exports = models

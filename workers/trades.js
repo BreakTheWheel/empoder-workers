@@ -11,6 +11,12 @@ function storeTrades(trades) {
   })
 }
 
+function storeNews(newsArticles) {
+  db.NewsArticle.bulkCreate(newsArticles).catch(err => {
+    logger.error({ err }, 'storing news failed')
+  })
+}
+
 function wait(ms) {
   return new Promise(resolve => {
     setTimeout(() => {
@@ -19,55 +25,55 @@ function wait(ms) {
   })
 }
 
-function getSymbols() {
+function getSymbols(subscriptionType) {
   const syms = [
-    { type: 'subscribe', symbol: 'AAPL' },
-    { type: 'subscribe', symbol: 'TSLA' },
-    { type: 'subscribe', symbol: 'ROKU' },
-    { type: 'subscribe', symbol: 'NVTA' },
-    { type: 'subscribe', symbol: 'CRSP' },
-    { type: 'subscribe', symbol: 'SQ' },
-    { type: 'subscribe', symbol: 'TDOC' },
-    { type: 'subscribe', symbol: 'Z' },
-    { type: 'subscribe', symbol: 'SPOT' },
-    { type: 'subscribe', symbol: 'EDIT' },
-    { type: 'subscribe', symbol: 'SMG' },
+    { type: subscriptionType, symbol: 'AAPL' },
+    { type: subscriptionType, symbol: 'TSLA' },
+    { type: subscriptionType, symbol: 'ROKU' },
+    { type: subscriptionType, symbol: 'NVTA' },
+    { type: subscriptionType, symbol: 'CRSP' },
+    { type: subscriptionType, symbol: 'SQ' },
+    { type: subscriptionType, symbol: 'TDOC' },
+    { type: subscriptionType, symbol: 'Z' },
+    { type: subscriptionType, symbol: 'SPOT' },
+    { type: subscriptionType, symbol: 'EDIT' },
+    { type: subscriptionType, symbol: 'SMG' },
     // { type: 'subscribe', symbol: 'CURLF' },
     // { type: 'subscribe', symbol: 'GTBIF' },
-    { type: 'subscribe', symbol: 'CRLBF' },
-    { type: 'subscribe', symbol: 'GWPH' },
+    { type: subscriptionType, symbol: 'CRLBF' },
+    { type: subscriptionType, symbol: 'GWPH' },
     // { type: 'subscribe', symbol: 'TCNNF' },
     // { type: 'subscribe', symbol: 'HRVSF' },
     // { type: 'subscribe', symbol: 'TCNNF' },
     // { type: 'subscribe', symbol: 'HRVSF' },
-    { type: 'subscribe', symbol: 'GRWG' },
+    { type: subscriptionType, symbol: 'GRWG' },
     // { type: 'subscribe', symbol: 'CCHWF' },
     // { type: 'subscribe', symbol: 'AYRWF' },
     // { type: 'subscribe', symbol: 'TLLTF' },
-    { type: 'subscribe', symbol: 'TPB' },
-    { type: 'subscribe', symbol: 'GNLN' },
+    { type: subscriptionType, symbol: 'TPB' },
+    { type: subscriptionType, symbol: 'GNLN' },
     // { type: 'subscribe', symbol: 'ITHUF' },
     // { type: 'subscribe', symbol: 'MMNFF' },
-    { type: 'subscribe', symbol: 'IIPR' },
+    { type: subscriptionType, symbol: 'IIPR' },
     // { type: 'subscribe', symbol: 'ACRGH' },
-    { type: 'subscribe', symbol: 'TLRY' },
+    { type: subscriptionType, symbol: 'TLRY' },
     // { type: 'subscribe', symbol: 'KSHB' },
     // { type: 'subscribe', symbol: 'CWBHF' },
     // { type: 'subscribe', symbol: 'JUSHF' },
     // { type: 'subscribe', symbol: 'PLNHF' },
     // { type: 'subscribe', symbol: 'HBORF' },
-    { type: 'subscribe', symbol: 'VFF' },
+    { type: subscriptionType, symbol: 'VFF' },
     // { type: 'subscribe', symbol: 'CNTMF' },
     // { type: 'subscribe', symbol: 'INDXF' },
     // { type: 'subscribe', symbol: 'MRMD' },
-    { type: 'subscribe', symbol: 'CGC' },
-    { type: 'subscribe', symbol: 'ACB' },
-    { type: 'subscribe', symbol: 'APHA' },
+    { type: subscriptionType, symbol: 'CGC' },
+    { type: subscriptionType, symbol: 'ACB' },
+    { type: subscriptionType, symbol: 'APHA' },
     // { type: 'subscribe', symbol: 'TRSSF' },
     // { type: 'subscribe', symbol: 'FFLWF' },
-    { type: 'subscribe', symbol: 'HEXO' },
+    { type: subscriptionType, symbol: 'HEXO' },
     // { type: 'subscribe', symbol: 'HITIF' },
-    { type: 'subscribe', symbol: 'OGI' },
+    { type: subscriptionType, symbol: 'OGI' },
     // { type: 'subscribe', symbol: 'ZBISF' },
     // { type: 'subscribe', symbol: 'LHSIF' },
     // { type: 'subscribe', symbol: 'VLNCF' },
@@ -75,6 +81,49 @@ function getSymbols() {
 
   return syms
 }
+
+function handleTrade(obj) {
+  try {
+    const trades = obj.data.map(data => {
+      return {
+        symbol: data.s,
+        price: data.p,
+        timestamp: moment.unix(data.t / 1000).utc().toDate(),
+        unixTimestampMs: data.t,
+        volume: data.v,
+        conditions: data.c,
+      }
+    })
+
+    storeTrades(trades)
+  } catch (err) {
+    logger.error({ err }, 'failed parsing data')
+  }
+}
+
+
+function handleNews(obj) {
+  try {
+    const news = obj.data.map(data => {
+      return {
+        category: data.category,
+        datetime: data.datetime,
+        headline: data.headline,
+        id: data.id,
+        image: data.image,
+        related: data.related,
+        source: data.source,
+        summary: data.summary,
+        url: data.url,
+      }
+    })
+
+    storeNews(news)
+  } catch (err) {
+    logger.error({ err }, 'failed parsing data')
+  }
+}
+
 
 let client
 
@@ -89,7 +138,11 @@ function connect() {
   client.onopen = () => {
     logger.info('Socket opened')
 
-    for (const sym of getSymbols()) {
+    for (const sym of getSymbols('subsribe')) {
+      client.send(JSON.stringify(sym))
+    }
+
+    for (const sym of getSymbols('subsribe-news')) {
       client.send(JSON.stringify(sym))
     }
   }
@@ -103,23 +156,12 @@ function connect() {
   client.onmessage = event => {
     const obj = JSON.parse(event.data)
 
-    logger.info({ data: obj }, 'incoming trade')
+    logger.info({ event: obj }, 'incoming event')
 
-    try {
-      const trades = obj.data.map(data => {
-        return {
-          symbol: data.s,
-          price: data.p,
-          timestamp: moment.unix(data.t / 1000).utc().toDate(),
-          unixTimestampMs: data.t,
-          volume: data.v,
-          conditions: data.c,
-        }
-      })
-
-      storeTrades(trades)
-    } catch (err) {
-      logger.error({ err }, 'failed parsing data')
+    if (obj.type === 'trade') {
+      handleTrade(obj)
+    } else if (obj.type === 'news') {
+      handleNews(obj)
     }
   }
 }

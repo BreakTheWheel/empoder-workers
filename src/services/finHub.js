@@ -146,16 +146,12 @@ module.exports = {
     })
   },
 
-  stockSymbols: ({ exchange }) => {
-    return new Promise((resolve, reject) => {
-      finnhubClient.stockSymbols(exchange, (error, data) => {
-        if (error) {
-          return reject(error)
-        }
+  stockSymbols: async ({ exchange }) => {
+    const result = await axios.default.get(`
+      https://finnhub.io/api/v1/stock/symbol?exchange=${exchange}&token=${key}
+    `)
 
-        resolve(data)
-      })
-    })
+    return result.data
   },
 
   pressReleases: async ({ symbol }) => {
