@@ -138,11 +138,11 @@ function connect() {
   client.onopen = () => {
     logger.info('Socket opened')
 
-    for (const sym of getSymbols('subsribe')) {
+    for (const sym of getSymbols('subscribe')) {
       client.send(JSON.stringify(sym))
     }
 
-    for (const sym of getSymbols('subsribe-news')) {
+    for (const sym of getSymbols('subscribe-news')) {
       client.send(JSON.stringify(sym))
     }
   }
@@ -165,7 +165,6 @@ function connect() {
     }
   }
 }
-
 
 module.exports = {
   start: async () => {
