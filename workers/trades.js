@@ -11,10 +11,12 @@ function storeTrades(trades) {
   })
 }
 
-function storeNews(newsArticles) {
-  db.NewsArticle.bulkCreate(newsArticles).catch(err => {
+async function storeNews(newsArticles) {
+  try {
+    await db.NewsArticle.bulkCreate(newsArticles)
+  } catch (err) {
     logger.error({ err }, 'storing news failed')
-  })
+  }
 }
 
 function wait(ms) {
@@ -24,6 +26,7 @@ function wait(ms) {
     }, ms)
   })
 }
+
 const symbols = [
   'AAPL',
   'TSLA',
@@ -50,7 +53,7 @@ const symbols = [
   'HEXO',
 ]
 
-function getSymbols(subscriptionType) {
+function getSubscriptionRequests(subscriptionType) {
   const syms = symbols.map(symbol => {
     return {
       type: subscriptionType, symbol,
@@ -87,9 +90,9 @@ function handleNews(obj) {
         category: data.category,
         datetime: data.datetime,
         headline: data.headline,
-        id: data.id,
+        newsId: data.id,
         image: data.image,
-        related: data.related,
+        related: data.related ? data.related.split(',') : [],
         source: data.source,
         summary: data.summary,
         url: data.url,
@@ -116,11 +119,11 @@ function connect() {
   client.onopen = () => {
     logger.info('Socket opened')
 
-    for (const sym of getSymbols('subscribe')) {
+    for (const sym of getSubscriptionRequests('subscribe')) {
       client.send(JSON.stringify(sym))
     }
 
-    for (const sym of getSymbols('subscribe-news')) {
+    for (const sym of getSubscriptionRequests('subscribe-news')) {
       client.send(JSON.stringify(sym))
     }
   }

@@ -64,7 +64,7 @@ module.exports = {
 
   fundOwnership: ({ symbol }) => {
     return new Promise((resolve, reject) => {
-      finnhubClient.fundOwnership(symbol, { limit: 20 }, (error, data) => {
+      finnhubClient.fundOwnership(symbol, {}, (error, data) => {
         if (error) {
           return reject(error)
         }

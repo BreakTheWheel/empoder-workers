@@ -21,13 +21,13 @@ module.exports = (sequelize, Sequelize) => {
     },
     newsId: {
       allowNull: false,
-      type: Sequelize.STRING,
+      type: Sequelize.BIGINT,
       field: 'news_id',
+      unique: true,
     },
     image: {
       allowNull: false,
       type: Sequelize.STRING,
-      field: 'news_id',
     },
     related: {
       allowNull: false,
