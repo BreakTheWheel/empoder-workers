@@ -161,4 +161,28 @@ module.exports = {
 
     return data
   },
+
+  stockPeers: async ({ symbol }) => {
+    const { data } = await axios.default.get(`
+      https://finnhub.io/api/v1/stock/peers?symbol=${symbol}&token=${key}
+    `)
+
+    return data
+  },
+
+  companyProfile: async ({ symbol }) => {
+    const { data } = await axios.default.get(`
+      https://finnhub.io/api/v1/stock/profile?symbol=${symbol}&token=${key}
+    `)
+
+    return data
+  },
+
+  lastBidAsk: async ({ symbol }) => {
+    const { data } = await axios.default.get(`
+      https://finnhub.io/api/v1/stock/bidask?symbol=${symbol}&token=${key}
+    `)
+
+    return data
+  },
 }

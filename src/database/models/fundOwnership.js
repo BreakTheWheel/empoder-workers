@@ -1,11 +1,20 @@
 
 module.exports = (sequelize, Sequelize) => {
-  const PriceTarget = sequelize.define('PriceTarget', {
+  const FundOwnership = sequelize.define('FundOwnership', {
     id: {
+      type: Sequelize.INTEGER,
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
+    },
+    fundId: {
       type: Sequelize.INTEGER,
+      allowNull: false,
+      field: 'fund_id',
+      references: {
+        model: 'funds',
+        key: 'id',
+      },
     },
     symbol: {
       type: Sequelize.STRING,
@@ -15,38 +24,31 @@ module.exports = (sequelize, Sequelize) => {
         key: 'symbol',
       },
     },
-    targetHigh: {
+    portfolioPercent: {
       type: Sequelize.FLOAT,
       allowNull: false,
-      field: 'target_high',
+      field: 'portfolio_percent',
     },
-    targetLow: {
-      type: Sequelize.FLOAT,
+    share: {
       allowNull: false,
-      field: 'target_low',
-    },
-    targetMean: {
       type: Sequelize.FLOAT,
-      allowNull: false,
-      field: 'target_mean',
     },
-    targetMedian: {
+    change: {
+      allowNull: false,
       type: Sequelize.FLOAT,
-      allowNull: false,
-      field: 'target_median',
     },
-    lastUpdated: {
+    filingDate: {
       allowNull: false,
       type: Sequelize.DATE,
-      field: 'last_updated',
+      field: 'filing_date',
     },
   },
     {
-      tableName: 'price_targets',
+      tableName: 'fund_ownership',
       timestamps: false,
       underscored: true,
     },
   )
 
-  return PriceTarget
+  return FundOwnership
 }

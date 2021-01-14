@@ -1,11 +1,11 @@
 
 module.exports = (sequelize, Sequelize) => {
-  const PriceTarget = sequelize.define('PriceTarget', {
+  const RecommendationTrend = sequelize.define('RecommendationTrend', {
     id: {
+      type: Sequelize.INTEGER,
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER,
     },
     symbol: {
       type: Sequelize.STRING,
@@ -15,38 +15,39 @@ module.exports = (sequelize, Sequelize) => {
         key: 'symbol',
       },
     },
-    targetHigh: {
-      type: Sequelize.FLOAT,
+    buy: {
+      type: Sequelize.INTEGER,
       allowNull: false,
-      field: 'target_high',
     },
-    targetLow: {
-      type: Sequelize.FLOAT,
+    sell: {
+      type: Sequelize.INTEGER,
       allowNull: false,
-      field: 'target_low',
     },
-    targetMean: {
-      type: Sequelize.FLOAT,
+    strongBuy: {
+      type: Sequelize.INTEGER,
       allowNull: false,
-      field: 'target_mean',
+      field: 'strong_buy',
     },
-    targetMedian: {
-      type: Sequelize.FLOAT,
+    strongSell: {
+      type: Sequelize.INTEGER,
       allowNull: false,
-      field: 'target_median',
+      field: 'strong_sell',
     },
-    lastUpdated: {
+    hold: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
+    period: {
       allowNull: false,
       type: Sequelize.DATE,
-      field: 'last_updated',
     },
   },
     {
-      tableName: 'price_targets',
+      tableName: 'recommendation_trends',
       timestamps: false,
       underscored: true,
     },
   )
 
-  return PriceTarget
+  return RecommendationTrend
 }

@@ -13,16 +13,18 @@ async function wait(secs) {
 }
 
 async function updatePriceTargets() {
-  const stockSymbols = await db.StockSymbol.findAll({
-    where: {},
+  let stockSymbols = await db.StockSymbol.findAll({
+    attributes: ['symbol'],
+    where: { tracking: true },
   })
+  stockSymbols = stockSymbols.map(s => s.symbol)
 
-  for (const stock of stockSymbols) {
+  for (const symbol of stockSymbols) {
     let priceTarget
 
     while (!priceTarget) {
       try {
-        priceTarget = await finhub.priceTarget({ symbol: stock.symbol })
+        priceTarget = await finhub.priceTarget({ symbol })
       } catch (err) {
         logger.error({ err }, 'Failed on FN price target endpoint')
         await wait(2)
@@ -34,7 +36,7 @@ async function updatePriceTargets() {
     }
 
     const exists = await db.PriceTarget.findOne({
-      where: { symbol: stock.symbol, lastUpdated: priceTarget.lastUpdated },
+      where: { symbol, lastUpdated: priceTarget.lastUpdated },
     })
 
     if (!exists) {
@@ -43,8 +45,8 @@ async function updatePriceTargets() {
   }
 }
 
-module.exports.priceTarget = new CronJob('*/1 * * * *', async () => {
-  logger.info('Running every 1 min')
+module.exports.priceTarget = new CronJob('0 6 * * *', async () => {
+  logger.info('Running every day at 6am')
 
   try {
     await updatePriceTargets()

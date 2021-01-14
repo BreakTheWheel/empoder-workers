@@ -5,7 +5,7 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const Promise = require('bluebird')
 
-const IN_PARALLEL = 50
+const IN_PARALLEL = 100
 
 async function storeSymbol(sym) {
   const exists = await db.StockSymbol.findOne({
@@ -40,7 +40,7 @@ async function updateStockSymbols() {
   }
 }
 
-module.exports.stockSymbols = new CronJob('30 8 * * *', async () => {
+module.exports.stockSymbols = new CronJob('0 22 * * *', async () => {
   logger.info('Running every day at 8:30 CET')
 
   try {
@@ -50,4 +50,12 @@ module.exports.stockSymbols = new CronJob('30 8 * * *', async () => {
   }
 
   logger.info('Done')
-}, null, true, 'Europe/Skopje');
+}, null, true, 'America/Los_Angeles');
+
+// (async function () {
+//   try {
+//     await updateStockSymbols()
+//   } catch (err) {
+//     logger.error({ err })
+//   }
+// })()

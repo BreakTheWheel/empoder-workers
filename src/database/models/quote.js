@@ -1,45 +1,47 @@
 
 module.exports = (sequelize, Sequelize) => {
-  const Fund = sequelize.define('Fund', {
-    id: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
-      autoIncrement: true,
-      primaryKey: true,
-    },
+  const Quote = sequelize.define('Quote', {
     symbol: {
       type: Sequelize.STRING,
       allowNull: false,
+      primaryKey: true,
       references: {
         model: 'stock_symbols',
         key: 'symbol',
       },
     },
-    portfolioPercent: {
+    currentPrice: {
       type: Sequelize.FLOAT,
       allowNull: false,
-      field: 'portfolio_percent',
+      field: 'current_price',
     },
-    share: {
-      allowNull: false,
+    lowPrice: {
       type: Sequelize.FLOAT,
-    },
-    change: {
       allowNull: false,
+      field: 'low_price',
+    },
+    highPrice: {
       type: Sequelize.FLOAT,
-    },
-    fillingDate: {
       allowNull: false,
-      type: Sequelize.DATE,
-      field: 'filling_date',
+      field: 'high_price',
+    },
+    openPrice: {
+      type: Sequelize.FLOAT,
+      allowNull: false,
+      field: 'open_price',
+    },
+    previousClosePrice: {
+      type: Sequelize.FLOAT,
+      allowNull: false,
+      field: 'open_price',
     },
   },
     {
-      tableName: 'funds',
+      tableName: 'quotes',
       timestamps: false,
       underscored: true,
     },
   )
 
-  return Fund
+  return Quote
 }

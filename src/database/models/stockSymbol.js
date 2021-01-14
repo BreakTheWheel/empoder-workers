@@ -46,5 +46,9 @@ module.exports = (sequelize, Sequelize) => {
     },
   )
 
+  StockSymbol.associate = models => {
+    StockSymbol.hasMany(models.Peer, { foreignKey: 'symbol', sourceKey: 'symbol', as: 'peers' })
+  }
+
   return StockSymbol
 }

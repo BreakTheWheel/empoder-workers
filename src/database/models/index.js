@@ -7,6 +7,13 @@ const trade = require('./trade')
 const priceTarget = require('./priceTarget')
 const stockSymbol = require('./stockSymbol')
 const newsArticle = require('./newsArticle')
+const peer = require('./peer')
+const companyProfile = require('./companyProfile')
+const funds = require('./fund')
+const fundOwnership = require('./fundOwnership')
+const recommendationTrend = require('./recommendationTrend')
+const quote = require('./quote')
+const newsSentiment = require('./newsSentiment')
 
 const models = {
   administrator,
@@ -18,6 +25,13 @@ const models = {
   priceTarget,
   stockSymbol,
   newsArticle,
+  peer,
+  companyProfile,
+  funds,
+  fundOwnership,
+  recommendationTrend,
+  quote,
+  newsSentiment,
 }
 
 module.exports = models

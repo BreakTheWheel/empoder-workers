@@ -3,72 +3,83 @@ const CronJob = require('cron').CronJob;
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
+const { wait } = require('../src/utils/helperFuncs')
+const Promise = require('bluebird')
 
-async function wait(secs) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve()
-    }, secs * 1000)
-  })
+async function handleFundOwnership(symbol, ownership) {
+  try {
+    let fund = await db.Fund.findOne({ attributes: ['id'], where: { name: ownership.name } })
+
+    if (!fund) {
+      fund = await db.Fund.create({ name: ownership.name })
+    }
+
+    const exists = await db.FundOwnership.findOne({
+      where: {
+        symbol,
+        fundId: fund.id,
+        [db.sequelize.Op.and]: [
+          db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('filing_date')), '=', ownership.filingDate),
+        ],
+      },
+    })
+
+    if (!exists) {
+      await db.FundOwnership.create({
+        symbol,
+        fundId: fund.id,
+        share: ownership.share,
+        change: ownership.change,
+        filingDate: ownership.filingDate,
+        portfolioPercent: ownership.portfolioPercent,
+      })
+    }
+  } catch (err) {
+    logger.error({ err }, `Failed to store ownership for symbol ${symbol}`)
+  }
 }
 
-const symbols = [
-  'AAPL',
-  'TSLA',
-  'ROKU',
-  'NVTA',
-  'CRSP',
-  'SQ',
-  'TDOC',
-  'Z',
-  'SPOT',
-  'EDIT',
-  'SMG',
-  'CRLBF',
-  'GWPH',
-  'GRWG',
-  'TPB',
-  'GNLN',
-  'IIPR',
-  'TLRY',
-  'VFF',
-  'CGC',
-  'ACB',
-  'APHA',
-  'HEXO',
-]
-
 async function updateFundOwnership() {
+  let symbols = await db.StockSymbol.findAll({
+    attributes: ['symbol'],
+    where: { tracking: true },
+  })
+  symbols = symbols.map(s => s.symbol)
+
   for (const symbol of symbols) {
     let fundOwnership
 
     while (!fundOwnership) {
       try {
         fundOwnership = await finhub.fundOwnership({ symbol })
-
-        for (const own of fundOwnership.ownership) {
-          const exists = await db.PriceTarget.findOne({
-            where: { symbol, fillingDate: own.fillingDate },
-          })
-
-          if (!exists) {
-            await db.Fund.create(own)
-          }
-        }
       } catch (err) {
-        logger.error({ err }, 'Failed on FN fund ownership')
+        logger.error({ err }, `Failed to get fund ownership for ${symbol}`)
         await wait(2)
       }
     }
 
-    if (!fundOwnership) {
-      continue
+    try {
+      logger.info(`fund ownership: ${symbol}`)
+      let promises = []
+
+      for (const own of fundOwnership.ownership) {
+        promises.push(handleFundOwnership(symbol, own))
+
+        if (promises.length === 50) {
+          await Promise.all(promises)
+
+          promises = []
+        }
+      }
+    } catch (err) {
+      logger.error({ err }, 'Failed on FN fund ownership')
+      await wait(2)
     }
   }
 }
 
-module.exports.fundOwnership = new CronJob('0 */12 * * *', async () => {
-  logger.info('Running every 12th hour')
+module.exports.fundOwnership = new CronJob('0 3 * * *', async () => {
+  logger.info('Running every day at 3am')
 
   try {
     await updateFundOwnership()
