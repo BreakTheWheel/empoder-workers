@@ -7,13 +7,34 @@ const recommendationTrends = require('./recommendationTrends')
 const quote = require('./quote')
 const stockSymbols = require('./stockSymbols')
 const newsSentiment = require('./newsSentiment')
+const upgradeDowngrade = require('./upgradeDowngrade')
 
+// Pusher
 trades.start()
+
+// non stop
 quote.start()
+
+// 17:00 new york time
 companyProfile.updateCompanyProfile.start()
+
+// 19:00
 fundOwnership.fundOwnership.start()
+
+// 22:00
 peers.updatePeers.start()
+
+// 01:00
 priceTargets.priceTarget.start()
+
+// 03:00
 recommendationTrends.updateRecommendationTrends.start()
+
+// 05:00
 stockSymbols.stockSymbols.start()
+
+// 07:00
+upgradeDowngrade.updateUpgradeDowngrade.start()
+
+// every 2 hours
 newsSentiment.updateNewsSentiment.start()

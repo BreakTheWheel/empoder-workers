@@ -3,14 +3,7 @@ const CronJob = require('cron').CronJob;
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-
-async function wait(secs) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve()
-    }, secs * 1000)
-  })
-}
+const { wait } = require('../src/utils/helperFuncs')
 
 async function updatePriceTargets() {
   let stockSymbols = await db.StockSymbol.findAll({
@@ -36,7 +29,12 @@ async function updatePriceTargets() {
     }
 
     const exists = await db.PriceTarget.findOne({
-      where: { symbol, lastUpdated: priceTarget.lastUpdated },
+      where: {
+        symbol,
+        [db.sequelize.Op.and]: [
+          db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('last_updated')), '=', priceTarget.lastUpdated),
+        ],
+      },
     })
 
     if (!exists) {
@@ -45,8 +43,8 @@ async function updatePriceTargets() {
   }
 }
 
-module.exports.priceTarget = new CronJob('0 6 * * *', async () => {
-  logger.info('Running every day at 6am')
+module.exports.priceTarget = new CronJob('0 1 * * *', async () => {
+  logger.info('Running every day at §am')
 
   try {
     await updatePriceTargets()
@@ -55,7 +53,7 @@ module.exports.priceTarget = new CronJob('0 6 * * *', async () => {
   }
 
   logger.info('Done')
-}, null, true, 'America/Los_Angeles');
+}, null, true, 'America/New_York');
 
 
 // (async function () {

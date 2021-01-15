@@ -78,8 +78,8 @@ async function updateFundOwnership() {
   }
 }
 
-module.exports.fundOwnership = new CronJob('0 3 * * *', async () => {
-  logger.info('Running every day at 3am')
+module.exports.fundOwnership = new CronJob('0 19 * * *', async () => {
+  logger.info('Running every day at 7pm')
 
   try {
     await updateFundOwnership()

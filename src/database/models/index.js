@@ -14,6 +14,8 @@ const fundOwnership = require('./fundOwnership')
 const recommendationTrend = require('./recommendationTrend')
 const quote = require('./quote')
 const newsSentiment = require('./newsSentiment')
+const upgradeDowngrade = require('./upgradeDowngrade')
+const earningsCalendar = require('./earningsCalendar')
 
 const models = {
   administrator,
@@ -32,6 +34,8 @@ const models = {
   recommendationTrend,
   quote,
   newsSentiment,
+  upgradeDowngrade,
+  earningsCalendar,
 }
 
 module.exports = models

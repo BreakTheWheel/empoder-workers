@@ -49,9 +49,10 @@ async function updateQuote() {
 module.exports = {
   start: async () => {
     while (true) {
-      const now = moment.utc()
+      const now = moment().tz('America/New_York')
+      const hour = now.hour()
 
-      if (now.hour() > 17 && now.hour < 8) {
+      if (hour > 17 || hour < 8) {
         logger.info('Waiting...')
         await wait(10)
       }

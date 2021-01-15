@@ -5,6 +5,14 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+async function handleBasicFinancials(symbol, basicFinancials) {
+  try {
+    await db.CompanyProfile.update({ basicFinancials }, { where: { ticker: symbol } })
+  } catch (err) {
+    logger.error({ err }, 'Failed to update basic financials')
+  }
+}
+
 async function updateCompanyProfile() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
@@ -53,6 +61,19 @@ async function updateCompanyProfile() {
     }
 
     await wait(0.1)
+
+    let basicFinancials
+
+    while (!basicFinancials) {
+      try {
+        basicFinancials = await finhub.basicFinancials({ symbol })
+      } catch (err) {
+        logger.error({ err })
+        await wait(2)
+      }
+    }
+
+    await handleBasicFinancials(symbol, basicFinancials)
   }
 }
 
@@ -66,7 +87,7 @@ module.exports.updateCompanyProfile = new CronJob('0 17 * * *', async () => {
   }
 
   logger.info('Done')
-}, null, true, 'America/Los_Angeles');
+}, null, true, 'America/New_York');
 
 // (async function () {
 //   try {

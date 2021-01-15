@@ -100,7 +100,7 @@ module.exports = {
 
   basicFinancials: ({ symbol }) => {
     return new Promise((resolve, reject) => {
-      finnhubClient.companyBasicFinancials(symbol, 'margin', (error, data) => {
+      finnhubClient.companyBasicFinancials(symbol, 'all', (error, data) => {
         if (error) {
           return reject(error)
         }
@@ -181,6 +181,14 @@ module.exports = {
   lastBidAsk: async ({ symbol }) => {
     const { data } = await axios.default.get(`
       https://finnhub.io/api/v1/stock/bidask?symbol=${symbol}&token=${key}
+    `)
+
+    return data
+  },
+
+  earningsCalendar: async ({ from, to, symbol }) => {
+    const { data } = await axios.default.get(`
+      https://finnhub.io/api/v1/calendar/earnings?symbol=${symbol}&from=${from}&to=${to}&token=${key}
     `)
 
     return data

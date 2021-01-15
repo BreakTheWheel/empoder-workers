@@ -68,8 +68,8 @@ async function updatePeers() {
   })
 }
 
-module.exports.updatePeers = new CronJob('0 4 * * *', async () => {
-  logger.info('Running every day at 4am')
+module.exports.updatePeers = new CronJob('0 22 * * *', async () => {
+  logger.info('Running every day at 22:00')
 
   try {
     await updatePeers()

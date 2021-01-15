@@ -116,6 +116,11 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: true,
       field: 'finnhub_industry',
     },
+    basicFinancials: {
+      type: Sequelize.JSONB,
+      allowNull: true,
+      field: 'basic_financials',
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE,

@@ -59,8 +59,8 @@ async function updateRecommendationTrends() {
   }
 }
 
-module.exports.updateRecommendationTrends = new CronJob('*/30 * * * *', async () => {
-  logger.info('Running every 30 min')
+module.exports.updateRecommendationTrends = new CronJob('0 3 * * * *', async () => {
+  logger.info('Running every day at 3am')
 
   try {
     await updateRecommendationTrends()
@@ -69,7 +69,7 @@ module.exports.updateRecommendationTrends = new CronJob('*/30 * * * *', async ()
   }
 
   logger.info('Done')
-}, null, true, 'America/Los_Angeles');
+}, null, true, 'America/New_York');
 
 
 // (async function () {

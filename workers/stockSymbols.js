@@ -40,8 +40,8 @@ async function updateStockSymbols() {
   }
 }
 
-module.exports.stockSymbols = new CronJob('0 22 * * *', async () => {
-  logger.info('Running every day at 8:30 CET')
+module.exports.stockSymbols = new CronJob('0 5 * * *', async () => {
+  logger.info('Running every day at 5am')
 
   try {
     await updateStockSymbols()
@@ -50,7 +50,7 @@ module.exports.stockSymbols = new CronJob('0 22 * * *', async () => {
   }
 
   logger.info('Done')
-}, null, true, 'America/Los_Angeles');
+}, null, true, 'America/New_York');
 
 // (async function () {
 //   try {
