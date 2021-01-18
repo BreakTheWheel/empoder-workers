@@ -74,10 +74,10 @@ module.exports.updateEarningsEstimates = new CronJob('0 8 * * * *', async () => 
 }, null, true, 'America/New_York');
 
 
-(async function () {
-  try {
-    await updateEarningsEstimates()
-  } catch (err) {
-    logger.error({ err })
-  }
-})()
+// (async function () {
+//   try {
+//     await updateEarningsEstimates()
+//   } catch (err) {
+//     logger.error({ err })
+//   }
+// })()
