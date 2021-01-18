@@ -16,6 +16,8 @@ const quote = require('./quote')
 const newsSentiment = require('./newsSentiment')
 const upgradeDowngrade = require('./upgradeDowngrade')
 const earningsCalendar = require('./earningsCalendar')
+const stockOption = require('./stockOption')
+const earningsEstimate = require('./earningsEstimate')
 
 const models = {
   administrator,
@@ -36,6 +38,8 @@ const models = {
   newsSentiment,
   upgradeDowngrade,
   earningsCalendar,
+  stockOption,
+  earningsEstimate,
 }
 
 module.exports = models

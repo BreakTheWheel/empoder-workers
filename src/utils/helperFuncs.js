@@ -18,6 +18,10 @@ module.exports = {
     }
   },
 
+  roundToTwo: num => {
+    return +(Math.round(num + 'e+2') + 'e-2')
+  },
+  
   wait: secs => {
     return new Promise(resolve => {
       setTimeout(() => {

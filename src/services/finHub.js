@@ -193,4 +193,12 @@ module.exports = {
 
     return data
   },
+
+  earningsEstimate: async ({ symbol, freq = 'quarterly' }) => {
+    const { data } = await axios.default.get(`
+      https://finnhub.io/api/v1/stock/eps-estimate?symbol=${symbol}&freq=${freq}&token=${key}
+    `)
+
+    return data
+  },
 }

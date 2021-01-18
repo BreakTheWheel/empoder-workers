@@ -8,6 +8,8 @@ const quote = require('./quote')
 const stockSymbols = require('./stockSymbols')
 const newsSentiment = require('./newsSentiment')
 const upgradeDowngrade = require('./upgradeDowngrade')
+const optionsActivity = require('./optionsActivity')
+const earningsEstimates = require('./earningsEstimates')
 
 // Pusher
 trades.start()
@@ -38,3 +40,4 @@ upgradeDowngrade.updateUpgradeDowngrade.start()
 
 // every 2 hours
 newsSentiment.updateNewsSentiment.start()
+earningsEstimates.updateEarningsEstimates.start()
