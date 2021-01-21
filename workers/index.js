@@ -10,6 +10,7 @@ const newsSentiment = require('./newsSentiment')
 const upgradeDowngrade = require('./upgradeDowngrade')
 const optionsActivity = require('./optionsActivity')
 const earningsEstimates = require('./earningsEstimates')
+const etfsHoldings = require('./etfsHoldings')
 
 // Pusher
 trades.start()
@@ -26,6 +27,9 @@ fundOwnership.fundOwnership.start()
 // 22:00
 peers.updatePeers.start()
 
+// 23:00
+etfsHoldings.updateEtfsHoldings.start()
+
 // 01:00
 priceTargets.priceTarget.start()
 
@@ -37,6 +41,9 @@ stockSymbols.stockSymbols.start()
 
 // 07:00
 upgradeDowngrade.updateUpgradeDowngrade.start()
+
+// 10:00
+optionsActivity.updateStockOptions.start()
 
 // every 2 hours
 newsSentiment.updateNewsSentiment.start()

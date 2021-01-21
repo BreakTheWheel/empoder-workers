@@ -146,6 +146,14 @@ module.exports = {
     })
   },
 
+  etfsHoldings: async ({ symbol }) => {
+    const { data } = await axios.default.get(`
+      https://finnhub.io/api/v1/etf/holdings?symbol=${symbol}&token=${key}
+    `)
+
+    return data
+  },
+
   stockSymbols: async ({ exchange }) => {
     const result = await axios.default.get(`
       https://finnhub.io/api/v1/stock/symbol?exchange=${exchange}&token=${key}

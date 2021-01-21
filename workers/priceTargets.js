@@ -13,6 +13,7 @@ async function updatePriceTargets() {
   stockSymbols = stockSymbols.map(s => s.symbol)
 
   for (const symbol of stockSymbols) {
+    logger.info(`updatePriceTargets Processing symbol: ${symbol}`)
     let priceTarget
 
     while (!priceTarget) {
@@ -44,7 +45,7 @@ async function updatePriceTargets() {
 }
 
 module.exports.priceTarget = new CronJob('0 1 * * *', async () => {
-  logger.info('Running every day at §am')
+  logger.info('Running every day at 1am')
 
   try {
     await updatePriceTargets()

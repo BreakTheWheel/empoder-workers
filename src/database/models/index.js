@@ -18,6 +18,9 @@ const upgradeDowngrade = require('./upgradeDowngrade')
 const earningsCalendar = require('./earningsCalendar')
 const stockOption = require('./stockOption')
 const earningsEstimate = require('./earningsEstimate')
+const signal = require('./signal')
+const etfsHolding = require('./etfsHolding')
+const etfsHoldingValue = require('./etfsHoldingValue')
 
 const models = {
   administrator,
@@ -40,6 +43,9 @@ const models = {
   earningsCalendar,
   stockOption,
   earningsEstimate,
+  signal,
+  etfsHolding,
+  etfsHoldingValue,
 }
 
 module.exports = models
