@@ -11,12 +11,14 @@ const upgradeDowngrade = require('./upgradeDowngrade')
 const optionsActivity = require('./optionsActivity')
 const earningsEstimates = require('./earningsEstimates')
 const etfsHoldings = require('./etfsHoldings')
+const signals = require('./signals')
 
 // Pusher
 trades.start()
 
 // non stop
 quote.start()
+signals.start()
 
 // 17:00 new york time
 companyProfile.updateCompanyProfile.start()

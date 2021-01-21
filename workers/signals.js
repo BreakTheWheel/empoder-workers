@@ -2,7 +2,6 @@
 const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
-const { wait } = require('../src/utils/helperFuncs')
 
 /*
 For a stock to display in this table it must meet 1 or more of the following criteria: 
@@ -65,22 +64,78 @@ async function optionsActivitySignal(symbol) {
   return stockOption ? stockOption.id : null
 }
 
-async function newsSentimentSignal(symbol) {
+
+async function buzzIndexSignal(symbol) {
   const newsSentiment = await db.NewsSentiment.findOne({
-    attributes: ['id', 'buzz'],
+    attributes: [
+      'id',
+      'buzz',
+    ],
     where: {
       symbol,
+      buzz: {
+        [db.sequelize.Op.gte]: 1.5,
+      },
     },
     order: [
       ['createdAt', 'DESC'],
     ],
   })
 
-  if (newsSentiment && newsSentiment.buzz && newsSentiment.buzz > 1.5) {
-    return newsSentiment.id
-  }
+  return newsSentiment ? newsSentiment.id : null
+}
 
-  return null
+async function buzzRatioSignal(symbol) {
+  const result = await db.sequelize.query(`
+    select id, weekly_average / case when articles_in_last_week = 0 then null else articles_in_last_week end as buzz_ratio 
+    from news_sentiment
+    where 
+      symbol = '${symbol}' 
+      AND
+      weekly_average / case when articles_in_last_week = 0 then null else articles_in_last_week end > 6
+    order by created_at desc
+    limit 1
+`)
+
+  const arr = result[0]
+  const newsSentiment = arr[0]
+
+  return newsSentiment ? newsSentiment.id : null
+}
+
+async function revenueGrowthQuarterlySignal(symbol) {
+  const result = await db.sequelize.query(`
+    select id, basic_financials->'metric'->'revenueGrowthQuarterlyYoy' 
+    from company_basic_financials
+    where 
+    basic_financials->'metric'->'revenueGrowthQuarterlyYoy' <> 'null'
+    AND
+    (basic_financials->'metric'->'revenueGrowthQuarterlyYoy')::float > 10
+    AND
+    symbol = '${symbol}' 
+  `)
+
+  const arr = result[0]
+  const obj = arr[0]
+
+  return obj ? obj.id : null
+}
+
+async function revenueGrowthYearlySignal(symbol) {
+  const result = await db.sequelize.query(`
+    select id, basic_financials->'metric'->'revenueGrowthTTMYoy' 
+    from company_basic_financials
+    where basic_financials->'metric'->'revenueGrowthTTMYoy' <> 'null'
+    AND
+    (basic_financials->'metric'->'revenueGrowthTTMYoy')::float > 10
+    AND
+    symbol = '${symbol}'  
+  `)
+
+  const arr = result[0]
+  const obj = arr[0]
+
+  return obj ? obj.id : null
 }
 
 async function fundOwnershipChange(symbol) {
@@ -101,18 +156,7 @@ async function fundOwnershipChange(symbol) {
   const obj = arr[0]
 
   return obj ? obj.id : null
-
 }
-
-// const signalTypes = {
-//   PRICE_TARGET: 'PRICE_TARGET',
-//   OPTIONS_ACTIVITY: 'OPTIONS_ACTIVITY',
-//   FUND_OWNERSHIP_CHANGE: 'FUND_OWNERSHIP_CHANGE',
-//   Q_SALES_INCREASE: 'Q_SALES_INCREASE',
-//   Y_SALES_INCREASE: 'Y_SALES_INCREASE',
-//   BUZZ_RATIO: 'BUZZ_RATIO',
-//   VOLUME_GROWTH: 'VOLUME_GROWTH',
-// }
 
 async function updateSignals() {
   let stockSymbols = await db.StockSymbol.findAll({
@@ -126,18 +170,24 @@ async function updateSignals() {
 
     const priceTargetId = await priceTargetSignal(symbol)
     const stockOptionId = await optionsActivitySignal(symbol)
-    const newsSentimentId = await newsSentimentSignal(symbol)
+    const buzzRatioId = await buzzRatioSignal(symbol)
+    const buzzIndexId = await buzzIndexSignal(symbol)
     const fundOwnershipId = await fundOwnershipChange(symbol)
+    const quarterlyRevenueId = await revenueGrowthQuarterlySignal(symbol)
+    const yearlyRevenueId = await revenueGrowthYearlySignal(symbol)
 
-    if ([priceTargetId, stockOptionId, newsSentimentId, fundOwnershipId].some(c => c)) {
+    if ([priceTargetId, stockOptionId, buzzRatioId, fundOwnershipId, buzzIndexId, quarterlyRevenueId, yearlyRevenueId].some(c => c)) {
       const exists = await db.Signal.findOne({
         attributes: ['id'],
         where: {
           symbol,
           priceTargetId,
           stockOptionId,
-          newsSentimentId,
+          buzzRatioId,
+          buzzIndexId,
           fundOwnershipId,
+          quarterlyRevenueId,
+          yearlyRevenueId,
         },
       })
 
@@ -148,9 +198,12 @@ async function updateSignals() {
       await db.Signal.create({
         priceTargetId,
         stockOptionId,
-        newsSentimentId,
+        buzzRatioId,
         symbol,
+        buzzIndexId,
         fundOwnershipId,
+        quarterlyRevenueId,
+        yearlyRevenueId,
       })
     }
   }
@@ -169,5 +222,3 @@ module.exports = {
     }
   },
 }
-
-module.exports.start()

@@ -43,7 +43,7 @@ async function updateEtfsHoldings() {
       const transaction = await db.sequelize.transaction()
 
       try {
-        await db.EtfsHolding.update({ active: true }, { where: { symbol }, transaction })
+        await db.EtfsHolding.update({ active: false }, { where: { symbol, active: true }, transaction })
         const etfsHold = await db.EtfsHolding.create({
           symbol,
           atDate: holdingsResult.atDate,
@@ -63,10 +63,18 @@ async function updateEtfsHoldings() {
           }
         })
 
+        let promises = []
+
         for (const map of mapped) {
-          await db.EtfsHoldingValue.create(map, { transaction })
+          promises.push(db.EtfsHoldingValue.create(map, { transaction }))
+
+          if (promises.length === 100) {
+            await Promise.all(promises)
+            promises = []
+          }
         }
 
+        await Promise.all(promises)
         await transaction.commit()
       } catch (err) {
         logger.error({ err })

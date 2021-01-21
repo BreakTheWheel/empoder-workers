@@ -19,7 +19,7 @@ module.exports = (sequelize, Sequelize) => {
     holdsSymbol: {
       type: Sequelize.STRING,
       allowNull: true,
-      filed: 'holds_symbol',
+      field: 'holds_symbol',
     },
     cusip: {
       type: Sequelize.STRING,

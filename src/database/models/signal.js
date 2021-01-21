@@ -42,12 +42,39 @@ module.exports = (sequelize, Sequelize) => {
         key: 'id',
       },
     },
-    newsSentimentId: {
+    buzzRatioId: {
       type: Sequelize.INTEGER,
       allowNull: true,
-      field: 'news_sentiment_id',
+      field: 'buzz_ratio_id',
       references: {
         model: 'news_sentiment',
+        key: 'id',
+      },
+    },
+    buzzIndexId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      field: 'buzz_index_id',
+      references: {
+        model: 'news_sentiment',
+        key: 'id',
+      },
+    },
+    quarterlyRevenueId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      field: 'quarterly_revenue_id',
+      references: {
+        model: 'company_basic_financials',
+        key: 'id',
+      },
+    },
+    yearlyRevenueId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      field: 'yearly_revenue_id',
+      references: {
+        model: 'company_basic_financials',
         key: 'id',
       },
     },
