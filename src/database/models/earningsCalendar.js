@@ -30,21 +30,21 @@ module.exports = (sequelize, Sequelize) => {
       field: 'eps_actual',
     },
     revenueActual: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.BIGINT,
       allowNull: false,
       field: 'revenue_actual',
     },
     revenueEstimate: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.BIGINT,
       allowNull: false,
       field: 'revenue_estimate',
     },
     quarter: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.BIGINT,
       allowNull: false,
     },
     year: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.BIGINT,
       allowNull: false,
     },
     date: {

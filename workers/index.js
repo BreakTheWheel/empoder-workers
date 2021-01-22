@@ -10,6 +10,7 @@ const newsSentiment = require('./newsSentiment')
 const upgradeDowngrade = require('./upgradeDowngrade')
 const optionsActivity = require('./optionsActivity')
 const earningsEstimates = require('./earningsEstimates')
+const earningsCalendar = require('./earningsCalendar')
 const etfsHoldings = require('./etfsHoldings')
 const signals = require('./signals')
 
@@ -35,6 +36,9 @@ etfsHoldings.updateEtfsHoldings.start()
 // 01:00
 priceTargets.priceTarget.start()
 
+// 02:00
+earningsCalendar.updateEarningsCalendar.start()
+
 // 03:00
 recommendationTrends.updateRecommendationTrends.start()
 
@@ -46,6 +50,7 @@ upgradeDowngrade.updateUpgradeDowngrade.start()
 
 // 10:00
 optionsActivity.updateStockOptions.start()
+
 
 // every 2 hours
 newsSentiment.updateNewsSentiment.start()

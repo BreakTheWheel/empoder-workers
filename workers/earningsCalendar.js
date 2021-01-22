@@ -1,10 +1,10 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
+const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
-const moment = require('moment')
 
 async function handleEarning(symbol, earning) {
   try {
@@ -29,7 +29,7 @@ async function handleEarning(symbol, earning) {
 async function updateEarningsCalendar() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
-    where: { tracking: true },
+    where: { tracking: true, symbol: 'AAPL' },
   })
   stockSymbols = stockSymbols.map(c => c.symbol)
   let promises = []
@@ -54,7 +54,7 @@ async function updateEarningsCalendar() {
 
       earning.symbol = symbol
 
-      promises.push(handleEarning(symbol, earning))
+      promises.push(await handleEarning(symbol, earning))
     }
 
     await Promise.all(promises)
