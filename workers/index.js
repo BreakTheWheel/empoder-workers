@@ -4,7 +4,6 @@ const fundOwnership = require('./fundOwnership')
 const peers = require('./peers')
 const priceTargets = require('./priceTargets')
 const recommendationTrends = require('./recommendationTrends')
-const quote = require('./quote')
 const stockSymbols = require('./stockSymbols')
 const newsSentiment = require('./newsSentiment')
 const upgradeDowngrade = require('./upgradeDowngrade')
@@ -13,12 +12,13 @@ const earningsEstimates = require('./earningsEstimates')
 const earningsCalendar = require('./earningsCalendar')
 const etfsHoldings = require('./etfsHoldings')
 const signals = require('./signals')
+const realTimeQuote = require('./realTimeQuote')
 
 // Pusher
 trades.start()
+realTimeQuote.start()
 
 // non stop
-quote.start()
 signals.start()
 
 // 17:00 new york time
@@ -50,7 +50,6 @@ upgradeDowngrade.updateUpgradeDowngrade.start()
 
 // 10:00
 optionsActivity.updateStockOptions.start()
-
 
 // every 2 hours
 newsSentiment.updateNewsSentiment.start()

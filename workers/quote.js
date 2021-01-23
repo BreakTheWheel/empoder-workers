@@ -5,6 +5,8 @@ const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 const moment = require('moment')
 
+// OBSOLETE
+
 async function handleQuote(quote) {
   const exists = await db.Quote.findOne({
     attributes: ['symbol'],
