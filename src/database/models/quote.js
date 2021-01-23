@@ -16,7 +16,7 @@ module.exports = (sequelize, Sequelize) => {
       field: 'avg_total_volume',
     },
     calculationPrice: {
-      type: Sequelize.FLOAT,
+      type: Sequelize.STRING,
       allowNull: true,
       field: 'calculation_price',
     },
