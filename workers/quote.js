@@ -1,9 +1,9 @@
 /* eslint-disable no-await-in-loop */
+const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
-const finhub = require('../src/services/finHub')
+const iexCloud = require('../src/services/iexCloud')
 const { wait } = require('../src/utils/helperFuncs')
-const moment = require('moment')
 
 // OBSOLETE
 
@@ -34,7 +34,7 @@ async function updateQuote() {
 
     while (!quote) {
       try {
-        quote = await await finhub.quote({ symbol })
+        quote = await await iexCloud.quote({ symbol })
       } catch (err) {
         logger.error({ err }, 'Failed to retrieve quote')
         await wait(2)
@@ -67,3 +67,5 @@ module.exports = {
     }
   },
 }
+
+// module.exports.start()

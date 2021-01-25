@@ -13,6 +13,7 @@ const earningsCalendar = require('./earningsCalendar')
 const etfsHoldings = require('./etfsHoldings')
 const signals = require('./signals')
 const realTimeQuote = require('./realTimeQuote')
+const updateFinancialStatements = require('./updateFinancialStatements')
 
 // Pusher
 trades.start()
@@ -50,6 +51,9 @@ upgradeDowngrade.updateUpgradeDowngrade.start()
 
 // 10:00
 optionsActivity.updateStockOptions.start()
+
+// 11:00
+updateFinancialStatements.updateFinancialStatements.start()
 
 // every 2 hours
 newsSentiment.updateNewsSentiment.start()

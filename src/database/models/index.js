@@ -22,6 +22,10 @@ const signal = require('./signal')
 const etfsHolding = require('./etfsHolding')
 const etfsHoldingValue = require('./etfsHoldingValue')
 const companyBasicFinancial = require('./companyBasicFinancial')
+const signalRecommendationTrend = require('./signalRecommendationTrend')
+const incomeStatement = require('./incomeStatement')
+const cashFlowStatement = require('./cashFlowStatement')
+const balanceSheet = require('./balanceSheet')
 
 const models = {
   administrator,
@@ -48,6 +52,10 @@ const models = {
   etfsHolding,
   etfsHoldingValue,
   companyBasicFinancial,
+  signalRecommendationTrend,
+  incomeStatement,
+  cashFlowStatement,
+  balanceSheet,
 }
 
 module.exports = models

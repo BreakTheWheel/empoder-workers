@@ -19,4 +19,12 @@ module.exports = {
 
     return result.data
   },
+
+  quote: async ({ symbol }) => {
+    const result = await axios.default.get(`
+      ${baseUrl}/stable/stock/${symbol.toLowerCase()}/quote?token=${token}
+    `)
+
+    return result.data
+  },
 }

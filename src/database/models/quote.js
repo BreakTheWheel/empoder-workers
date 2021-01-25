@@ -99,7 +99,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     latestPrice: {
       type: Sequelize.FLOAT,
-      allowNull: true,
+      allowNull: false,
       field: 'latest_price',
     },
     latestSource: {
@@ -119,7 +119,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     latestVolume: {
       type: Sequelize.BIGINT,
-      allowNull: true,
+      allowNull: false,
       field: 'latest_volume',
     },
     low: {

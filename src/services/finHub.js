@@ -1,5 +1,6 @@
 const finnhub = require('finnhub')
 const axios = require('axios')
+const { types } = require('pg')
 
 // https://www.npmjs.com/package/finnhub
 
@@ -205,6 +206,14 @@ module.exports = {
   earningsEstimate: async ({ symbol, freq = 'quarterly' }) => {
     const { data } = await axios.default.get(`
       https://finnhub.io/api/v1/stock/eps-estimate?symbol=${symbol}&freq=${freq}&token=${key}
+    `)
+
+    return data
+  },
+
+  financialStatements: async ({ symbol, freq = 'quarterly', type }) => {
+    const { data } = await axios.default.get(`
+      https://finnhub.io/api/v1/stock/financials?symbol=${symbol}&statement=${type}&freq=${freq}&token=${key}
     `)
 
     return data

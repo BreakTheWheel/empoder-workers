@@ -78,6 +78,15 @@ module.exports = (sequelize, Sequelize) => {
         key: 'id',
       },
     },
+    signalQuote: {
+      type: Sequelize.JSONB,
+      allowNull: true,
+      field: 'signal_quote',
+    },
+    triggers: {
+      type: Sequelize.ARRAY(Sequelize.TEXT),
+      allowNull: true,
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE,
@@ -91,6 +100,14 @@ module.exports = (sequelize, Sequelize) => {
       underscored: true,
     },
   )
+
+  Signal.associate = models => {
+    Signal.hasMany(models.SignalRecommendationTrend, {
+      foreignKey: 'symbol',
+      sourceKey: 'symbol',
+      as: 'SignalRecommendationTrend',
+    })
+  }
 
   return Signal
 }
