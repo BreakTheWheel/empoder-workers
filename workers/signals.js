@@ -266,7 +266,7 @@ async function updateSignals() {
       where: { symbol },
     })
 
-    const priceTargetId = await priceTargetSignal(symbol, quote)
+    const priceTargetId = await priceTargetSignal(symbol, quote) 
     const stockOptionId = await optionsActivitySignal(symbol, quote)
     const buzzRatioId = await buzzRatioSignal(symbol)
     const buzzIndexId = await buzzIndexSignal(symbol)
@@ -335,5 +335,3 @@ module.exports = {
     }
   },
 }
-
-module.exports.start()
