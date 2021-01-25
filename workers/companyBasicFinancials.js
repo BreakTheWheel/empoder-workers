@@ -76,10 +76,10 @@ module.exports.updateCompanyProfile = new CronJob('0 18 * * *', async () => {
   logger.info('Done')
 }, null, true, 'America/New_York');
 
-(async function () {
-  try {
-    await updateBasicFinancials()
-  } catch (err) {
-    logger.error({ err })
-  }
-})()
+// (async function () {
+//   try {
+//     await updateBasicFinancials()
+//   } catch (err) {
+//     logger.error({ err })
+//   }
+// })()
