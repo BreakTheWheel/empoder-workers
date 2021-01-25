@@ -20,6 +20,7 @@ async function handleFinancialStatement(symbol, statement, type) {
 
   try {
     const exists = await model.findOne({
+      attributes: ['id'],
       where: {
         [db.sequelize.Op.and]: [
           db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('period')), '=', statement.period),

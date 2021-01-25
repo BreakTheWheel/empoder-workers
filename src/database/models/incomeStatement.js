@@ -22,12 +22,12 @@ module.exports = (sequelize, Sequelize) => {
     },
     dilutedAverageSharesOutstanding: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'diluted_average_shares_outstanding',
     },
     dilutedEPS: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'diluted_eps',
     },
     ebit: {

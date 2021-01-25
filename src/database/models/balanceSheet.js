@@ -56,12 +56,12 @@ module.exports = (sequelize, Sequelize) => {
     },
     currentAssets: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'current_assets',
     },
     currentLiabilities: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'current_liabilities',
     },
     currentPortionLongTermDebt: {
@@ -158,7 +158,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     sharesOutstanding: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'shares_outstanding',
     },
     shortTermDebt: {

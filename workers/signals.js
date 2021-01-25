@@ -275,6 +275,10 @@ async function updateSignals() {
     const yearlyRevenueId = await revenueGrowthYearlySignal(symbol)
     const recommendationTrendIds = await recommendationTrendSignal(symbol)
 
+    if (triggers.length === 0) {
+      continue
+    }
+
     if ([priceTargetId, stockOptionId, buzzRatioId, fundOwnershipId, buzzIndexId, quarterlyRevenueId, yearlyRevenueId].some(c => c)) {
       const exists = await db.Signal.findOne({
         attributes: ['id'],
