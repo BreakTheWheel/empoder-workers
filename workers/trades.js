@@ -170,7 +170,7 @@ module.exports = {
   start: async () => {
     const stockSymbols = await db.StockSymbol.findAll({
       attributes: ['symbol'],
-      where: { tracking: true }
+      where: { tracking: true },
     })
 
     const symbols = stockSymbols.map(s => s.symbol)
