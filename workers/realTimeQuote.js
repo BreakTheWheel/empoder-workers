@@ -5,26 +5,26 @@ const db = require('../src/database')
 const logger = require('../src/common/logger')
 
 async function handleQuote(quote) {
-  const exists = await db.Quote.findOne({
-    attributes: ['symbol'],
-    where: { symbol: quote.symbol.toUpperCase() },
-  })
+  // const exists = await db.Quote.findOne({
+  //   attributes: ['symbol'],
+  //   where: { symbol: quote.symbol.toUpperCase() },
+  // })
 
-  if (exists) {
-    try {
-      await db.Quote.update(quote, { where: { symbol: quote.symbol.toUpperCase() } })
-    } catch (err) {
-      logger.error({ err })
-    }
-
-    return
-  }
-
+  // if (exists) {
   try {
-    await db.Quote.create(quote)
+    await db.Quote.update(quote, { where: { symbol: quote.symbol.toUpperCase() } })
   } catch (err) {
-    logger.error({ err })
+    logger.error({ err }, 'Failed to update quote')
   }
+
+  //return
+  //}
+
+  // try {
+  //   await db.Quote.create(quote)
+  // } catch (err) {
+  //   logger.error({ err }, 'Failed to create quote')
+  // }
 }
 
 const onOpen = event => {
@@ -39,13 +39,30 @@ const onResult = event => {
   logger.warn({ warn: event })
 }
 
-const onMessage = async event => {
+let promises = []
+const maxlengh = 200
+
+const onMessage = event => {
+  if (promises.length > maxlengh) {
+    return
+  }
+
   logger.info({ message: event })
 
   const data = JSON.parse(event.data)
 
   for (const quote of data) {
-    handleQuote(quote)
+    promises.push(handleQuote(quote))
+  }
+
+  if (promises.length > maxlengh) {
+    Promise.all(promises)
+      .then(() => {
+        promises = []
+      })
+      .catch(err => {
+        logger.error({ err }, 'Failed in quote promises')
+      })
   }
 }
 
