@@ -27,4 +27,12 @@ module.exports = {
 
     return result.data
   },
+
+  historicalPrices: async ({ symbol, date }) => {
+    const result = await axios.default.get(`
+      ${baseUrl}/stable/stock/${symbol.toLowerCase()}/chart/date/${date}?chartByDay=true&token=${token}
+    `)
+
+    return result.data
+  },
 }

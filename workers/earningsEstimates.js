@@ -61,7 +61,7 @@ async function updateEarningsEstimates() {
   }
 }
 
-module.exports.updateEarningsEstimates = new CronJob('0 8 * * * *', async () => {
+module.exports.updateEarningsEstimates = new CronJob('0 8 * * *', async () => {
   logger.info('Running every day at 8am')
 
   try {

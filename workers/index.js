@@ -14,6 +14,7 @@ const etfsHoldings = require('./etfsHoldings')
 const signals = require('./signals')
 const realTimeQuote = require('./realTimeQuote')
 const updateFinancialStatements = require('./updateFinancialStatements')
+const historicalPrices = require('./historicalPrices')
 
 // Pusher
 trades.start()
@@ -45,6 +46,7 @@ recommendationTrends.updateRecommendationTrends.start()
 
 // 05:00
 stockSymbols.stockSymbols.start()
+historicalPrices.updateHistoricalPrices.start()
 
 // 07:00
 upgradeDowngrade.updateUpgradeDowngrade.start()

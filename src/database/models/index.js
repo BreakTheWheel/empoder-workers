@@ -26,6 +26,8 @@ const signalRecommendationTrend = require('./signalRecommendationTrend')
 const incomeStatement = require('./incomeStatement')
 const cashFlowStatement = require('./cashFlowStatement')
 const balanceSheet = require('./balanceSheet')
+const dailyVolume = require('./dailyVolume')
+const historicalPrice = require('./historicalPrice')
 
 const models = {
   administrator,
@@ -56,6 +58,8 @@ const models = {
   incomeStatement,
   cashFlowStatement,
   balanceSheet,
+  dailyVolume,
+  historicalPrice,
 }
 
 module.exports = models

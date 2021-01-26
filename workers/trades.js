@@ -27,33 +27,33 @@ function wait(ms) {
   })
 }
 
-const symbols = [
-  'AAPL',
-  'TSLA',
-  'ROKU',
-  'NVTA',
-  'CRSP',
-  'SQ',
-  'TDOC',
-  'Z',
-  'SPOT',
-  'EDIT',
-  'SMG',
-  'CRLBF',
-  'GWPH',
-  'GRWG',
-  'TPB',
-  'GNLN',
-  'IIPR',
-  'TLRY',
-  'VFF',
-  'CGC',
-  'ACB',
-  'APHA',
-  'HEXO',
-]
+// const symbols = [
+//   'AAPL',
+//   'TSLA',
+//   'ROKU',
+//   'NVTA',
+//   'CRSP',
+//   'SQ',
+//   'TDOC',
+//   'Z',
+//   'SPOT',
+//   'EDIT',
+//   'SMG',
+//   'CRLBF',
+//   'GWPH',
+//   'GRWG',
+//   'TPB',
+//   'GNLN',
+//   'IIPR',
+//   'TLRY',
+//   'VFF',
+//   'CGC',
+//   'ACB',
+//   'APHA',
+//   'HEXO',
+// ]
 
-function getSubscriptionRequests(subscriptionType) {
+function getSubscriptionRequests(subscriptionType, symbols) {
   const syms = symbols.map(symbol => {
     return {
       type: subscriptionType, symbol,
@@ -77,6 +77,25 @@ function handleTrade(obj) {
     })
 
     storeTrades(trades)
+  } catch (err) {
+    logger.error({ err }, 'failed parsing data')
+  }
+}
+
+function handleDailyVolume(obj) {
+  try {
+    let query = ''
+    for (const trade of obj.data) {
+      query += `
+        INSERT INTO daily_volume (symbol, volume, date)
+        VALUES('${trade.s}', ${trade.v}, '${moment.unix(trade.t / 1000).utc().format('YYYY-MM-DD')}') 
+        ON CONFLICT (symbol, date) 
+        DO  
+          UPDATE SET volume = daily_volume.volume + ${trade.v};
+    `
+    }
+
+    db.sequelize.query(query)
   } catch (err) {
     logger.error({ err }, 'failed parsing data')
   }
@@ -108,7 +127,7 @@ function handleNews(obj) {
 
 let client
 
-function connect() {
+function connect(symbols) {
   client = new w3cwebsocket(`wss://ws.finnhub.io?token=${process.env.FIN_HUB_TOKEN}`)
 
   client.onerror = event => {
@@ -119,11 +138,11 @@ function connect() {
   client.onopen = () => {
     logger.info('Socket opened')
 
-    for (const sym of getSubscriptionRequests('subscribe')) {
+    for (const sym of getSubscriptionRequests('subscribe', symbols)) {
       client.send(JSON.stringify(sym))
     }
 
-    for (const sym of getSubscriptionRequests('subscribe-news')) {
+    for (const sym of getSubscriptionRequests('subscribe-news', symbols)) {
       client.send(JSON.stringify(sym))
     }
   }
@@ -149,6 +168,13 @@ function connect() {
 
 module.exports = {
   start: async () => {
+    const stockSymbols = await db.StockSymbol.findAll({
+      attributes: ['symbol'],
+      where: { tracking: true }
+    })
+
+    const symbols = stockSymbols.map(s => s.symbol)
+
     while (true) {
       const stopped = process.env.STOPPED === 'true'
 
@@ -160,10 +186,10 @@ module.exports = {
       }
 
       if (!client) {
-        connect()
+        connect(symbols)
       }
 
-      await wait(1000)
+      await wait(2000)
     }
   },
 }

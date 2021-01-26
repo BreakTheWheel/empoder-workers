@@ -59,7 +59,7 @@ async function updateRecommendationTrends() {
   }
 }
 
-module.exports.updateRecommendationTrends = new CronJob('0 3 * * * *', async () => {
+module.exports.updateRecommendationTrends = new CronJob('0 3 * * *', async () => {
   logger.info('Running every day at 3am')
 
   try {

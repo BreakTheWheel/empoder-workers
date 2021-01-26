@@ -84,7 +84,7 @@ async function updateEtfsHoldings() {
   }
 }
 
-module.exports.updateEtfsHoldings = new CronJob('0 23 * * * *', async () => {
+module.exports.updateEtfsHoldings = new CronJob('0 23 * * *', async () => {
   logger.info('Running every day at 11pm')
 
   try {
