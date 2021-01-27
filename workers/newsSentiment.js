@@ -87,10 +87,10 @@ module.exports.updateNewsSentiment = new CronJob('0 */2 * * *', async () => {
 }, null, true, 'America/Los_Angeles');
 
 
-(async function () {
-  try {
-    await updateNewsSentiment()
-  } catch (err) {
-    logger.error({ err })
-  }
-})()
+// (async function () {
+//   try {
+//     await updateNewsSentiment()
+//   } catch (err) {
+//     logger.error({ err })
+//   }
+// })()
