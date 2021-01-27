@@ -328,5 +328,3 @@ module.exports = {
     }
   },
 }
-
-module.exports.start()
