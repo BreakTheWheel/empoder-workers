@@ -15,15 +15,6 @@ module.exports = (sequelize, Sequelize) => {
         key: 'symbol',
       },
     },
-    priceTargetId: {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-      field: 'price_target_id',
-      references: {
-        model: 'price_targets',
-        key: 'id',
-      },
-    },
     stockOptionId: {
       type: Sequelize.INTEGER,
       allowNull: true,

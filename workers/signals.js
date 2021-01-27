@@ -18,41 +18,31 @@ For a stock to display in this table it must meet 1 or more of the following cri
 let triggers = []
 
 async function priceTargetSignal(symbol, quote) {
-  const today = moment().format('YYYY-MM-DD')
+  const threeMonthsAgo = moment().subtract(90, 'days').format('YYYY-MM-DD')
 
   // add 10% to current price
   const targetPrice = quote.latestPrice * 1.1
-  let priceTarget = await db.PriceTarget.findOne({
+  const priceTargets = await db.PriceTarget.findAll({
     where: {
       symbol,
-      targetMean: { [db.Sequelize.Op.gte]: targetPrice },
       [db.sequelize.Op.and]: [
-        db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('last_updated')), '>=', today),
+        db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('last_updated')), '>=', threeMonthsAgo),
       ],
     },
     order: [
-      ['lastUpdated', 'ASC'],
+      ['lastUpdated', 'DESC'],
     ],
+    limit: 3,
   })
 
-  if (priceTarget && priceTarget.id) {
-    triggers.push('PRICE_TARGET')
-    return priceTarget.id
+  for (const priceTarget of priceTargets) {
+    if (priceTarget.targetMean >= targetPrice) {
+      triggers.push('PRICE_TARGET')
+      break
+    }
   }
 
-  priceTarget = await db.PriceTarget.findOne({
-    where: {
-      symbol,
-      [db.sequelize.Op.and]: [
-        db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('last_updated')), '>=', today),
-      ],
-    },
-    order: [
-      ['lastUpdated', 'ASC'],
-    ],
-  })
-
-  return priceTarget ? priceTarget.id : null
+  return priceTargets.map(p => p.id)
 }
 
 async function optionsActivitySignal(symbol, quote) {
@@ -266,7 +256,7 @@ async function updateSignals() {
       where: { symbol },
     })
 
-    const priceTargetId = await priceTargetSignal(symbol, quote) 
+    const priceTargetIds = await priceTargetSignal(symbol, quote)
     const stockOptionId = await optionsActivitySignal(symbol, quote)
     const buzzRatioId = await buzzRatioSignal(symbol)
     const buzzIndexId = await buzzIndexSignal(symbol)
@@ -279,46 +269,49 @@ async function updateSignals() {
       continue
     }
 
-    if ([priceTargetId, stockOptionId, buzzRatioId, fundOwnershipId, buzzIndexId, quarterlyRevenueId, yearlyRevenueId].some(c => c)) {
-      const exists = await db.Signal.findOne({
-        attributes: ['id'],
-        where: {
-          symbol,
-          priceTargetId,
-          stockOptionId,
-          buzzRatioId,
-          buzzIndexId,
-          fundOwnershipId,
-          quarterlyRevenueId,
-          yearlyRevenueId,
-          triggers,
-        },
-      })
-
-      if (exists) {
-        continue
-      }
-
-      const obj = await db.Signal.create({
-        priceTargetId,
+    const exists = await db.Signal.findOne({
+      attributes: ['id'],
+      where: {
+        symbol,
         stockOptionId,
         buzzRatioId,
-        symbol,
         buzzIndexId,
         fundOwnershipId,
         quarterlyRevenueId,
         yearlyRevenueId,
-        signalQuote: quote.toJSON(),
         triggers,
-      })
+      },
+    })
 
-      await db.SignalRecommendationTrend.bulkCreate(recommendationTrendIds.map(r => {
-        return {
-          recommendationTrendId: r,
-          signalId: obj.id,
-        }
-      }))
+    if (exists) {
+      continue
     }
+
+    const obj = await db.Signal.create({
+      stockOptionId,
+      buzzRatioId,
+      symbol,
+      buzzIndexId,
+      fundOwnershipId,
+      quarterlyRevenueId,
+      yearlyRevenueId,
+      signalQuote: quote.toJSON(),
+      triggers,
+    })
+
+    await db.SignalRecommendationTrend.bulkCreate(recommendationTrendIds.map(r => {
+      return {
+        recommendationTrendId: r,
+        signalId: obj.id,
+      }
+    }))
+
+    await db.SignalPriceTarget.bulkCreate(priceTargetIds.map(r => {
+      return {
+        priceTargetId: r,
+        signalId: obj.id,
+      }
+    }))
   }
 }
 
@@ -335,3 +328,5 @@ module.exports = {
     }
   },
 }
+
+module.exports.start()

@@ -28,6 +28,7 @@ const cashFlowStatement = require('./cashFlowStatement')
 const balanceSheet = require('./balanceSheet')
 const dailyVolume = require('./dailyVolume')
 const historicalPrice = require('./historicalPrice')
+const signalPriceTarget = require('./signalPriceTarget')
 
 const models = {
   administrator,
@@ -60,6 +61,7 @@ const models = {
   balanceSheet,
   dailyVolume,
   historicalPrice,
+  signalPriceTarget,
 }
 
 module.exports = models
