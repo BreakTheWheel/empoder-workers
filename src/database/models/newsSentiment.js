@@ -17,7 +17,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     articlesInLastWeek: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'articles_in_last_week',
     },
     buzz: {

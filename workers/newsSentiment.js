@@ -6,36 +6,46 @@ const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
 async function handleSentiment(symbol, sentiment) {
-  const dbObj = await db.NewsSentiment.findOne({
-    attributes: ['id', 'articlesInLastWeek'],
-    where: { symbol },
-    order: [
-      ['createdAt', 'DESC'],
-    ],
-  })
+  try {
+    const dbObj = await db.NewsSentiment.findOne({
+      attributes: ['id', 'articlesInLastWeek'],
+      where: { symbol },
+      order: [
+        ['createdAt', 'DESC'],
+      ],
+    })
 
-  const obj = {
-    symbol,
-    articlesInLastWeek: sentiment.buzz.articlesInLastWeek,
-    buzz: sentiment.buzz.buzz,
-    weeklyAverage: sentiment.buzz.weeklyAverage,
-    companyNewsScore: sentiment.companyNewsScore,
-    sectorAverageBullishPercent: sentiment.sectorAverageBullishPercent,
-    sectorAverageNewsScore: sentiment.sectorAverageNewsScore,
-    bearishPercent: sentiment.sentiment ? sentiment.sentiment.bearishPercent : null,
-    bullishPercent: sentiment.sentiment ? sentiment.sentiment.bullishPercent : null,
-  }
+    const buzz = sentiment.buzz
 
-  if (!dbObj) {
-    await db.NewsSentiment.create(obj)
-    return
-  }
+    if (!buzz) {
+      return
+    }
 
-  // if the week was restarted
-  if (dbObj.articlesInLastWeek > sentiment.buzz.articlesInLastWeek) {
-    await db.NewsSentiment.create(sentiment)
-  } else if (dbObj.articlesInLastWeek < sentiment.buzz.articlesInLastWeek) {
-    await db.NewsSentiment.update(sentiment, { where: { id: dbObj.id } })
+    const obj = {
+      symbol,
+      articlesInLastWeek: buzz.articlesInLastWeek,
+      buzz: buzz.buzz,
+      weeklyAverage: buzz.weeklyAverage,
+      companyNewsScore: sentiment.companyNewsScore,
+      sectorAverageBullishPercent: sentiment.sectorAverageBullishPercent,
+      sectorAverageNewsScore: sentiment.sectorAverageNewsScore,
+      bearishPercent: sentiment.sentiment ? sentiment.sentiment.bearishPercent : null,
+      bullishPercent: sentiment.sentiment ? sentiment.sentiment.bullishPercent : null,
+    }
+
+    if (!dbObj) {
+      await db.NewsSentiment.create(obj)
+      return
+    }
+
+    // if the week was restarted
+    if (dbObj.articlesInLastWeek > buzz.articlesInLastWeek) {
+      await db.NewsSentiment.create(obj)
+    } else if (dbObj.articlesInLastWeek < buzz.articlesInLastWeek) {
+      await db.NewsSentiment.update(obj, { where: { id: dbObj.id } })
+    }
+  } catch (err) {
+    logger.error({ err }, 'Failed in handleSentiment')
   }
 }
 
@@ -64,7 +74,7 @@ async function updateNewsSentiment() {
   }
 }
 
-module.exports.updateNewsSentiment = new CronJob('* */2 * * *', async () => {
+module.exports.updateNewsSentiment = new CronJob('0 */2 * * *', async () => {
   logger.info('Running every 2 hours')
 
   try {
@@ -77,10 +87,10 @@ module.exports.updateNewsSentiment = new CronJob('* */2 * * *', async () => {
 }, null, true, 'America/Los_Angeles');
 
 
-// (async function () {
-//   try {
-//     await updateNewsSentiment()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+(async function () {
+  try {
+    await updateNewsSentiment()
+  } catch (err) {
+    logger.error({ err })
+  }
+})()
