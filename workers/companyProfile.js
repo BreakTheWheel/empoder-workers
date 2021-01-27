@@ -39,7 +39,7 @@ async function updateCompanyProfile() {
     }
 
     profile.employeeTotal = profile.employeeTotal ? Number(profile.employeeTotal) : null
-    profile.symbol = symbol
+    profile.ticker = symbol
 
     const exists = await db.CompanyProfile.findOne({
       attributes: ['ticker'],
@@ -50,7 +50,7 @@ async function updateCompanyProfile() {
       try {
         await db.CompanyProfile.update(profile, { where: { ticker: symbol } })
       } catch (err) {
-        logger.error({ err }, 'Failed to store company profile')
+        logger.error({ err }, 'Failed to update company profile')
       }
     } else {
       try {
