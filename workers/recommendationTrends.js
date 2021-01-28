@@ -19,6 +19,15 @@ async function handleTrend(symbol, trend) {
 
     if (!exists) {
       await db.RecommendationTrend.create(trend)
+    } else {
+      await db.RecommendationTrend.update(trend, {
+        where: {
+          [db.sequelize.Op.and]: [
+            db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('period')), '=', trend.period),
+          ],
+          symbol,
+        },
+      })
     }
   } catch (err) {
     logger.error({ err }, `Failed to store trend for symbol ${symbol}`)
@@ -59,8 +68,8 @@ async function updateRecommendationTrends() {
   }
 }
 
-module.exports.updateRecommendationTrends = new CronJob('0 3 * * *', async () => {
-  logger.info('Running every day at 3am')
+module.exports.updateRecommendationTrends = new CronJob('0 */4 * * *', async () => {
+  logger.info('Running every 4 hours')
 
   try {
     await updateRecommendationTrends()
