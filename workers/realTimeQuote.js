@@ -5,7 +5,7 @@ const db = require('../src/database')
 const logger = require('../src/common/logger')
 const { wait } = require('../src/utils/helperFuncs')
 
-async function handleQuote(quote) {
+async function handleQuote(query) {
   // const exists = await db.Quote.findOne({
   //   attributes: ['symbol'],
   //   where: { symbol: quote.symbol.toUpperCase() },
@@ -13,7 +13,7 @@ async function handleQuote(quote) {
 
   // if (exists) {
   try {
-    await db.Quote.update(quote, { where: { symbol: quote.symbol.toUpperCase() } })
+    await db.sequelize.query(query)
   } catch (err) {
     logger.error({ err }, 'Failed to update quote')
   }
@@ -40,30 +40,27 @@ const onResult = event => {
   logger.warn({ warn: event })
 }
 
-let promises = []
+let counter = 0
+let query = ''
 const maxlengh = 200
 
 const onMessage = event => {
-  if (promises.length > maxlengh) {
-    return
-  }
-
-  logger.info({ message: event })
-
   const data = JSON.parse(event.data)
 
   for (const quote of data) {
-    promises.push(handleQuote(quote))
+    logger.info({ message: { symbol: quote.symbol, latestPrice: quote.latestPrice } })
+    query += `
+      UPDATE quotes 
+      SET latest_price = ${quote.latestPrice}, volume = ${quote.volume}, close_source = '${quote.closeSource}', pe_ratio = ${quote.peRatio}, market_cap = ${quote.marketCap}
+      WHERE symbol = '${quote.symbol}';
+    `
+    counter++
   }
 
-  if (promises.length > maxlengh) {
-    Promise.all(promises)
-      .then(() => {
-        promises = []
-      })
-      .catch(err => {
-        logger.error({ err }, 'Failed in quote promises')
-      })
+  if (counter >= maxlengh) {
+    handleQuote(query)
+    query = ''
+    counter = 0
   }
 }
 
@@ -80,7 +77,8 @@ module.exports = {
   start: async () => {
     let stopped = process.env.STOPPED === 'true'
     while (stopped) {
-      await wait(20000)
+      logger.info('Real time quote stopped')
+      await wait(20)
 
       stopped = process.env.STOPPED === 'true'
     }
