@@ -29,6 +29,7 @@ const balanceSheet = require('./balanceSheet')
 const dailyVolume = require('./dailyVolume')
 const historicalPrice = require('./historicalPrice')
 const signalPriceTarget = require('./signalPriceTarget')
+const etfsAggregate = require('./etfsAggregate')
 
 const models = {
   administrator,
@@ -62,6 +63,7 @@ const models = {
   dailyVolume,
   historicalPrice,
   signalPriceTarget,
+  etfsAggregate,
 }
 
 module.exports = models
