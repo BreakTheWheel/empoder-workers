@@ -3,6 +3,7 @@ require('dotenv').config()
 const EventSource = require('eventsource')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
+const { wait } = require('../src/utils/helperFuncs')
 
 async function handleQuote(quote) {
   // const exists = await db.Quote.findOne({
@@ -77,8 +78,16 @@ function connect(joined) {
 
 module.exports = {
   start: async () => {
+    let stopped = process.env.STOPPED === 'true'
+    while (stopped) {
+      await wait(20000)
+
+      stopped = process.env.STOPPED === 'true'
+    }
+
     const symbols = await db.StockSymbol.findAll({
       where: { tracking: true },
+      limit: 3
     })
     const arrayOfArrays = []
     const mapped = symbols.map(s => s.symbol)
@@ -92,3 +101,5 @@ module.exports = {
     }
   },
 }
+
+// module.exports.start()
