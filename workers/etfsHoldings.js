@@ -13,8 +13,9 @@ async function updateEtfsHoldings() {
   })
   stockSymbols = stockSymbols.map(c => c.symbol)
 
+  let counter = 1
   for (const symbol of stockSymbols) {
-    logger.info(`etfsholdings processing symbol: ${symbol}`)
+    logger.info(`etfsholdings processing symbol: ${symbol}, counter: ${counter++} of ${stockSymbols.length}`)
 
     let holdingsResult
 
@@ -96,8 +97,9 @@ async function handleAggregates() {
 
   const today = moment().format('YYYY-MM-DD')
 
+  let counter = 1
   for (const symbol of stockSymbols) {
-    logger.info(`Proccessing aggregates for ${symbol}`)
+    logger.info(`Proccessing aggregates for ${symbol}, counter: ${counter++} of ${stockSymbols.length}`)
 
     const exists = await db.EtfsAggregate.findOne({
       where: {
@@ -149,7 +151,7 @@ module.exports.updateEtfsHoldings = new CronJob('0 23 * * *', async () => {
 
 // (async function () {
 //   try {
-//     await updateEtfsHoldings(stockSymbols)
+//     await updateEtfsHoldings()
 //     await handleAggregates()
 //     logger.info('Done')
 //   } catch (err) {
