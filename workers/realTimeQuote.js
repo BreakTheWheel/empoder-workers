@@ -87,7 +87,6 @@ module.exports = {
 
     const symbols = await db.StockSymbol.findAll({
       where: { tracking: true },
-      limit: 3
     })
     const arrayOfArrays = []
     const mapped = symbols.map(s => s.symbol)
