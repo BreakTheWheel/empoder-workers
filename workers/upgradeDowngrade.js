@@ -1,10 +1,10 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
+const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
-const moment = require('moment')
 
 async function handleUpgradeDowngrade(symbol, upgradeDowngrade) {
   const gradeTime = moment.unix(upgradeDowngrade.gradeTime).toDate()

@@ -10,33 +10,30 @@ async function handleBasicFinancials(symbol, basicFinancials) {
     return
   }
 
-  const result = await db.sequelize.query(`
-  select id, basic_financials->'metric'->'revenueGrowthQuarterlyYoy' 
-  from company_basic_financials
-  where 
-      basic_financials->'metric'->'revenueGrowthQuarterlyYoy' <> 'null' 
-      AND
-      (basic_financials->'metric'->'revenueGrowthQuarterlyYoy')::float = ${basicFinancials.metric.revenueGrowthQuarterlyYoy}
-      AND 
-      basic_financials->'metric'->'revenueGrowthTTMYoy' <> 'null' 
-      AND
-      (basic_financials->'metric'->'revenueGrowthTTMYoy')::float = ${basicFinancials.metric.revenueGrowthTTMYoy}
-  `)
+  const exists = await db.CompanyBasicFinancial.findOne({
+    where: { symbol },
+  })
 
-  const arr = result[0]
-  const exists = arr[0]
+  if (!exists) {
+    try {
+      await db.CompanyBasicFinancial.create({
+        symbol,
+        basicFinancials,
+      })
+      logger.info(`Created company basic financial for symbol: ${symbol}`)
+    } catch (err) {
+      logger.error({ err }, 'Failed to create basic financials')
+    }
+  } else {
+    try {
+      await db.CompanyBasicFinancial.update({
+        basicFinancials,
+      }, { where: { symbol } })
+      logger.info(`Updated company basic financial for symbol: ${symbol}`)
+    } catch (err) {
+      logger.error({ err }, 'Failed to create basic financials')
+    }
 
-  if (exists) {
-    return
-  }
-
-  try {
-    await db.CompanyBasicFinancial.create({
-      symbol,
-      basicFinancials,
-    })
-  } catch (err) {
-    logger.error({ err }, 'Failed to update basic financials')
   }
 }
 

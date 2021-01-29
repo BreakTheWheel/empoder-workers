@@ -14,6 +14,8 @@ async function handleQuote(query) {
   // if (exists) {
   try {
     await db.sequelize.query(query)
+
+    logger.info('Updated stock prices!')
   } catch (err) {
     logger.error({ err }, 'Failed to update quote')
   }
@@ -42,7 +44,7 @@ const onResult = event => {
 
 let counter = 0
 let query = ''
-const maxlengh = 200
+const maxlengh = 20
 
 const onMessage = event => {
   const data = JSON.parse(event.data)
@@ -95,8 +97,9 @@ module.exports = {
 
     for (const arr of arrayOfArrays) {
       connect(arr.join(','))
+      await wait(2)
     }
   },
 }
 
-// module.exports.start()
+module.exports.start()

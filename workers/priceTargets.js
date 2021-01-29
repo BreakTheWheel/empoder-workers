@@ -40,6 +40,17 @@ async function updatePriceTargets() {
 
     if (!exists) {
       await db.PriceTarget.create(priceTarget)
+      logger.info(`Created price target for symbol: ${symbol}`)
+    } else {
+      await db.PriceTarget.update(priceTarget, {
+        where: {
+          symbol,
+          [db.sequelize.Op.and]: [
+            db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('last_updated')), '=', priceTarget.lastUpdated),
+          ],
+        },
+      })
+      logger.info(`Updated price target for symbol: ${symbol}`)
     }
   }
 }
@@ -55,7 +66,6 @@ module.exports.priceTarget = new CronJob('0 1 * * *', async () => {
 
   logger.info('Done')
 }, null, true, 'America/New_York');
-
 
 // (async function () {
 //   try {

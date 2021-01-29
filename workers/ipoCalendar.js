@@ -1,10 +1,10 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
+const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
-const moment = require('moment')
 
 async function handleEarning(symbol, earning) {
   try {
@@ -65,8 +65,8 @@ async function updateEarningsCalendar() {
   }
 }
 
-module.exports.updateEarningsCalendar = new CronJob('0 2 * * *', async () => {
-  logger.info('Running every day at 2am')
+module.exports.updateEarningsCalendar = new CronJob('0 21 * * *', async () => {
+  logger.info('Running every day at 9pm')
 
   try {
     await updateEarningsCalendar()

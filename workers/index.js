@@ -15,6 +15,8 @@ const signals = require('./signals')
 const realTimeQuote = require('./realTimeQuote')
 const updateFinancialStatements = require('./updateFinancialStatements')
 const historicalPrices = require('./historicalPrices')
+const ipoCalendar = require('./ipoCalendar')
+const companyBasicFinancials = require('./companyBasicFinancials')
 
 // Pusher
 trades.start()
@@ -25,6 +27,9 @@ signals.start()
 
 // 17:00 new york time
 companyProfile.updateCompanyProfile.start()
+
+// 18:00
+companyBasicFinancials.updateCompanyProfile.start() 
 
 // 19:00
 fundOwnership.fundOwnership.start()
@@ -50,6 +55,9 @@ historicalPrices.updateHistoricalPrices.start()
 
 // 07:00
 upgradeDowngrade.updateUpgradeDowngrade.start()
+
+// 9pm
+ipoCalendar.updateEarningsCalendar.start()
 
 // 10:00
 optionsActivity.updateStockOptions.start()

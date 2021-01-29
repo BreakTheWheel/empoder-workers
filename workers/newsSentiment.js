@@ -74,8 +74,8 @@ async function updateNewsSentiment() {
   }
 }
 
-module.exports.updateNewsSentiment = new CronJob('0 */2 * * *', async () => {
-  logger.info('Running every 2 hours')
+module.exports.updateNewsSentiment = new CronJob('0 */3 * * *', async () => {
+  logger.info('Running every 3 hours')
 
   try {
     await updateNewsSentiment()
