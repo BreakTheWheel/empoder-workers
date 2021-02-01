@@ -50,7 +50,7 @@ const onMessage = event => {
   const data = JSON.parse(event.data)
 
   for (const quote of data) {
-    logger.info({ message: { symbol: quote.symbol, latestPrice: quote.latestPrice } })
+    logger.info({ message: { symbol: quote.symbol, latestPrice: quote.latestPrice, volume: quote.volume, latestVolume: quote.latestVolume } })
     query += `
       UPDATE quotes 
       SET latest_price = ${quote.latestPrice}, volume = ${quote.volume}, close_source = '${quote.closeSource}', pe_ratio = ${quote.peRatio}, market_cap = ${quote.marketCap}

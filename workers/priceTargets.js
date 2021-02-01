@@ -1,9 +1,21 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
+const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
+
+function priceTargetIsEqual(pt1, pt2) {
+  if (!pt1 || !pt2) {
+    return false
+  }
+
+  return pt1.targetHigh === pt2.targetHigh
+    && pt1.targetLow === pt2.targetLow
+    && pt1.targetMean === pt2.targetMean
+    && pt1.targetMedian === pt2.targetMedian
+}
 
 async function updatePriceTargets() {
   let stockSymbols = await db.StockSymbol.findAll({
@@ -26,6 +38,22 @@ async function updatePriceTargets() {
     }
 
     if (!priceTarget || !priceTarget.symbol) {
+      continue
+    }
+
+    const lastPriceTarget = await db.PriceTarget.findOne({
+      where: { symbol },
+      order: [
+        ['last_updated', 'DESC'],
+      ],
+    })
+
+    // sometimes lastUpdated is different but other values are the same from FH
+    if (priceTargetIsEqual(lastPriceTarget, priceTarget)) {
+      if (moment(lastPriceTarget.lastUpdated).isSame(moment(priceTarget.lastUpdated), 'day')) {
+        continue
+      }
+      await db.PriceTarget.update(priceTarget, { where: { id: lastPriceTarget.id } })
       continue
     }
 
@@ -67,10 +95,10 @@ module.exports.priceTarget = new CronJob('0 1 * * *', async () => {
   logger.info('Done')
 }, null, true, 'America/New_York');
 
-// (async function () {
-//   try {
-//     await updatePriceTargets()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+(async function () {
+  try {
+    await updatePriceTargets()
+  } catch (err) {
+    logger.error({ err })
+  }
+})()

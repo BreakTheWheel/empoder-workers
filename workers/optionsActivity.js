@@ -7,7 +7,6 @@ const { wait } = require('../src/utils/helperFuncs')
 const iexCloud = require('../src/services/iexCloud')
 
 async function handleStockOption(symbol, stockOption) {
-
   const exists = await db.StockOption.findOne({
     attributes: ['id'],
     where: {
@@ -25,17 +24,20 @@ async function handleStockOption(symbol, stockOption) {
   delete stockOption.id
   delete stockOption.expirationDate
 
+  const obj = {
+    symbol,
+    externalId,
+    expirationDate,
+    dateUnix: stockOption.date,
+    updatedUnix: stockOption.updated,
+    date,
+    updated,
+    ...stockOption,
+  }
   if (!exists) {
-    await db.StockOption.create({
-      symbol,
-      externalId,
-      expirationDate,
-      dateUnix: stockOption.date,
-      updatedUnix: stockOption.updated,
-      date,
-      updated,
-      ...stockOption,
-    })
+    await db.StockOption.create(obj)
+  } else {
+    await db.StockOption.update(obj, { where: { subkey: stockOption.subkey } })
   }
 }
 
@@ -101,6 +103,12 @@ async function updateStockOptions() {
 
 module.exports.updateStockOptions = new CronJob('0 10 * * *', async () => {
   logger.info('Running every day at 10am')
+  const day = moment().isoWeekday()
+
+  if (day === 6 || day === 7) {
+    logger.info('Its weekend')
+    return
+  }
 
   try {
     await updateStockOptions()
@@ -112,10 +120,10 @@ module.exports.updateStockOptions = new CronJob('0 10 * * *', async () => {
 }, null, true, 'America/New_York');
 
 
-// (async function () {
-//   try {
-//     await updateStockOptions()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+(async function () {
+  try {
+    await updateStockOptions()
+  } catch (err) {
+    logger.error({ err })
+  }
+})()
