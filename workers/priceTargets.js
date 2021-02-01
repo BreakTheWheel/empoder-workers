@@ -95,10 +95,10 @@ module.exports.priceTarget = new CronJob('0 1 * * *', async () => {
   logger.info('Done')
 }, null, true, 'America/New_York');
 
-(async function () {
-  try {
-    await updatePriceTargets()
-  } catch (err) {
-    logger.error({ err })
-  }
-})()
+// (async function () {
+//   try {
+//     await updatePriceTargets()
+//   } catch (err) {
+//     logger.error({ err })
+//   }
+// })()
