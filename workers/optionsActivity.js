@@ -120,10 +120,10 @@ module.exports.updateStockOptions = new CronJob('0 10 * * *', async () => {
 }, null, true, 'America/New_York');
 
 
-(async function () {
-  try {
-    await updateStockOptions()
-  } catch (err) {
-    logger.error({ err })
-  }
-})()
+// (async function () {
+//   try {
+//     await updateStockOptions()
+//   } catch (err) {
+//     logger.error({ err })
+//   }
+// })()
