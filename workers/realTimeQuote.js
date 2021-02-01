@@ -67,7 +67,7 @@ const onMessage = event => {
 }
 
 function connect(joined) {
-  const es = new EventSource(`https://cloud-sse.iexapis.com/stable/stocksUSNoUTP?symbols=${joined}&token=sk_3306b5dd12da4d5fb2baaa0cc5d076b8`);
+  const es = new EventSource(`https://cloud-sse.iexapis.com/stable/stocksUSNoUTP?symbols=${joined}&token=${process.env.IEX_CLOUD_TOKEN}`);
 
   es.addEventListener('open', onOpen)
   es.addEventListener('message', onMessage)
