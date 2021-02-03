@@ -101,8 +101,8 @@ async function updateStockOptions() {
   }
 }
 
-module.exports.updateStockOptions = new CronJob('0 10 * * *', async () => {
-  logger.info('Running every day at 10am')
+module.exports.updateStockOptions = new CronJob('0 11 * * *', async () => {
+  logger.info('Running every day at 11am')
   const day = moment().isoWeekday()
 
   if (day === 6 || day === 7) {

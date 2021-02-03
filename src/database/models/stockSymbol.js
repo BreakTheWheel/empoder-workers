@@ -32,6 +32,11 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       defaultValue: false,
     },
+    sectorId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      field: 'sector_id',
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE,

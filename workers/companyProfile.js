@@ -16,7 +16,7 @@ async function handleBasicFinancials(symbol, basicFinancials) {
 async function updateCompanyProfile() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
-    where: { tracking: true }
+    where: { tracking: true },
   })
   stockSymbols = stockSymbols.map(c => c.symbol)
 
