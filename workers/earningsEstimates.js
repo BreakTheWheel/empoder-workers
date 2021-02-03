@@ -19,6 +19,15 @@ async function handleEarning(symbol, earning) {
 
     if (!exists) {
       await db.EarningsEstimate.create(earning)
+    } else {
+      await db.EarningsEstimate.update(earning, {
+        where: {
+          [db.sequelize.Op.and]: [
+            db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('period')), '=', earning.period),
+          ],
+          symbol,
+        },
+      })
     }
   } catch (err) {
     logger.error({ err }, `Failed to store earnings estimate for symbol ${symbol}`)
@@ -50,12 +59,10 @@ async function updateEarningsEstimates() {
 
       earning.symbol = symbol
 
-      promises.push(await handleEarning(symbol, earning))
+      promises.push(handleEarning(symbol, earning))
     }
 
     await Promise.all(promises)
-
-    await wait(1)
 
     promises = []
   }

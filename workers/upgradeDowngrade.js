@@ -19,10 +19,20 @@ async function handleUpgradeDowngrade(symbol, upgradeDowngrade) {
     },
   })
 
-  if (!exists) {
-    upgradeDowngrade.gradeTime = gradeTime
+  upgradeDowngrade.gradeTime = gradeTime
 
+  if (!exists) {
     await db.UpgradeDowngrade.create(upgradeDowngrade)
+  } else {
+    await db.UpgradeDowngrade.update(upgradeDowngrade, {
+      where: {
+        symbol,
+        company: upgradeDowngrade.company,
+        [db.sequelize.Op.and]: [
+          db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('grade_time')), '=', gradeTime),
+        ],
+      },
+    })
   }
 }
 

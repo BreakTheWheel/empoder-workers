@@ -5,9 +5,15 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
-const types = ['ic', 'bs']
+const types = [
+  { type: 'ic', freq: 'quarterly' },
+  { type: 'ic', freq: 'yearly' },
+  { type: 'bs', freq: 'quarterly' },
+]
 
 async function handleFinancialStatement(symbol, statement, type) {
+  statement.freq = type.freq
+
   let model = db.IncomeStatement
 
   if (type === 'cf') {
@@ -26,11 +32,22 @@ async function handleFinancialStatement(symbol, statement, type) {
           db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('period')), '=', statement.period),
         ],
         symbol,
+        freq: type.freq,
       },
     })
 
     if (!exists) {
       await model.create(statement)
+    } else {
+      await model.update(statement, {
+        where: {
+          [db.sequelize.Op.and]: [
+            db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('period')), '=', statement.period),
+          ],
+          symbol,
+          freq: type.freq,
+        },
+      })
     }
   } catch (err) {
     logger.error({ err }, `Failed to store statement for symbol ${symbol}`)
@@ -51,14 +68,17 @@ async function updateFinancialStatements() {
 
       while (!statements) {
         try {
-          statements = await finhub.financialStatements({ symbol, type })
+          statements = await finhub.financialStatements({ symbol, type: type.type, freq: type.freq })
         } catch (err) {
+          if (err.response && err.response.status === 401) {
+            break
+          }
           logger.error({ err }, 'Failed to get financial statements')
           await wait(2)
         }
       }
 
-      if (!statements.financials) {
+      if (!statements || !statements.financials) {
         continue
       }
 
@@ -67,7 +87,7 @@ async function updateFinancialStatements() {
 
         statement.symbol = symbol
 
-        promises.push(await handleFinancialStatement(symbol, statement, type))
+        promises.push(handleFinancialStatement(symbol, statement, type))
       }
 
       await Promise.all(promises)
@@ -88,7 +108,6 @@ module.exports.updateFinancialStatements = new CronJob('0 11 * * *', async () =>
 
   logger.info('Done')
 }, null, true, 'America/New_York');
-
 
 // (async function () {
 //   try {

@@ -1,11 +1,12 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
+const Promise = require('bluebird')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
-const Promise = require('bluebird')
 
+// not used
 async function handleFundOwnership(symbol, ownership) {
   try {
     let fund = await db.Fund.findOne({ attributes: ['id'], where: { name: ownership.name } })

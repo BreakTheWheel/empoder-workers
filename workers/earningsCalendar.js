@@ -20,6 +20,15 @@ async function handleEarning(symbol, earning) {
 
     if (!exists) {
       await db.EarningsCalendar.create(earning)
+    } else {
+      await db.EarningsCalendar.update(earning, {
+        where: {
+          [db.sequelize.Op.and]: [
+            db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('date')), '=', earning.date),
+          ],
+          symbol,
+        },
+      })
     }
   } catch (err) {
     logger.error({ err }, `Failed to store earnings calendar for symbol ${symbol}`)
@@ -29,8 +38,9 @@ async function handleEarning(symbol, earning) {
 async function updateEarningsCalendar() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
-    where: { tracking: true, symbol: 'AAPL' },
+    where: { tracking: true },
   })
+
   stockSymbols = stockSymbols.map(c => c.symbol)
   let promises = []
 
@@ -44,9 +54,17 @@ async function updateEarningsCalendar() {
 
         earnings = await finhub.earningsCalendar({ symbol, from, to })
       } catch (err) {
+        if (err.response && err.response.status === 401) {
+          break
+        }
         logger.error({ err }, 'Failed to get earnings calendar')
         await wait(2)
       }
+    }
+
+    if (!earnings || earnings.length === 0) {
+      logger.info(`Missing earnings calendar for ${symbol}`)
+      continue
     }
 
     for (const earning of earnings.earningsCalendar) {
@@ -54,7 +72,7 @@ async function updateEarningsCalendar() {
 
       earning.symbol = symbol
 
-      promises.push(await handleEarning(symbol, earning))
+      promises.push(handleEarning(symbol, earning))
     }
 
     await Promise.all(promises)

@@ -20,8 +20,13 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: true,
       field: 'cost_of_goods_sold',
     },
+    depreciationAmortization: {
+      type: Sequelize.FLOAT,
+      allowNull: true,
+      field: 'depreciation_amortization',
+    },
     dilutedAverageSharesOutstanding: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
       field: 'diluted_average_shares_outstanding',
     },
@@ -31,8 +36,13 @@ module.exports = (sequelize, Sequelize) => {
       field: 'diluted_eps',
     },
     ebit: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
+      type: Sequelize.FLOAT,
+      allowNull: true,
+    },
+    minorityInterest: {
+      type: Sequelize.FLOAT,
+      allowNull: true,
+      field: 'minority_interest',
     },
     grossIncome: {
       type: Sequelize.INTEGER,
@@ -40,18 +50,23 @@ module.exports = (sequelize, Sequelize) => {
       field: 'gross_income',
     },
     interestIncomeExpense: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
       field: 'interest_income_expense',
     },
+    otherOperatingExpensesTotal: {
+      type: Sequelize.FLOAT,
+      allowNull: true,
+      field: 'other_operating_expenses_total',
+    },
     netIncome: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'net_income',
     },
     netIncomeAfterTaxes: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
+      type: Sequelize.FLOAT,
+      allowNull: true,
       field: 'net_income_after_taxes',
     },
     period: {
@@ -59,38 +74,47 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.DATE,
     },
     pretaxIncome: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
+      type: Sequelize.FLOAT,
+      allowNull: true,
       field: 'pretax_income',
     },
     provisionForIncomeTaxes: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
       field: 'provision_for_income_taxes',
     },
     researchDevelopment: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
       field: 'research_development',
     },
     revenue: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
     },
     sgaExpense: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
       field: 'sga_expense',
     },
     totalOperatingExpense: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
+      type: Sequelize.FLOAT,
+      allowNull: true,
       field: 'total_operating_expense',
     },
     totalOtherIncomeExpenseNet: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
       field: 'total_other_income_expense_net',
+    },
+    year: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    },
+    freq: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      defaultValue: 'quarterly',
     },
   },
     {

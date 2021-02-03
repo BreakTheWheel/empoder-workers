@@ -16,7 +16,7 @@ async function handleBasicFinancials(symbol, basicFinancials) {
 async function updateCompanyProfile() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
-    where: { tracking: true },
+    where: { tracking: true }
   })
   stockSymbols = stockSymbols.map(c => c.symbol)
 
@@ -28,9 +28,16 @@ async function updateCompanyProfile() {
       try {
         profile = await finhub.companyProfile({ symbol })
       } catch (err) {
+        if (err.response && err.response.status === 401) {
+          break
+        }
         logger.error({ err }, `Failed to get company profile for ${symbol}`)
         await wait(2)
       }
+    }
+
+    if (!profile) {
+      continue
     }
 
     // clean up
@@ -59,8 +66,6 @@ async function updateCompanyProfile() {
         logger.error({ err }, 'Failed to store company profile')
       }
     }
-
-    await wait(0.1)
 
     let basicFinancials
 

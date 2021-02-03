@@ -1,9 +1,9 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
+const Promise = require('bluebird')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const Promise = require('bluebird')
 
 const IN_PARALLEL = 100
 

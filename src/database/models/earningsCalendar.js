@@ -21,22 +21,22 @@ module.exports = (sequelize, Sequelize) => {
     },
     epsActual: {
       type: Sequelize.FLOAT,
-      allowNull: false,
+      allowNull: true,
       field: 'eps_actual',
     },
     epsEstimate: {
       type: Sequelize.FLOAT,
-      allowNull: false,
+      allowNull: true,
       field: 'eps_actual',
     },
     revenueActual: {
       type: Sequelize.BIGINT,
-      allowNull: false,
+      allowNull: true,
       field: 'revenue_actual',
     },
     revenueEstimate: {
       type: Sequelize.BIGINT,
-      allowNull: false,
+      allowNull: true,
       field: 'revenue_estimate',
     },
     quarter: {

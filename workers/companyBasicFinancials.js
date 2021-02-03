@@ -5,6 +5,8 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+// obsolete
+
 async function handleBasicFinancials(symbol, basicFinancials) {
   if (!basicFinancials.metric || Object.keys(basicFinancials.metric).length === 0) {
     return
@@ -40,7 +42,7 @@ async function handleBasicFinancials(symbol, basicFinancials) {
 async function updateBasicFinancials() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
-    where: { tracking: true },
+    // where: { tracking: true },
   })
   stockSymbols = stockSymbols.map(c => c.symbol)
 
@@ -73,10 +75,10 @@ module.exports.updateCompanyProfile = new CronJob('0 18 * * *', async () => {
   logger.info('Done')
 }, null, true, 'America/New_York');
 
-// (async function () {
-//   try {
-//     await updateBasicFinancials()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+(async function () {
+  try {
+    await updateBasicFinancials()
+  } catch (err) {
+    logger.error({ err })
+  }
+})()

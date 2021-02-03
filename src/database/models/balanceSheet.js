@@ -89,7 +89,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     liabilitiesShareholdersEquity: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'liabilities_shareholders_equity',
     },
     longTermDebt: {

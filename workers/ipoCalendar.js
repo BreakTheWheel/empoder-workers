@@ -6,6 +6,8 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+// not used for now
+
 async function handleEarning(symbol, earning) {
   try {
     const exists = await db.EarningsCalendar.findOne({
@@ -20,13 +22,22 @@ async function handleEarning(symbol, earning) {
 
     if (!exists) {
       await db.EarningsCalendar.create(earning)
+    } else {
+      await db.EarningsCalendar.update(earning, {
+        where: {
+          [db.sequelize.Op.and]: [
+            db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('date')), '=', earning.date),
+          ],
+          symbol,
+        },
+      })
     }
   } catch (err) {
     logger.error({ err }, `Failed to store earnings calendar for symbol ${symbol}`)
   }
 }
 
-async function updateEarningsCalendar() {
+async function updateIpoCalendar() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
     where: { tracking: true },
@@ -65,13 +76,13 @@ async function updateEarningsCalendar() {
   }
 }
 
-module.exports.updateEarningsCalendar = new CronJob('0 21 * * *', async () => {
+module.exports.updateIpoCalendar = new CronJob('0 21 * * *', async () => {
   logger.info('Running every day at 9pm')
 
   try {
-    await updateEarningsCalendar()
+    await updateIpoCalendar()
   } catch (err) {
-    logger.error({ err }, 'Failed in updating earnings calendar')
+    logger.error({ err }, 'Failed in updating IPO calendar')
   }
 
   logger.info('Done')
@@ -80,7 +91,7 @@ module.exports.updateEarningsCalendar = new CronJob('0 21 * * *', async () => {
 
 // (async function () {
 //   try {
-//     await updateEarningsCalendar()
+//     await updateIpoCalendar()
 //   } catch (err) {
 //     logger.error({ err })
 //   }
