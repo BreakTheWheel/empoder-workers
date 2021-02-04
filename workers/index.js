@@ -63,10 +63,10 @@ earningsEstimates.updateEarningsEstimates.start()
 // not used for now
 // ipoCalendar.updateEarningsCalendar.start()
 
-// 10:00
+// 11:00
 optionsActivity.updateStockOptions.start()
 
-// 11:00
+// 12:00
 financialStatements.updateFinancialStatements.start()
 
 // every 2 hours

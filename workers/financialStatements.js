@@ -97,8 +97,8 @@ async function updateFinancialStatements() {
   }
 }
 
-module.exports.updateFinancialStatements = new CronJob('0 11 * * *', async () => {
-  logger.info('Running every day at 11am')
+module.exports.updateFinancialStatements = new CronJob('0 12 * * *', async () => {
+  logger.info('Running every day at 12am')
 
   try {
     await updateFinancialStatements()
