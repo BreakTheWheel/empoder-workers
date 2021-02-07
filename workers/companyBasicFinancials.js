@@ -63,22 +63,31 @@ async function updateBasicFinancials() {
   }
 }
 
-module.exports.updateCompanyProfile = new CronJob('0 18 * * *', async () => {
-  logger.info('Running every 18:00 every day')
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
 
-  try {
-    await updateBasicFinancials()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating company basic financials')
+module.exports.updateCompanyProfile = new CronJob('0 18 * * *', async () => {
+  if (!startImmediately && !stopped) {
+    logger.info('Running every 18:00 every day')
+
+    try {
+      await updateBasicFinancials()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating company basic financials')
+    }
+
+    logger.info('Done')
   }
 
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-// (async function () {
-//   try {
-//     await updateBasicFinancials()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateBasicFinancials()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}
+

@@ -24,7 +24,7 @@ async function handlePrice(symbol, price) {
       await db.HistoricalPrice.create(price)
     }
   } catch (err) {
-    logger.error({ err }, `Failed to store hisotircal price for symbol ${symbol}`)
+    logger.error({ err }, `Failed to store historical price for symbol ${symbol}`)
   }
 }
 
@@ -58,23 +58,30 @@ async function updateHistoricalPrices() {
   }
 }
 
-module.exports.updateHistoricalPrices = new CronJob('0 5 * * *', async () => {
-  logger.info('Running every day at 5am')
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
 
-  try {
-    await updateHistoricalPrices()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating recommendation trends')
+// Data schedule: Prior trading day adjusted data available after 4am ET Tue-Sat
+module.exports.updateHistoricalPrices = new CronJob('0 6 * * *', async () => {
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 6am')
+
+    try {
+      await updateHistoricalPrices()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating recommendation trends')
+    }
+
+    logger.info('Done')
   }
-
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-// (async function () {
-//   try {
-//     await updateHistoricalPrices()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
-
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateHistoricalPrices()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

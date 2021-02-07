@@ -68,23 +68,30 @@ async function updateEarningsEstimates() {
   }
 }
 
-module.exports.updateEarningsEstimates = new CronJob('0 8 * * *', async () => {
-  logger.info('Running every day at 8am')
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
 
-  try {
-    await updateEarningsEstimates()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating earnings estimates')
+module.exports.updateEarningsEstimates = new CronJob('0 8 * * *', async () => {
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 8am')
+
+    try {
+      await updateEarningsEstimates()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating earnings estimates')
+    }
+
+    logger.info('Done')
   }
 
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-
-// (async function () {
-//   try {
-//     await updateEarningsEstimates()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateEarningsEstimates()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

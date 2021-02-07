@@ -40,22 +40,30 @@ async function updateStockSymbols() {
   }
 }
 
-module.exports.stockSymbols = new CronJob('0 5 * * *', async () => {
-  logger.info('Running every day at 5am')
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
 
-  try {
-    await updateStockSymbols()
-  } catch (err) {
-    logger.error({ err }, 'Failed to update stock symbols')
+module.exports.stockSymbols = new CronJob('0 5 * * *', async () => {
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 5am')
+
+    try {
+      await updateStockSymbols()
+    } catch (err) {
+      logger.error({ err }, 'Failed to update stock symbols')
+    }
+
+    logger.info('Done')
   }
 
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-// (async function () {
-//   try {
-//     await updateStockSymbols()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateStockSymbols()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

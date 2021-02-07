@@ -82,22 +82,30 @@ async function updateCompanyProfile() {
   }
 }
 
-module.exports.updateCompanyProfile = new CronJob('0 17 * * *', async () => {
-  logger.info('Running every 17:00 every day')
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
 
-  try {
-    await updateCompanyProfile()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating company profiles')
+module.exports.updateCompanyProfile = new CronJob('0 17 * * *', async () => {
+  if (!startImmediately && !stopped) {
+    logger.info('Running every 17:00 every day')
+
+    try {
+      await updateCompanyProfile()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating company profiles')
+    }
+
+    logger.info('Done')
   }
 
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-// (async function () {
-//   try {
-//     await updateCompanyProfile()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateCompanyProfile()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

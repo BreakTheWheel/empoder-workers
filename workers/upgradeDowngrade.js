@@ -73,23 +73,29 @@ async function updateUpgradeDowngrade() {
   }
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
+
 module.exports.updateUpgradeDowngrade = new CronJob('0 7 * * *', async () => {
-  logger.info('Running every day at 7am')
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 7am')
 
-  try {
-    await updateUpgradeDowngrade()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating price targets')
+    try {
+      await updateUpgradeDowngrade()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating price targets')
+    }
+
+    logger.info('Done')
   }
-
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-
-// (async function () {
-//   try {
-//     await updateUpgradeDowngrade()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateUpgradeDowngrade()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

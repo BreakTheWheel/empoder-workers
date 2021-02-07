@@ -83,23 +83,29 @@ async function updateEarningsCalendar() {
   }
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
+
 module.exports.updateEarningsCalendar = new CronJob('0 15 * * *', async () => {
-  logger.info('Running every day at 15:00')
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 15:00')
 
-  try {
-    await updateEarningsCalendar()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating earnings calendar')
+    try {
+      await updateEarningsCalendar()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating earnings calendar')
+    }
+
+    logger.info('Done')
   }
-
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-
-// (async function () {
-//   try {
-//     await updateEarningsCalendar()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateEarningsCalendar()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

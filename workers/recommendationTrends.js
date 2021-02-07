@@ -68,23 +68,29 @@ async function updateRecommendationTrends() {
   }
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
+
 module.exports.updateRecommendationTrends = new CronJob('0 */4 * * *', async () => {
-  logger.info('Running every 4 hours')
+  if (!startImmediately && !stopped) {
+    logger.info('Running every 4 hours')
 
-  try {
-    await updateRecommendationTrends()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating recommendation trends')
+    try {
+      await updateRecommendationTrends()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating recommendation trends')
+    }
+
+    logger.info('Done')
   }
-
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-
-// (async function () {
-//   try {
-//     await updateRecommendationTrends()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateRecommendationTrends()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

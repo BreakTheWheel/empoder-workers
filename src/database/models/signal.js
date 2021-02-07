@@ -69,6 +69,15 @@ module.exports = (sequelize, Sequelize) => {
         key: 'id',
       },
     },
+    signalHistoricalPriceId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      field: 'signal_historical_price_id',
+      references: {
+        model: 'historical_prices',
+        key: 'id',
+      },
+    },
     signalQuote: {
       type: Sequelize.JSONB,
       allowNull: true,

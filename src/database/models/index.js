@@ -31,6 +31,8 @@ const historicalPrice = require('./historicalPrice')
 const signalPriceTarget = require('./signalPriceTarget')
 const etfsAggregate = require('./etfsAggregate')
 const sector = require('./sector')
+const signalEtfsAggregate = require('./signalEtfsAggregate')
+const signalIncomeStatement = require('./signalIncomeStatement')
 
 const models = {
   administrator,
@@ -66,6 +68,8 @@ const models = {
   signalPriceTarget,
   etfsAggregate,
   sector,
+  signalEtfsAggregate,
+  signalIncomeStatement,
 }
 
 module.exports = models

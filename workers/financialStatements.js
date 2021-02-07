@@ -7,8 +7,11 @@ const { wait } = require('../src/utils/helperFuncs')
 
 const types = [
   { type: 'ic', freq: 'quarterly' },
-  { type: 'ic', freq: 'yearly' },
+  { type: 'ic', freq: 'annual' },
+  { type: 'ic', freq: 'ttm' },
   { type: 'bs', freq: 'quarterly' },
+  { type: 'bs', freq: 'annual' },
+  // { type: 'bs', freq: 'ttm' },
 ]
 
 async function handleFinancialStatement(symbol, statement, type) {
@@ -16,11 +19,11 @@ async function handleFinancialStatement(symbol, statement, type) {
 
   let model = db.IncomeStatement
 
-  if (type === 'cf') {
+  if (type.type === 'cf') {
     model = db.CashFlowStatement
   }
 
-  if (type === 'bs') {
+  if (type.type === 'bs') {
     model = db.BalanceSheet
   }
 
@@ -50,6 +53,7 @@ async function handleFinancialStatement(symbol, statement, type) {
       })
     }
   } catch (err) {
+    logger.error({ sqlError: err.parent ? err.parent.message : '' })
     logger.error({ err }, `Failed to store statement for symbol ${symbol}`)
   }
 }
@@ -97,22 +101,33 @@ async function updateFinancialStatements() {
   }
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
+
 module.exports.updateFinancialStatements = new CronJob('0 12 * * *', async () => {
-  logger.info('Running every day at 12am')
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 12am')
 
-  try {
-    await updateFinancialStatements()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating financial statements')
+    try {
+      await updateFinancialStatements()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating financial statements')
+    }
+
+    logger.info('Done')
+
   }
-
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-// (async function () {
-//   try {
-//     await updateFinancialStatements()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+
+if (startImmediately) {
+  (async function () {
+    try {
+      logger.info('Starting immediately')
+      await updateFinancialStatements()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+
+}

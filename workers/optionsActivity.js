@@ -101,29 +101,36 @@ async function updateStockOptions() {
   }
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
+
+// Data schedule: 9:30am ET Mon-Fri - suggested 11am
 module.exports.updateStockOptions = new CronJob('0 11 * * *', async () => {
-  logger.info('Running every day at 11am')
-  const day = moment().isoWeekday()
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 11am')
+    const day = moment().isoWeekday()
 
-  if (day === 6 || day === 7) {
-    logger.info('Its weekend')
-    return
+    if (day === 6 || day === 7) {
+      logger.info('Its weekend')
+      return
+    }
+
+    try {
+      await updateStockOptions()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating stock options')
+    }
+
+    logger.info('Done')
   }
-
-  try {
-    await updateStockOptions()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating stock options')
-  }
-
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-
-// (async function () {
-//   try {
-//     await updateStockOptions()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateStockOptions()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

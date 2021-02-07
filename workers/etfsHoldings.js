@@ -135,26 +135,33 @@ async function handleAggregates() {
   }
 }
 
-module.exports.updateEtfsHoldings = new CronJob('0 23 * * *', async () => {
-  logger.info('Running every day at 11pm')
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
 
-  try {
-    await updateEtfsHoldings()
-    await handleAggregates()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating etfs holdings')
+module.exports.updateEtfsHoldings = new CronJob('0 23 * * *', async () => {
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 11pm')
+
+    try {
+      await updateEtfsHoldings()
+      await handleAggregates()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating etfs holdings')
+    }
+
+    logger.info('Done')
   }
 
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-
-// (async function () {
-//   try {
-//     await updateEtfsHoldings()
-//     await handleAggregates()
-//     logger.info('Done')
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateEtfsHoldings()
+      await handleAggregates()
+      logger.info('Done')
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

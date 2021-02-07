@@ -68,23 +68,29 @@ async function updatePeers() {
   })
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
+
 module.exports.updatePeers = new CronJob('0 22 * * *', async () => {
-  logger.info('Running every day at 22:00')
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 22:00')
 
-  try {
-    await updatePeers()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating peers')
+    try {
+      await updatePeers()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating peers')
+    }
+
+    logger.info('Done')
   }
-
-  logger.info('Done')
 }, null, true, 'America/Los_Angeles');
 
-
-// (async function () {
-//   try {
-//     await updatePeers()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updatePeers()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

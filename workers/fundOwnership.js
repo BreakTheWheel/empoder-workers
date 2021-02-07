@@ -6,7 +6,6 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
-// not used
 async function handleFundOwnership(symbol, ownership) {
   try {
     let fund = await db.Fund.findOne({ attributes: ['id'], where: { name: ownership.name } })
@@ -25,14 +24,26 @@ async function handleFundOwnership(symbol, ownership) {
       },
     })
 
+    const obj = {
+      symbol,
+      fundId: fund.id,
+      share: ownership.share,
+      change: ownership.change,
+      filingDate: ownership.filingDate,
+      portfolioPercent: ownership.portfolioPercent,
+    }
+
     if (!exists) {
-      await db.FundOwnership.create({
-        symbol,
-        fundId: fund.id,
-        share: ownership.share,
-        change: ownership.change,
-        filingDate: ownership.filingDate,
-        portfolioPercent: ownership.portfolioPercent,
+      await db.FundOwnership.create(obj)
+    } else {
+      await db.FundOwnership.update(obj, {
+        where: {
+          symbol,
+          fundId: fund.id,
+          [db.sequelize.Op.and]: [
+            db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('filing_date')), '=', ownership.filingDate),
+          ],
+        },
       })
     }
   } catch (err) {
@@ -79,23 +90,29 @@ async function updateFundOwnership() {
   }
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
+
 module.exports.fundOwnership = new CronJob('0 19 * * *', async () => {
-  logger.info('Running every day at 7pm')
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 7pm')
 
-  try {
-    await updateFundOwnership()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating fund ownership')
+    try {
+      await updateFundOwnership()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating fund ownership')
+    }
+
+    logger.info('Done')
   }
-
-  logger.info('Done')
 }, null, true, 'America/Los_Angeles');
 
-
-// (async function () {
-//   try {
-//     await updateFundOwnership()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateFundOwnership()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

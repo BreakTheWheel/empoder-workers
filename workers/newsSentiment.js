@@ -74,23 +74,29 @@ async function updateNewsSentiment() {
   }
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
+
 module.exports.updateNewsSentiment = new CronJob('0 */3 * * *', async () => {
-  logger.info('Running every 3 hours')
+  if (!startImmediately && !stopped) {
+    logger.info('Running every 3 hours')
 
-  try {
-    await updateNewsSentiment()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating news sentiment')
+    try {
+      await updateNewsSentiment()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating news sentiment')
+    }
+
+    logger.info('Done')
   }
-
-  logger.info('Done')
 }, null, true, 'America/Los_Angeles');
 
-
-// (async function () {
-//   try {
-//     await updateNewsSentiment()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateNewsSentiment()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

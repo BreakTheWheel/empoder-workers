@@ -206,6 +206,10 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: true,
       field: 'total_receivables',
     },
+    freq: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
     unrealizedProfitLossSecurity: {
       type: Sequelize.INTEGER,
       allowNull: true,

@@ -1,4 +1,4 @@
-const trades = require('./trades')
+// const trades = require('./trades')
 const companyProfile = require('./companyProfile')
 const fundOwnership = require('./fundOwnership')
 const peers = require('./peers')
@@ -19,7 +19,7 @@ const historicalPrices = require('./historicalPrices')
 // const companyBasicFinancials = require('./companyBasicFinancials')
 
 // Pusher
-trades.start()
+// trades.start()
 realTimeQuote.start()
 
 // non stop
@@ -51,6 +51,8 @@ recommendationTrends.updateRecommendationTrends.start()
 
 // 05:00
 stockSymbols.stockSymbols.start()
+
+// 06:00
 historicalPrices.updateHistoricalPrices.start()
 
 // 07:00

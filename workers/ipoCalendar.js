@@ -76,23 +76,30 @@ async function updateIpoCalendar() {
   }
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
+
 module.exports.updateIpoCalendar = new CronJob('0 21 * * *', async () => {
-  logger.info('Running every day at 9pm')
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 9pm')
 
-  try {
-    await updateIpoCalendar()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating IPO calendar')
+    try {
+      await updateIpoCalendar()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating IPO calendar')
+    }
+
+    logger.info('Done')
   }
-
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
 
-// (async function () {
-//   try {
-//     await updateIpoCalendar()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updateIpoCalendar()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

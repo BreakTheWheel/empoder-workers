@@ -83,22 +83,29 @@ async function updatePriceTargets() {
   }
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+const stopped = process.env.STOPPED === 'true'
+
 module.exports.priceTarget = new CronJob('0 1 * * *', async () => {
-  logger.info('Running every day at 1am')
+  if (!startImmediately && !stopped) {
+    logger.info('Running every day at 1am')
 
-  try {
-    await updatePriceTargets()
-  } catch (err) {
-    logger.error({ err }, 'Failed in updating price targets')
+    try {
+      await updatePriceTargets()
+    } catch (err) {
+      logger.error({ err }, 'Failed in updating price targets')
+    }
+
+    logger.info('Done')
   }
-
-  logger.info('Done')
 }, null, true, 'America/New_York');
 
-// (async function () {
-//   try {
-//     await updatePriceTargets()
-//   } catch (err) {
-//     logger.error({ err })
-//   }
-// })()
+if (startImmediately) {
+  (async function () {
+    try {
+      await updatePriceTargets()
+    } catch (err) {
+      logger.error({ err })
+    }
+  })()
+}

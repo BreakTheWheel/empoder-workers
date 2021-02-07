@@ -6,12 +6,6 @@ const logger = require('../src/common/logger')
 const { wait } = require('../src/utils/helperFuncs')
 
 async function handleQuote(query) {
-  // const exists = await db.Quote.findOne({
-  //   attributes: ['symbol'],
-  //   where: { symbol: quote.symbol.toUpperCase() },
-  // })
-
-  // if (exists) {
   try {
     await db.sequelize.query(query)
 
@@ -19,15 +13,6 @@ async function handleQuote(query) {
   } catch (err) {
     logger.error({ err }, 'Failed to update quote')
   }
-
-  //return
-  //}
-
-  // try {
-  //   await db.Quote.create(quote)
-  // } catch (err) {
-  //   logger.error({ err }, 'Failed to create quote')
-  // }
 }
 
 const onOpen = event => {
@@ -42,9 +27,7 @@ const onResult = event => {
   logger.warn({ warn: event })
 }
 
-let counter = 0
 let query = ''
-const maxlengh = 20
 
 const onMessage = event => {
   const data = JSON.parse(event.data)
@@ -52,18 +35,128 @@ const onMessage = event => {
   for (const quote of data) {
     logger.info({ message: { symbol: quote.symbol, latestPrice: quote.latestPrice, volume: quote.volume, latestVolume: quote.latestVolume } })
     query += `
-      UPDATE quotes 
-      SET latest_price = ${quote.latestPrice}, volume = ${quote.volume}, close_source = '${quote.closeSource}', pe_ratio = ${quote.peRatio}, market_cap = ${quote.marketCap}
-      WHERE symbol = '${quote.symbol}';
+    INSERT INTO quotes (
+      symbol,
+      avg_total_volume, 
+      change, 
+      change_percent, 
+      close, 
+      close_source, 
+      close_time, 
+      company_name, 
+      delayed_price, 
+      delayed_price_time, 
+      extended_change, 
+      extended_change_percent, 
+      extended_price, 
+      extended_price_time, 
+      high, 
+      high_source, 
+      high_time, 
+      last_trade_time, 
+      latest_update, 
+      latest_volume,
+      low_time,
+      market_cap,
+      open_time,
+      pe_ratio,
+      previous_close,
+      previous_volume,
+      odd_lot_delayed_price_time,
+      latest_price, 
+      latest_source,
+      latest_time,
+      low,
+      low_source,
+      open,
+      open_source,
+      primary_exchange,
+      volume,
+      calculation_price
+    )
+    VALUES (
+      '${quote.symbol}',
+      ${quote.avgTotalVolume || null}, 
+      ${quote.change || null}, 
+      ${quote.changePercent || null}, 
+      ${quote.close || null}, 
+      '${quote.closeSource || null}', 
+      ${quote.closeTime || null}, 
+      '${quote.companyName || null}', 
+      ${quote.deplayedPrice || null}, 
+      ${quote.delayedPriceTime || null}, 
+      ${quote.extendedChange || null}, 
+      ${quote.extendedChangePercent || null}, 
+      ${quote.extendedPrice || null}, 
+      ${quote.extendedPriceTime || null}, 
+      ${quote.high || null}, 
+      '${quote.highSource || null}', 
+      ${quote.highTime || null}, 
+      ${quote.lastTradeTime || null}, 
+      ${quote.latestUpdate || null}, 
+      ${quote.latestVolume || null}, 
+      ${quote.lowTime || null}, 
+      ${quote.marketCap || null}, 
+      ${quote.openTime || null}, 
+      ${quote.peRatio || null}, 
+      ${quote.previousClose || null}, 
+      ${quote.previousVolume || null}, 
+      ${quote.oddLotDelayedPrice || null}, 
+      ${quote.latestPrice || null}, 
+      '${quote.latestSource || null}', 
+      '${quote.latestTime || null}', 
+      ${quote.low || null}, 
+      '${quote.lowSource || null}', 
+      ${quote.open || null}, 
+      '${quote.openSource || null}', 
+      '${quote.primaryExchange || null}', 
+      ${quote.volume || 0}, 
+      '${quote.calculationPrice || null}'
+    )
+    ON CONFLICT (symbol)
+    DO UPDATE 
+    SET 
+      avg_total_volume = ${quote.avgTotalVolume || null}, 
+      change = ${quote.change || null}, 
+      change_percent = ${quote.changePercent || null},
+      close = ${quote.close || null},  
+      close_source = '${quote.closeSource || null}', 
+      close_time = ${quote.closeTime || null},
+      company_name = '${quote.companyName || null}',
+      delayed_price = ${quote.deplayedPrice || null},
+      delayed_price_time = ${quote.delayedPriceTime || null},
+      extended_change = ${quote.extendedChange || null},
+      extended_change_percent = ${quote.extendedChangePercent || null},
+      extended_price = ${quote.extendedPrice || null},
+      extended_price_time = ${quote.extendedPriceTime || null},
+      high = ${quote.high || null},
+      high_source = '${quote.highSource || null}',
+      high_time = ${quote.highTime || null},
+      last_trade_time = ${quote.lastTradeTime || null},
+      latest_update = ${quote.latestUpdate || null},
+      latest_volume = ${quote.latestVolume || null},
+      low_time = ${quote.lowTime || null},
+      market_cap = ${quote.marketCap || null},
+      open_time = ${quote.openTime || null},
+      pe_ratio = ${quote.peRatio || null},
+      previous_close = ${quote.previousClose || null},
+      previous_volume = ${quote.previousVolume || null},
+      odd_lot_delayed_price = ${quote.oddLotDelayedPrice || null},
+      latest_price = ${quote.latestPrice || null},
+      latest_source = '${quote.latestSource || null}',
+      latest_time = '${quote.latestTime || null}',
+      low = ${quote.low || null},
+      low_source = '${quote.lowSource || null}',
+      open = ${quote.open || null},
+      open_source = '${quote.openSource || null}',
+      primary_exchange = '${quote.primaryExchange || null}',
+      volume = ${quote.volume || 0},
+      calculation_price = '${quote.calculationPrice || null}';
     `
-    counter++
   }
 
-  if (counter >= maxlengh) {
-    handleQuote(query)
-    query = ''
-    counter = 0
-  }
+  handleQuote(query)
+  query = ''
 }
 
 function connect(joined) {
