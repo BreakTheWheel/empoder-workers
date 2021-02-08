@@ -92,10 +92,31 @@ async function optionsActivitySignal(symbol, quote) {
   })
 
   if (stockOption && stockOption.id) {
-    triggers.push('STOCK_OPTION')
+    triggers.push('STOCK_OPTION_PRICE')
     return stockOption.id
   }
 
+  // open interest AND volume > 1000
+  stockOption = await db.StockOption.findOne({
+    where: {
+      symbol,
+      openInterest: { [db.sequelize.Op.gt]: 1000 },
+      volume: { [db.sequelize.Op.gt]: 1000 },
+      [db.sequelize.Op.and]: [
+        db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('expiration_date')), '>=', today),
+      ],
+    },
+    order: [
+      ['expirationDate', 'ASC'],
+    ],
+  })
+
+  if (stockOption && stockOption.id) {
+    triggers.push('STOCK_OPTION_VOLUME')
+    return stockOption.id
+  }
+
+  // get any in case other signal triggers
   stockOption = await db.StockOption.findOne({
     where: {
       symbol,
