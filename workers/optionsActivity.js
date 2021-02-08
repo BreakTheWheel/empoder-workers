@@ -125,12 +125,14 @@ module.exports.updateStockOptions = new CronJob('0 11 * * *', async () => {
   }
 }, null, true, 'America/New_York');
 
-if (startImmediately) {
-  (async function () {
-    try {
-      await updateStockOptions()
-    } catch (err) {
-      logger.error({ err })
-    }
-  })()
+if (startImmediately {
+  if (startImmediately) {
+    (async function () {
+      try {
+        await updateStockOptions()
+      } catch (err) {
+        logger.error({ err })
+      }
+    })()
+  }
 }
