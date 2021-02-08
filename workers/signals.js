@@ -35,7 +35,7 @@ async function volumeTriger(symbol, quote) {
     return null
   }
 
-  const change = (Number(latestVolume) / Number(yesterdaysVolume.volume) - 1) * 100
+  const change = ((Number(latestVolume) / Number(yesterdaysVolume.volume)) - 1) * 100
 
   if (change > 20) {
     triggers.push('VOLUME')
