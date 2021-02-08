@@ -28,12 +28,19 @@ const onResult = event => {
 }
 
 let query = ''
+let counter = 0
+let holdOn = false
 
 const onMessage = event => {
+  if (holdOn) {
+    return
+  }
+
   const data = JSON.parse(event.data)
 
   for (const quote of data) {
-    logger.info({ message: { symbol: quote.symbol, latestPrice: quote.latestPrice, volume: quote.volume, latestVolume: quote.latestVolume } })
+    // logger.info({ message: { symbol: quote.symbol, latestPrice: quote.latestPrice, volume: quote.volume, latestVolume: quote.latestVolume } })
+    counter++
     query += `
     INSERT INTO quotes (
       symbol,
@@ -155,8 +162,18 @@ const onMessage = event => {
     `
   }
 
-  handleQuote(query)
-  query = ''
+  // TODO: FIX!
+  if (counter === 100) {
+    holdOn = true
+    handleQuote(query).then(() => {
+      query = ''
+      holdOn = false
+      counter = 0
+    })
+    // query = ''
+    // // holdOn = false
+    // counter = 0
+  }
 }
 
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
@@ -173,7 +190,7 @@ function connect(joined) {
 module.exports = {
   start: async () => {
     let stopped = process.env.STOPPED === 'true'
-    
+
     while (stopped) {
       logger.info('Real time quote stopped')
       await wait(20)
@@ -188,12 +205,12 @@ module.exports = {
     const mapped = symbols.map(s => s.symbol)
 
     while (mapped.length) {
-      arrayOfArrays.push(mapped.splice(0, 20))
+      arrayOfArrays.push(mapped.splice(0, 30))
     }
 
     for (const arr of arrayOfArrays) {
       connect(arr.join(','))
-      await wait(2)
+      await wait(0.5)
     }
   },
 }
