@@ -129,5 +129,4 @@ if (startImmediately) {
       logger.error({ err })
     }
   })()
-
 }
