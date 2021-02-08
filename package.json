@@ -1,5 +1,5 @@
 {
-  "name": "btw-api",
+  "name": "empoder-worker",
   "version": "1.0.0",
   "description": "API for BTW admin and BTW client",
   "main": "src/cluster.js",
