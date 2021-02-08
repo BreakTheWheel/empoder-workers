@@ -1,7 +1,7 @@
 // const trades = require('./trades')
 const companyProfile = require('./companyProfile')
 const fundOwnership = require('./fundOwnership')
-const peers = require('./peers')
+// const peers = require('./peers')
 const priceTargets = require('./priceTargets')
 const recommendationTrends = require('./recommendationTrends')
 const stockSymbols = require('./stockSymbols')
@@ -35,7 +35,7 @@ companyProfile.updateCompanyProfile.start()
 fundOwnership.fundOwnership.start()
 
 // 22:00
-peers.updatePeers.start()
+// peers.updatePeers.start()
 
 // 23:00
 etfsHoldings.updateEtfsHoldings.start()

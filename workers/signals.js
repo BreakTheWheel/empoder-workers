@@ -2,6 +2,7 @@
 const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
+const { wait } = require('../src/utils/helperFuncs')
 
 /*
 For a stock to display in this table it must meet 1 or more of the following criteria: 
@@ -39,7 +40,7 @@ async function volumeTriger(symbol, quote) {
   if (change > 20) {
     triggers.push('VOLUME')
   }
-  
+
   return yesterdaysVolume.id
 }
 
@@ -291,7 +292,7 @@ async function updateSignals() {
   stockSymbols = stockSymbols.map(c => c.symbol)
 
   for (const symbol of stockSymbols) {
-    logger.info(`Symbol: ${symbol}`)
+    logger.info(`Looking for signal for symbol: ${symbol}`)
     triggers = []
 
     const quote = await db.Quote.findOne({
@@ -370,8 +371,19 @@ async function updateSignals() {
   }
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+
 module.exports = {
   start: async () => {
+    let stopped = process.env.STOPPED === 'true'
+
+    while (stopped) {
+      logger.info('Signals stopped')
+      await wait(20)
+
+      stopped = process.env.STOPPED === 'true'
+    }
+
     while (true) {
       try {
         await updateSignals()
@@ -384,4 +396,6 @@ module.exports = {
   },
 }
 
-module.exports.start()
+if (startImmediately) {
+  module.exports.start()
+}

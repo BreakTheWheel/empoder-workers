@@ -159,6 +159,8 @@ const onMessage = event => {
   query = ''
 }
 
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
+
 function connect(joined) {
   const es = new EventSource(`https://cloud-sse.iexapis.com/stable/stocksUSNoUTP?symbols=${joined}&token=${process.env.IEX_CLOUD_TOKEN}`);
 
@@ -171,6 +173,7 @@ function connect(joined) {
 module.exports = {
   start: async () => {
     let stopped = process.env.STOPPED === 'true'
+    
     while (stopped) {
       logger.info('Real time quote stopped')
       await wait(20)
@@ -195,4 +198,6 @@ module.exports = {
   },
 }
 
-module.exports.start()
+if (startImmediately) {
+  module.exports.start()
+}
