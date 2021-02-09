@@ -34,11 +34,16 @@ async function updateHistoricalPrices() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
     where: { tracking: true },
+    order: [
+      ['sectorId', 'DESC'],
+    ],
   })
   stockSymbols = stockSymbols.map(c => c.symbol)
 
   for (const symbol of stockSymbols) {
     const date = moment().subtract(1, 'day').format('YYYYMMDD')
+    logger.info(`Historical price: ${symbol}, date: ${date}`)
+
     let prices
 
     while (!prices) {
@@ -51,8 +56,6 @@ async function updateHistoricalPrices() {
     }
 
     for (const price of prices) {
-      logger.info(`Historical price: ${symbol}, date: ${date}`)
-
       price.symbol = symbol
 
       await handlePrice(symbol, price)

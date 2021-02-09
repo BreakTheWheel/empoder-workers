@@ -57,6 +57,9 @@ async function updateFundOwnership() {
   let symbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
     where: { tracking: true },
+    order: [
+      ['sectorId', 'ASC'],
+    ],
   })
   symbols = symbols.map(s => s.symbol)
 
@@ -79,12 +82,15 @@ async function updateFundOwnership() {
       for (const own of fundOwnership.ownership) {
         promises.push(handleFundOwnership(symbol, own))
 
-        if (promises.length === 50) {
+        if (promises.length === 100) {
           await Promise.all(promises)
 
           promises = []
         }
       }
+
+      await Promise.all(promises)
+
     } catch (err) {
       logger.error({ processName, err }, 'Failed on FN fund ownership')
       await wait(2)

@@ -40,11 +40,16 @@ async function updateRecommendationTrends() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
     where: { tracking: true },
+    order: [
+      ['sectorId', 'ASC'],
+    ],
   })
   stockSymbols = stockSymbols.map(c => c.symbol)
   let promises = []
 
   for (const symbol of stockSymbols) {
+    logger.info({ processName }, `Recommendation trend: ${symbol}`)
+
     let trends
 
     while (!trends) {
@@ -57,8 +62,6 @@ async function updateRecommendationTrends() {
     }
 
     for (const trend of trends) {
-      logger.info({ processName }, `Recommendation trend: ${symbol}`)
-
       trend.symbol = symbol
 
       promises.push(handleTrend(symbol, trend))

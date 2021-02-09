@@ -73,6 +73,8 @@ async function updateFinancialStatements() {
 
   for (const symbol of stockSymbols) {
     for (const type of types) {
+      logger.info({ processName }, `Statement for symbol: ${symbol}`)
+
       let statements
 
       while (!statements) {
@@ -92,8 +94,6 @@ async function updateFinancialStatements() {
       }
 
       for (const statement of statements.financials) {
-        logger.info({ processName }, `Statement for symbol: ${symbol}`)
-
         statement.symbol = symbol
 
         promises.push(handleFinancialStatement(symbol, statement, type))

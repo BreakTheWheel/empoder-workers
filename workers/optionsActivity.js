@@ -87,8 +87,6 @@ async function updateStockOptions() {
       let promises = []
 
       for (const stockOption of stockOptions) {
-        logger.info({ processName }, `${symbol} ${expiration} ${stockOption.subkey}`)
-
         promises.push(handleStockOption(symbol, stockOption))
 
         if (promises.length === 100) {
