@@ -6,7 +6,7 @@ const priceTargets = require('./priceTargets')
 const recommendationTrends = require('./recommendationTrends')
 const stockSymbols = require('./stockSymbols')
 const newsSentiment = require('./newsSentiment')
-const upgradeDowngrade = require('./upgradeDowngrade')
+// const upgradeDowngrade = require('./upgradeDowngrade')
 const optionsActivity = require('./optionsActivity')
 const earningsEstimates = require('./earningsEstimates')
 const earningsCalendar = require('./earningsCalendar')
@@ -20,56 +20,56 @@ const historicalPrices = require('./historicalPrices')
 
 // Pusher
 // trades.start()
-realTimeQuote.start()
+realTimeQuote.start() //IEX
 
 // non stop
 signals.start()
 
-// 17:00 new york time
-companyProfile.updateCompanyProfile.start()
+// 18:00
+companyProfile.updateCompanyProfile.start() // FH  
 
 // 18:00
 // companyBasicFinancials.updateCompanyProfile.start() 
 
-// 19:00
-fundOwnership.fundOwnership.start()
+// 20:00
+fundOwnership.fundOwnership.start() // FH 
 
 // 22:00
 // peers.updatePeers.start()
 
 // 23:00
-etfsHoldings.updateEtfsHoldings.start()
-
-// 01:00
-priceTargets.priceTarget.start()
+etfsHoldings.updateEtfsHoldings.start() // FH 
 
 // 02:00
-earningsCalendar.updateEarningsCalendar.start()
-
-// 03:00
-recommendationTrends.updateRecommendationTrends.start()
+priceTargets.priceTarget.start() // FH 
 
 // 05:00
-stockSymbols.stockSymbols.start()
+earningsCalendar.updateEarningsCalendar.start() // FH 
+
+// 08:00
+recommendationTrends.updateRecommendationTrends.start() // FH 
+
+// 11:00
+stockSymbols.stockSymbols.start() // FH 
 
 // 06:00
-historicalPrices.updateHistoricalPrices.start()
+historicalPrices.updateHistoricalPrices.start() // IEX 
 
 // 07:00
-upgradeDowngrade.updateUpgradeDowngrade.start()
+// upgradeDowngrade.updateUpgradeDowngrade.start()
 
-// 8:00
-earningsEstimates.updateEarningsEstimates.start()
+// 14:00
+earningsEstimates.updateEarningsEstimates.start()  // FH 
 
 // 9pm
 // not used for now
 // ipoCalendar.updateEarningsCalendar.start()
 
 // 11:00
-optionsActivity.updateStockOptions.start()
+optionsActivity.updateStockOptions.start() // IEX
 
-// 12:00
-financialStatements.updateFinancialStatements.start()
+// 16:30
+financialStatements.updateFinancialStatements.start()  // FH 
 
-// every 2 hours
-newsSentiment.updateNewsSentiment.start()
+// every 5 hours
+newsSentiment.updateNewsSentiment.start()  // FH 

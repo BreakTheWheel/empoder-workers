@@ -6,6 +6,8 @@ const logger = require('../src/common/logger')
 const iexCloud = require('../src/services/iexCloud')
 const { wait } = require('../src/utils/helperFuncs')
 
+const processName = 'historical-prices'
+
 async function handlePrice(symbol, price) {
   delete price.id
 
@@ -24,7 +26,7 @@ async function handlePrice(symbol, price) {
       await db.HistoricalPrice.create(price)
     }
   } catch (err) {
-    logger.error({ err }, `Failed to store historical price for symbol ${symbol}`)
+    logger.error({ processName, err }, `Failed to store historical price for symbol ${symbol}`)
   }
 }
 
@@ -43,7 +45,7 @@ async function updateHistoricalPrices() {
       try {
         prices = await iexCloud.historicalPrices({ symbol, date })
       } catch (err) {
-        logger.error({ err: err.response }, 'Failed to get prices')
+        logger.error({ processName, err: err.response }, 'Failed to get prices')
         await wait(5)
       }
     }
@@ -64,7 +66,7 @@ const stopped = process.env.STOPPED === 'true'
 // Data schedule: Prior trading day adjusted data available after 4am ET Tue-Sat
 module.exports.updateHistoricalPrices = new CronJob('0 6 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every day at 6am')
+    logger.info({ processName }, 'Running every day at 6am')
 
     try {
       await updateHistoricalPrices()
@@ -72,7 +74,7 @@ module.exports.updateHistoricalPrices = new CronJob('0 6 * * *', async () => {
       logger.error({ err }, 'Failed in updating recommendation trends')
     }
 
-    logger.info('Done')
+    logger.info({ processName }, 'Done')
   }
 }, null, true, 'America/New_York');
 
@@ -80,8 +82,9 @@ if (startImmediately) {
   (async function () {
     try {
       await updateHistoricalPrices()
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }

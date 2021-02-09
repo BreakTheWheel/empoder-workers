@@ -6,6 +6,8 @@ const logger = require('../src/common/logger')
 const { wait } = require('../src/utils/helperFuncs')
 const iexCloud = require('../src/services/iexCloud')
 
+const processName = 'options-activity'
+
 async function handleStockOption(symbol, stockOption) {
   const exists = await db.StockOption.findOne({
     attributes: ['id'],
@@ -49,7 +51,7 @@ async function updateStockOptions() {
   stockSymbols = stockSymbols.map(s => s.symbol)
 
   for (const symbol of stockSymbols) {
-    logger.info(`Processing symbol: ${symbol}`)
+    logger.info({ processName }, `Processing symbol: ${symbol}`)
     let optionDates
 
     while (!optionDates) {
@@ -57,11 +59,11 @@ async function updateStockOptions() {
         optionDates = await iexCloud.stockOptionDates({ symbol })
       } catch (err) {
         if (err.response.data === 'Not found') { // symbol does not exist
-          logger.error(`Symbol ${symbol} not found in IEX`)
+          logger.error({ processName }, `Symbol ${symbol} not found in IEX`)
           break
         }
 
-        logger.error({ err }, 'Failed on IEX optionDates activity')
+        logger.error({ processName, err }, 'Failed on IEX optionDates activity')
         await wait(2)
       }
     }
@@ -77,7 +79,7 @@ async function updateStockOptions() {
         try {
           stockOptions = await iexCloud.stockOptions({ symbol, expiration })
         } catch (err) {
-          logger.error({ err }, 'Failed on IEX optionDates activity')
+          logger.error({ processName, err }, 'Failed on IEX optionDates activity')
           await wait(2)
         }
       }
@@ -85,7 +87,7 @@ async function updateStockOptions() {
       let promises = []
 
       for (const stockOption of stockOptions) {
-        logger.info(`${symbol} ${expiration} ${stockOption.subkey}`)
+        logger.info({ processName }, `${symbol} ${expiration} ${stockOption.subkey}`)
 
         promises.push(handleStockOption(symbol, stockOption))
 
@@ -107,7 +109,7 @@ const stopped = process.env.STOPPED === 'true'
 // Data schedule: 9:30am ET Mon-Fri - suggested 11am
 module.exports.updateStockOptions = new CronJob('0 11 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every day at 11am')
+    logger.info({ processName }, 'Running every day at 11am')
     const day = moment().isoWeekday()
 
     if (day === 6 || day === 7) {
@@ -118,7 +120,7 @@ module.exports.updateStockOptions = new CronJob('0 11 * * *', async () => {
     try {
       await updateStockOptions()
     } catch (err) {
-      logger.error({ err }, 'Failed in updating stock options')
+      logger.error({ processName, err }, 'Failed in updating stock options')
     }
 
     logger.info('Done')
@@ -129,8 +131,9 @@ if (startImmediately) {
   (async function () {
     try {
       await updateStockOptions()
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }

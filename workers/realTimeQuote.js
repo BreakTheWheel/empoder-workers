@@ -5,26 +5,28 @@ const db = require('../src/database')
 const logger = require('../src/common/logger')
 const { wait } = require('../src/utils/helperFuncs')
 
+const processName = 'real-time-quote'
+
 async function handleQuote(query) {
   try {
     await db.sequelize.query(query)
 
-    logger.info('Updated stock prices!')
+    logger.info({ processName }, 'Updated stock prices!')
   } catch (err) {
-    logger.error({ err }, 'Failed to update quote')
+    logger.error({ processName, err }, 'Failed to update quote')
   }
 }
 
 const onOpen = event => {
-  logger.info({ event })
+  logger.info({ processName, event })
 }
 
 const onError = event => {
-  logger.error({ err: event })
+  logger.error({ processName, err: event })
 }
 
 const onResult = event => {
-  logger.warn({ warn: event })
+  logger.warn({ processName, warn: event })
 }
 
 let query = ''
@@ -192,7 +194,7 @@ module.exports = {
     let stopped = process.env.STOPPED === 'true'
 
     while (stopped) {
-      logger.info('Real time quote stopped')
+      logger.info({ processName }, 'Real time quote stopped')
       await wait(20)
 
       stopped = process.env.STOPPED === 'true'

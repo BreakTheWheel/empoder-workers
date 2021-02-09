@@ -5,6 +5,8 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+const processName = 'news-sentiment'
+
 async function handleSentiment(symbol, sentiment) {
   try {
     const dbObj = await db.NewsSentiment.findOne({
@@ -45,7 +47,7 @@ async function handleSentiment(symbol, sentiment) {
       await db.NewsSentiment.update(obj, { where: { id: dbObj.id } })
     }
   } catch (err) {
-    logger.error({ err }, 'Failed in handleSentiment')
+    logger.error({ processName, err }, 'Failed in handleSentiment')
   }
 }
 
@@ -65,29 +67,29 @@ async function updateNewsSentiment() {
       try {
         newsSentiment = await finhub.newsSentiment({ symbol })
       } catch (err) {
-        logger.error({ err }, 'Failed to get news sentiment')
+        logger.error({ processName, err }, 'Failed to get news sentiment')
         await wait(2)
       }
     }
 
-    await handleSentiment(symbol, newsSentiment)
+    handleSentiment(symbol, newsSentiment)
   }
 }
 
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.updateNewsSentiment = new CronJob('0 */3 * * *', async () => {
+module.exports.updateNewsSentiment = new CronJob('0 */5 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every 3 hours')
+    logger.info({ processName }, 'Running every 5 hours')
 
     try {
       await updateNewsSentiment()
     } catch (err) {
-      logger.error({ err }, 'Failed in updating news sentiment')
+      logger.error({ processName, err }, 'Failed in updating news sentiment')
     }
 
-    logger.info('Done')
+    logger.info({ processName }, 'Done')
   }
 }, null, true, 'America/Los_Angeles');
 
@@ -95,8 +97,9 @@ if (startImmediately) {
   (async function () {
     try {
       await updateNewsSentiment()
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }

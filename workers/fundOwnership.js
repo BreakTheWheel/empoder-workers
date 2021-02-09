@@ -6,6 +6,8 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+const processName = 'fund-ownership'
+
 async function handleFundOwnership(symbol, ownership) {
   try {
     let fund = await db.Fund.findOne({ attributes: ['id'], where: { name: ownership.name } })
@@ -47,7 +49,7 @@ async function handleFundOwnership(symbol, ownership) {
       })
     }
   } catch (err) {
-    logger.error({ err }, `Failed to store ownership for symbol ${symbol}`)
+    logger.error({ processName, err }, `Failed to store ownership for symbol ${symbol}`)
   }
 }
 
@@ -65,13 +67,13 @@ async function updateFundOwnership() {
       try {
         fundOwnership = await finhub.fundOwnership({ symbol })
       } catch (err) {
-        logger.error({ err }, `Failed to get fund ownership for ${symbol}`)
+        logger.error({ processName, err }, `Failed to get fund ownership for ${symbol}`)
         await wait(2)
       }
     }
 
     try {
-      logger.info(`fund ownership: ${symbol}`)
+      logger.info({ processName }, `fund ownership: ${symbol}`)
       let promises = []
 
       for (const own of fundOwnership.ownership) {
@@ -84,7 +86,7 @@ async function updateFundOwnership() {
         }
       }
     } catch (err) {
-      logger.error({ err }, 'Failed on FN fund ownership')
+      logger.error({ processName, err }, 'Failed on FN fund ownership')
       await wait(2)
     }
   }
@@ -93,9 +95,9 @@ async function updateFundOwnership() {
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.fundOwnership = new CronJob('0 19 * * *', async () => {
+module.exports.fundOwnership = new CronJob('0 20 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every day at 7pm')
+    logger.info({ processName }, 'Running every day at 8pm')
 
     try {
       await updateFundOwnership()
@@ -103,7 +105,7 @@ module.exports.fundOwnership = new CronJob('0 19 * * *', async () => {
       logger.error({ err }, 'Failed in updating fund ownership')
     }
 
-    logger.info('Done')
+    logger.info({ processName }, 'Done')
   }
 }, null, true, 'America/Los_Angeles');
 
@@ -111,8 +113,9 @@ if (startImmediately) {
   (async function () {
     try {
       await updateFundOwnership()
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }

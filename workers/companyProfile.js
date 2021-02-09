@@ -5,11 +5,13 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+const processName = 'company-profile'
+
 async function handleBasicFinancials(symbol, basicFinancials) {
   try {
     await db.CompanyProfile.update({ basicFinancials }, { where: { ticker: symbol } })
   } catch (err) {
-    logger.error({ err }, 'Failed to update basic financials')
+    logger.error({ processName, err }, 'Failed to update basic financials')
   }
 }
 
@@ -21,7 +23,7 @@ async function updateCompanyProfile() {
   stockSymbols = stockSymbols.map(c => c.symbol)
 
   for (const symbol of stockSymbols) {
-    logger.info(`Company profile: ${symbol}`)
+    logger.info({ processName }, `Company profile: ${symbol}`)
     let profile
 
     while (!profile) {
@@ -31,7 +33,7 @@ async function updateCompanyProfile() {
         if (err.response && err.response.status === 401) {
           break
         }
-        logger.error({ err }, `Failed to get company profile for ${symbol}`)
+        logger.error({ processName, err }, `Failed to get company profile for ${symbol}`)
         await wait(2)
       }
     }
@@ -57,13 +59,13 @@ async function updateCompanyProfile() {
       try {
         await db.CompanyProfile.update(profile, { where: { ticker: symbol } })
       } catch (err) {
-        logger.error({ err }, 'Failed to update company profile')
+        logger.error({ processName, err }, 'Failed to update company profile')
       }
     } else {
       try {
         await db.CompanyProfile.create(profile)
       } catch (err) {
-        logger.error({ err }, 'Failed to store company profile')
+        logger.error({ processName, err }, 'Failed to store company profile')
       }
     }
 
@@ -73,29 +75,29 @@ async function updateCompanyProfile() {
       try {
         basicFinancials = await finhub.basicFinancials({ symbol })
       } catch (err) {
-        logger.error({ err })
+        logger.error({ processName, err })
         await wait(2)
       }
     }
 
-    await handleBasicFinancials(symbol, basicFinancials)
+    handleBasicFinancials(symbol, basicFinancials)
   }
 }
 
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.updateCompanyProfile = new CronJob('0 17 * * *', async () => {
+module.exports.updateCompanyProfile = new CronJob('0 18 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every 17:00 every day')
+    logger.info({ processName }, 'Running every 18:00 every day')
 
     try {
       await updateCompanyProfile()
     } catch (err) {
-      logger.error({ err }, 'Failed in updating company profiles')
+      logger.error({ processName, err }, 'Failed in updating company profiles')
     }
 
-    logger.info('Done')
+    logger.info({ processName }, 'Done')
   }
 
 }, null, true, 'America/New_York');
@@ -104,8 +106,9 @@ if (startImmediately) {
   (async function () {
     try {
       await updateCompanyProfile()
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }

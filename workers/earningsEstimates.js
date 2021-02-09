@@ -5,6 +5,8 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+const processName = 'earnings-estimates'
+
 async function handleEarning(symbol, earning) {
   try {
     const exists = await db.EarningsEstimate.findOne({
@@ -30,7 +32,7 @@ async function handleEarning(symbol, earning) {
       })
     }
   } catch (err) {
-    logger.error({ err }, `Failed to store earnings estimate for symbol ${symbol}`)
+    logger.error({ processName, err }, `Failed to store earnings estimate for symbol ${symbol}`)
   }
 }
 
@@ -49,13 +51,13 @@ async function updateEarningsEstimates() {
       try {
         earnings = await finhub.earningsEstimate({ symbol })
       } catch (err) {
-        logger.error({ err }, 'Failed to get earnings estimate')
+        logger.error({ processName, err }, 'Failed to get earnings estimate')
         await wait(2)
       }
     }
 
     for (const earning of earnings.data) {
-      logger.info(`earnings estimates: ${symbol}`)
+      logger.info({ processName }, `earnings estimates: ${symbol}`)
 
       earning.symbol = symbol
 
@@ -71,17 +73,17 @@ async function updateEarningsEstimates() {
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.updateEarningsEstimates = new CronJob('0 8 * * *', async () => {
+module.exports.updateEarningsEstimates = new CronJob('0 14 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every day at 8am')
+    logger.info({ processName }, 'Running every day at 2pm')
 
     try {
       await updateEarningsEstimates()
     } catch (err) {
-      logger.error({ err }, 'Failed in updating earnings estimates')
+      logger.error({ processName, err }, 'Failed in updating earnings estimates')
     }
 
-    logger.info('Done')
+    logger.info({ processName }, 'Done')
   }
 
 }, null, true, 'America/New_York');
@@ -90,8 +92,9 @@ if (startImmediately) {
   (async function () {
     try {
       await updateEarningsEstimates()
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }

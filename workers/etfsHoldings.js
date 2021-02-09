@@ -6,6 +6,8 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+const processName = 'etfs-holdings'
+
 async function updateEtfsHoldings() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
@@ -15,7 +17,7 @@ async function updateEtfsHoldings() {
 
   let counter = 1
   for (const symbol of stockSymbols) {
-    logger.info(`etfsholdings processing symbol: ${symbol}, counter: ${counter++} of ${stockSymbols.length}`)
+    logger.info({ processName }, `etfsholdings processing symbol: ${symbol}, counter: ${counter++} of ${stockSymbols.length}`)
 
     let holdingsResult
 
@@ -23,7 +25,7 @@ async function updateEtfsHoldings() {
       try {
         holdingsResult = await finhub.etfsHoldings({ symbol })
       } catch (err) {
-        logger.error({ err }, 'Failed to get holdings')
+        logger.error({ err, processName }, 'Failed to get holdings')
         await wait(2)
       }
     }
@@ -82,7 +84,7 @@ async function updateEtfsHoldings() {
       await Promise.all(promises)
       await transaction.commit()
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
       await transaction.rollback()
     }
   }
@@ -99,7 +101,7 @@ async function handleAggregates() {
 
   let counter = 1
   for (const symbol of stockSymbols) {
-    logger.info(`Proccessing aggregates for ${symbol}, counter: ${counter++} of ${stockSymbols.length}`)
+    logger.info({ processName }, `Proccessing aggregates for ${symbol}, counter: ${counter++} of ${stockSymbols.length}`)
 
     const exists = await db.EtfsAggregate.findOne({
       where: {
@@ -140,16 +142,16 @@ const stopped = process.env.STOPPED === 'true'
 
 module.exports.updateEtfsHoldings = new CronJob('0 23 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every day at 11pm')
+    logger.info({ processName }, 'Running every day at 11pm')
 
     try {
       await updateEtfsHoldings()
       await handleAggregates()
     } catch (err) {
-      logger.error({ err }, 'Failed in updating etfs holdings')
+      logger.error({ processName, err }, 'Failed in updating etfs holdings')
     }
 
-    logger.info('Done')
+    logger.info({ processName }, 'Done')
   }
 
 }, null, true, 'America/New_York');
@@ -159,9 +161,9 @@ if (startImmediately) {
     try {
       await updateEtfsHoldings()
       await handleAggregates()
-      logger.info('Done')
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }

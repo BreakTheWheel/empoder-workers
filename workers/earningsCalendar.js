@@ -6,6 +6,8 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+const processName = 'earnings-calendar'
+
 async function handleEarning(symbol, earning) {
   try {
     const exists = await db.EarningsCalendar.findOne({
@@ -31,7 +33,7 @@ async function handleEarning(symbol, earning) {
       })
     }
   } catch (err) {
-    logger.error({ err }, `Failed to store earnings calendar for symbol ${symbol}`)
+    logger.error({ processName, err }, `Failed to store earnings calendar for symbol ${symbol}`)
   }
 }
 
@@ -57,18 +59,18 @@ async function updateEarningsCalendar() {
         if (err.response && err.response.status === 401) {
           break
         }
-        logger.error({ err }, 'Failed to get earnings calendar')
+        logger.error({ processName, err }, 'Failed to get earnings calendar')
         await wait(2)
       }
     }
 
     if (!earnings || earnings.length === 0) {
-      logger.info(`Missing earnings calendar for ${symbol}`)
+      logger.info({ processName }, `Missing earnings calendar for ${symbol}`)
       continue
     }
 
     for (const earning of earnings.earningsCalendar) {
-      logger.info(`earnings calendar: ${symbol}`)
+      logger.info({ processName }, `earnings calendar: ${symbol}`)
 
       earning.symbol = symbol
 
@@ -77,8 +79,6 @@ async function updateEarningsCalendar() {
 
     await Promise.all(promises)
 
-    await wait(1)
-
     promises = []
   }
 }
@@ -86,17 +86,17 @@ async function updateEarningsCalendar() {
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.updateEarningsCalendar = new CronJob('0 15 * * *', async () => {
+module.exports.updateEarningsCalendar = new CronJob('0 5 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every day at 15:00')
+    logger.info({ processName }, 'Running every day at 5am')
 
     try {
       await updateEarningsCalendar()
     } catch (err) {
-      logger.error({ err }, 'Failed in updating earnings calendar')
+      logger.error({ processName, err }, 'Failed in updating earnings calendar')
     }
 
-    logger.info('Done')
+    logger.info({ processName }, 'Done')
   }
 }, null, true, 'America/New_York');
 
@@ -104,8 +104,9 @@ if (startImmediately) {
   (async function () {
     try {
       await updateEarningsCalendar()
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }

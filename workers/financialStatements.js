@@ -5,6 +5,8 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+const processName = 'financial-statements'
+
 const types = [
   { type: 'ic', freq: 'quarterly' },
   { type: 'ic', freq: 'annual' },
@@ -53,8 +55,8 @@ async function handleFinancialStatement(symbol, statement, type) {
       })
     }
   } catch (err) {
-    logger.error({ sqlError: err.parent ? err.parent.message : '' })
-    logger.error({ err }, `Failed to store statement for symbol ${symbol}`)
+    logger.error({ processName, sqlError: err.parent ? err.parent.message : '' })
+    logger.error({ processName, err }, `Failed to store statement for symbol ${symbol}`)
   }
 }
 
@@ -62,6 +64,9 @@ async function updateFinancialStatements() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
     where: { tracking: true },
+    order: [
+      ['sectorId', 'ASC'],
+    ],
   })
   stockSymbols = stockSymbols.map(c => c.symbol)
   let promises = []
@@ -77,7 +82,7 @@ async function updateFinancialStatements() {
           if (err.response && err.response.status === 401) {
             break
           }
-          logger.error({ err }, 'Failed to get financial statements')
+          logger.error({ processName, err }, 'Failed to get financial statements')
           await wait(2)
         }
       }
@@ -87,7 +92,7 @@ async function updateFinancialStatements() {
       }
 
       for (const statement of statements.financials) {
-        logger.info(`Statement for symbol: ${symbol}`)
+        logger.info({ processName }, `Statement for symbol: ${symbol}`)
 
         statement.symbol = symbol
 
@@ -104,17 +109,17 @@ async function updateFinancialStatements() {
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.updateFinancialStatements = new CronJob('0 12 * * *', async () => {
+module.exports.updateFinancialStatements = new CronJob('30 16 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every day at 12am')
+    logger.info({ processName }, 'Running every day at 16:30')
 
     try {
       await updateFinancialStatements()
     } catch (err) {
-      logger.error({ err }, 'Failed in updating financial statements')
+      logger.error({ processName, err }, 'Failed in updating financial statements')
     }
 
-    logger.info('Done')
+    logger.info({ processName }, 'Done')
 
   }
 }, null, true, 'America/New_York');
@@ -125,6 +130,8 @@ if (startImmediately) {
     try {
       logger.info('Starting immediately')
       await updateFinancialStatements()
+
+      logger.info({ processName }, 'Done')
     } catch (err) {
       logger.error({ err })
     }

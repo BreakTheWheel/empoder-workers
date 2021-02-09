@@ -89,6 +89,7 @@ if (startImmediately) {
   (async function () {
     try {
       await updatePeers()
+      logger.info({ processName }, 'Done')
     } catch (err) {
       logger.error({ err })
     }

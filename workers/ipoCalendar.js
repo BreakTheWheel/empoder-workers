@@ -70,8 +70,6 @@ async function updateIpoCalendar() {
 
     await Promise.all(promises)
 
-    await wait(1)
-
     promises = []
   }
 }
@@ -98,6 +96,7 @@ if (startImmediately) {
   (async function () {
     try {
       await updateIpoCalendar()
+      logger.info({ processName }, 'Done')
     } catch (err) {
       logger.error({ err })
     }

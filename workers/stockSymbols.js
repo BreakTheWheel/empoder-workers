@@ -6,6 +6,7 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 
 const IN_PARALLEL = 100
+const processName = 'stock-symbols'
 
 async function storeSymbol(sym) {
   const exists = await db.StockSymbol.findOne({
@@ -34,26 +35,28 @@ async function updateStockSymbols() {
       await Promise.all(promises)
 
       promises = []
-
-      logger.info(`added ${IN_PARALLEL}`)
     }
+
+    await Promise.all(promises)
+
+    promises = []
   }
 }
 
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.stockSymbols = new CronJob('0 5 * * *', async () => {
+module.exports.stockSymbols = new CronJob('0 11 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every day at 5am')
+    logger.info({ processName }, 'Running every day at 11am')
 
     try {
       await updateStockSymbols()
     } catch (err) {
-      logger.error({ err }, 'Failed to update stock symbols')
+      logger.error({ processName, err }, 'Failed to update stock symbols')
     }
 
-    logger.info('Done')
+    logger.info({ processName }, 'Done')
   }
 
 }, null, true, 'America/New_York');
@@ -62,8 +65,9 @@ if (startImmediately) {
   (async function () {
     try {
       await updateStockSymbols()
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }

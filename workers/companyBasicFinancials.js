@@ -7,6 +7,8 @@ const { wait } = require('../src/utils/helperFuncs')
 
 // obsolete
 
+const processName = 'company-basic-financials'
+
 async function handleBasicFinancials(symbol, basicFinancials) {
   if (!basicFinancials.metric || Object.keys(basicFinancials.metric).length === 0) {
     return
@@ -22,9 +24,9 @@ async function handleBasicFinancials(symbol, basicFinancials) {
         symbol,
         basicFinancials,
       })
-      logger.info(`Created company basic financial for symbol: ${symbol}`)
+      logger.info({ processName }, `Created company basic financial for symbol: ${symbol}`)
     } catch (err) {
-      logger.error({ err }, 'Failed to create basic financials')
+      logger.error({ processName, err }, 'Failed to create basic financials')
     }
   } else {
     try {
@@ -33,7 +35,7 @@ async function handleBasicFinancials(symbol, basicFinancials) {
       }, { where: { symbol } })
       logger.info(`Updated company basic financial for symbol: ${symbol}`)
     } catch (err) {
-      logger.error({ err }, 'Failed to create basic financials')
+      logger.error({ processName, err }, 'Failed to create basic financials')
     }
 
   }
@@ -47,19 +49,19 @@ async function updateBasicFinancials() {
   stockSymbols = stockSymbols.map(c => c.symbol)
 
   for (const symbol of stockSymbols) {
-    logger.info(`Basic financials: ${symbol}`)
+    logger.info({ processName }, `Basic financials: ${symbol}`)
     let basicFinancials
 
     while (!basicFinancials) {
       try {
         basicFinancials = await finhub.basicFinancials({ symbol })
       } catch (err) {
-        logger.error({ err })
+        logger.error({ processName, err })
         await wait(2)
       }
     }
 
-    await handleBasicFinancials(symbol, basicFinancials)
+    handleBasicFinancials(symbol, basicFinancials)
   }
 }
 
@@ -68,12 +70,12 @@ const stopped = process.env.STOPPED === 'true'
 
 module.exports.updateCompanyProfile = new CronJob('0 18 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every 18:00 every day')
+    logger.info({ processName }, 'Running every 18:00 every day')
 
     try {
       await updateBasicFinancials()
     } catch (err) {
-      logger.error({ err }, 'Failed in updating company basic financials')
+      logger.error({ processName, err }, 'Failed in updating company basic financials')
     }
 
     logger.info('Done')
@@ -85,8 +87,9 @@ if (startImmediately) {
   (async function () {
     try {
       await updateBasicFinancials()
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }

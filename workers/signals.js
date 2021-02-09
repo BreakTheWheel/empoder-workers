@@ -18,6 +18,7 @@ For a stock to display in this table it must meet 1 or more of the following cri
 */
 
 let triggers = []
+const processName = 'signals'
 
 async function volumeTriger(symbol, quote) {
   const yesterday = moment().subtract(1, 'day').format('YYYY-MM-DD')
@@ -313,7 +314,7 @@ async function updateSignals() {
   stockSymbols = stockSymbols.map(c => c.symbol)
 
   for (const symbol of stockSymbols) {
-    logger.info(`Looking for signal for symbol: ${symbol}`)
+    logger.info({ processName }, `Looking for signal for symbol: ${symbol}`)
     triggers = []
 
     const quote = await db.Quote.findOne({
@@ -399,7 +400,7 @@ module.exports = {
     let stopped = process.env.STOPPED === 'true'
 
     while (stopped) {
-      logger.info('Signals stopped')
+      logger.info({ processName }, 'Signals stopped')
       await wait(20)
 
       stopped = process.env.STOPPED === 'true'
@@ -408,9 +409,9 @@ module.exports = {
     while (true) {
       try {
         await updateSignals()
-        logger.info('Done')
+        logger.info({ processName }, 'Done')
       } catch (err) {
-        logger.error({ err }, 'Failed in signals')
+        logger.error({ processName, err }, 'Failed in signals')
       }
       triggers = []
     }

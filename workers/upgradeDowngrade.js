@@ -6,6 +6,8 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+const processName = 'upgrade-downgrade'
+
 async function handleUpgradeDowngrade(symbol, upgradeDowngrade) {
   const gradeTime = moment.unix(upgradeDowngrade.gradeTime).toDate()
 
@@ -50,7 +52,7 @@ async function updateUpgradeDowngrade() {
       try {
         upgradeDowngrade = await finhub.upgradeDowngrade({ symbol })
       } catch (err) {
-        logger.error({ err }, 'Failed on FN upgrade downgrade')
+        logger.error({ processName, err }, 'Failed on FN upgrade downgrade')
         await wait(2)
       }
     }
@@ -70,6 +72,8 @@ async function updateUpgradeDowngrade() {
     }
 
     await Promise.all(promises)
+
+    promises = []
   }
 }
 
@@ -78,15 +82,15 @@ const stopped = process.env.STOPPED === 'true'
 
 module.exports.updateUpgradeDowngrade = new CronJob('0 7 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every day at 7am')
+    logger.info({ processName }, 'Running every day at 7am')
 
     try {
       await updateUpgradeDowngrade()
     } catch (err) {
-      logger.error({ err }, 'Failed in updating price targets')
+      logger.error({ processName, err }, 'Failed in updating price targets')
     }
 
-    logger.info('Done')
+    logger.info({ processName }, 'Done')
   }
 }, null, true, 'America/New_York');
 
@@ -94,8 +98,9 @@ if (startImmediately) {
   (async function () {
     try {
       await updateUpgradeDowngrade()
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }

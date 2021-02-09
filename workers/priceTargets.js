@@ -6,6 +6,8 @@ const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 const { wait } = require('../src/utils/helperFuncs')
 
+const processName = 'price-targets'
+
 function priceTargetIsEqual(pt1, pt2) {
   if (!pt1 || !pt2) {
     return false
@@ -25,14 +27,14 @@ async function updatePriceTargets() {
   stockSymbols = stockSymbols.map(s => s.symbol)
 
   for (const symbol of stockSymbols) {
-    logger.info(`updatePriceTargets Processing symbol: ${symbol}`)
+    logger.info({ processName }, `updatePriceTargets Processing symbol: ${symbol}`)
     let priceTarget
 
     while (!priceTarget) {
       try {
         priceTarget = await finhub.priceTarget({ symbol })
       } catch (err) {
-        logger.error({ err }, 'Failed on FN price target endpoint')
+        logger.error({ processName, err }, 'Failed on FN price target endpoint')
         await wait(2)
       }
     }
@@ -68,7 +70,7 @@ async function updatePriceTargets() {
 
     if (!exists) {
       await db.PriceTarget.create(priceTarget)
-      logger.info(`Created price target for symbol: ${symbol}`)
+      logger.info({ processName }, `Created price target for symbol: ${symbol}`)
     } else {
       await db.PriceTarget.update(priceTarget, {
         where: {
@@ -78,7 +80,7 @@ async function updatePriceTargets() {
           ],
         },
       })
-      logger.info(`Updated price target for symbol: ${symbol}`)
+      logger.info({ processName }, `Updated price target for symbol: ${symbol}`)
     }
   }
 }
@@ -86,14 +88,14 @@ async function updatePriceTargets() {
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.priceTarget = new CronJob('0 1 * * *', async () => {
+module.exports.priceTarget = new CronJob('0 2 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every day at 1am')
+    logger.info({ processName }, 'Running every day at 2am')
 
     try {
       await updatePriceTargets()
     } catch (err) {
-      logger.error({ err }, 'Failed in updating price targets')
+      logger.error({ processName, err }, 'Failed in updating price targets')
     }
 
     logger.info('Done')
@@ -104,8 +106,9 @@ if (startImmediately) {
   (async function () {
     try {
       await updatePriceTargets()
+      logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }
