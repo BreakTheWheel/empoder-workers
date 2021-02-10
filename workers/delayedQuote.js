@@ -77,6 +77,9 @@ module.exports = {
       try {
         logger.info({ processName }, 'Started')
         await updateDelayedQuote()
+
+        await wait(120)
+
         logger.info({ processName }, 'Done')
       } catch (err) {
         logger.error({ processName, err }, 'Failed in delayed quote')
