@@ -181,7 +181,7 @@ const onMessage = event => {
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 
 function connect(joined) {
-  const es = new EventSource(`https://cloud-sse.iexapis.com/stable/stocksUSNoUTP?symbols=${joined}&token=${process.env.IEX_CLOUD_TOKEN}`);
+  const es = new EventSource(`https://cloud-sse.iexapis.com/stable/stocksUSNoUTP1Second?symbols=${joined}&token=${process.env.IEX_CLOUD_TOKEN}`);
 
   es.addEventListener('open', onOpen)
   es.addEventListener('message', onMessage)
