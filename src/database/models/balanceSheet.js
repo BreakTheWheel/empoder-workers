@@ -36,11 +36,11 @@ module.exports = (sequelize, Sequelize) => {
       field: 'accumulated_depreciation',
     },
     cash: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
     },
     cashEquivalents: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
       field: 'cash_equivalents',
     },

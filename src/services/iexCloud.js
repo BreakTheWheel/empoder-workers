@@ -28,6 +28,14 @@ module.exports = {
     return result.data
   },
 
+  delayedQuote: async ({ symbol }) => {
+    const result = await axios.default.get(`
+      ${baseUrl}/stable/stock/${symbol.toLowerCase()}/delayed-quote?token=${token}
+    `)
+
+    return result.data
+  },
+
   historicalPrices: async ({ symbol, date }) => {
     const result = await axios.default.get(`
       ${baseUrl}/stable/stock/${symbol.toLowerCase()}/chart/date/${date}?chartByDay=true&token=${token}

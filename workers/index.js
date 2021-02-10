@@ -13,6 +13,7 @@ const earningsCalendar = require('./earningsCalendar')
 const etfsHoldings = require('./etfsHoldings')
 const signals = require('./signals')
 const realTimeQuote = require('./realTimeQuote')
+const delayedQuote = require('./delayedQuote')
 const financialStatements = require('./financialStatements')
 const historicalPrices = require('./historicalPrices')
 // const ipoCalendar = require('./ipoCalendar')
@@ -21,6 +22,7 @@ const historicalPrices = require('./historicalPrices')
 // Pusher
 // trades.start()
 realTimeQuote.start() //IEX
+delayedQuote.start()
 
 // non stop
 signals.start()

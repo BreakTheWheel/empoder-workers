@@ -33,6 +33,7 @@ const etfsAggregate = require('./etfsAggregate')
 const sector = require('./sector')
 const signalEtfsAggregate = require('./signalEtfsAggregate')
 const signalIncomeStatement = require('./signalIncomeStatement')
+const delayedQuote = require('./delayedQuote')
 
 const models = {
   administrator,
@@ -70,6 +71,7 @@ const models = {
   sector,
   signalEtfsAggregate,
   signalIncomeStatement,
+  delayedQuote,
 }
 
 module.exports = models

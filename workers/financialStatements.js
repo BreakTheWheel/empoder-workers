@@ -72,9 +72,9 @@ async function updateFinancialStatements() {
   let promises = []
 
   for (const symbol of stockSymbols) {
-    for (const type of types) {
-      logger.info({ processName }, `Statement for symbol: ${symbol}`)
+    logger.info({ processName }, `Statement for symbol: ${symbol}`)
 
+    for (const type of types) {
       let statements
 
       while (!statements) {
@@ -133,7 +133,7 @@ if (startImmediately) {
 
       logger.info({ processName }, 'Done')
     } catch (err) {
-      logger.error({ err })
+      logger.error({ processName, err })
     }
   })()
 }
