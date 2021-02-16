@@ -18,6 +18,7 @@ const financialStatements = require('./financialStatements')
 const historicalPrices = require('./historicalPrices')
 // const ipoCalendar = require('./ipoCalendar')
 // const companyBasicFinancials = require('./companyBasicFinancials')
+const exchangeRates = require('./currencyExchange')
 
 // Pusher
 // trades.start()
@@ -75,3 +76,6 @@ financialStatements.updateFinancialStatements.start()  // FH
 
 // every 5 hours
 newsSentiment.updateNewsSentiment.start()  // FH 
+
+// every 1 hour
+exchangeRates.updateCurrencyExchanges.start() // FH 
