@@ -1,45 +1,150 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
-const Promise = require('bluebird')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
 
-const IN_PARALLEL = 100
+const IN_PARALLEL = 500
 const processName = 'stock-symbols'
 
-async function storeSymbol(sym) {
-  const exists = await db.StockSymbol.findOne({
-    where: { symbol: sym.symbol },
-  })
+const exchanges = [
+  'AT',
+  'AX',
+  'BA',
+  'BC',
+  'BD',
+  'BE',
+  'BK',
+  'BO',
+  'BR',
+  'CN',
+  'CO',
+  'CR',
+  'DB',
+  'DE',
+  'DU',
+  'F',
+  'HE',
+  'HK',
+  'HM',
+  'IC',
+  'IR',
+  'IS',
+  'JK',
+  'JO',
+  'KL',
+  'KQ',
+  'KS',
+  'L',
+  'LN',
+  'LS',
+  'MC',
+  'ME',
+  'MI',
+  'MU',
+  'MX',
+  'NE',
+  'NL',
+  'NS',
+  'NZ',
+  'OL',
+  'PA',
+  'PM',
+  'PR',
+  'QA',
+  'RG',
+  'SA',
+  'SG',
+  'SI',
+  'SN',
+  'SR',
+  'SS',
+  'ST',
+  'SW',
+  'SZ',
+  'T',
+  'TA',
+  'TL',
+  'TO',
+  'TW',
+  'US',
+  'V',
+  'VI',
+  'VN',
+  'VS',
+  'WA',
+  'HA',
+  'SX',
+  'TG',
+  'SC',
+]
 
-  if (!exists) {
-    await db.StockSymbol.create({
-      ...sym,
-      exchange: 'us',
-    })
+function escape(str) {
+  if (str) {
+    return str.replace(/'/g, '\'\'')
   }
+
+  return ''
 }
 
-async function updateStockSymbols() {
-  const symbols = await finhub.stockSymbols({ exchange: 'us' })
+async function storeSymbol(query) {
+  await db.sequelize.query(query)
+}
 
-  let promises = []
+async function updateStockSymbols(exchange) {
+  const ex = exchange.trim().toLowerCase()
+  let symbols
+
+  while (!symbols) {
+    try {
+      symbols = await finhub.stockSymbols({ exchange: ex })
+    } catch (err) {
+      logger.error({ processName, err })
+
+      if (err.resposne && err.response.status === 429) {
+        continue
+      }
+    }
+  }
+
+
+  let query = ''
+  let counter = 0
 
   for (const sym of symbols) {
-    const promise = storeSymbol(sym)
+    counter++
+    query += `
+    INSERT INTO stock_symbols (symbol, display_symbol, currency, type, description, exchange, tracking, sector_id)
+    VALUES(
+      '${sym.symbol}', 
+      '${sym.display_symbol || ''}', 
+      '${sym.currency || ''}', 
+      '${sym.type || ''}', 
+      '${escape(sym.description) || ''}', 
+      '${ex}', 
+      false,
+      null
+    ) 
+    ON CONFLICT (symbol) 
+    DO  
+      UPDATE SET display_symbol = '${sym.display_symbol || ''}', currency = '${sym.currency || ''}', description = '${escape(sym.description) || ''}', exchange = '${ex}';
+  `
 
-    promises.push(promise)
+    if (counter === IN_PARALLEL) {
+      await storeSymbol(query)
 
-    if (promises.length === IN_PARALLEL) {
-      await Promise.all(promises)
+      logger.info({ processName, message: 'Symbol stored' })
 
-      promises = []
+      counter = 0
+      query = ''
     }
+  }
 
-    await Promise.all(promises)
+  if (query) {
+    await storeSymbol(query)
 
-    promises = []
+    counter = 0
+    query = ''
   }
 }
 
@@ -51,7 +156,9 @@ module.exports.stockSymbols = new CronJob('0 11 * * *', async () => {
     logger.info({ processName }, 'Running every day at 11am')
 
     try {
-      await updateStockSymbols()
+      for (const exchange of exchanges) {
+        await updateStockSymbols(exchange)
+      }
     } catch (err) {
       logger.error({ processName, err }, 'Failed to update stock symbols')
     }
@@ -64,7 +171,10 @@ module.exports.stockSymbols = new CronJob('0 11 * * *', async () => {
 if (startImmediately) {
   (async function () {
     try {
-      await updateStockSymbols()
+      for (const exchange of exchanges) {
+        logger.info({ processName, exchange })
+        await updateStockSymbols(exchange)
+      }
       logger.info({ processName }, 'Done')
     } catch (err) {
       logger.error({ processName, err })
