@@ -42,8 +42,10 @@ async function updateDelayedQuote() {
       try {
         delayedQuote = await iexCloud.delayedQuote({ symbol: symbol.symbol })
       } catch (err) {
-        if (err.response && err.response.data === 'Not found') { // symbol does not exist
-          logger.error({ processName }, `Symbol ${symbol} not found in IEX`)
+        const message = err.response && err.response.data
+
+        if (message === 'Not found' || message === 'Unknown symbol') { // symbol does not exist
+          logger.error({ processName }, `Symbol ${symbol.symbol} not found in IEX`)
           break
         }
 
@@ -78,7 +80,7 @@ module.exports = {
         logger.info({ processName }, 'Started')
         await updateDelayedQuote()
 
-        await wait(120)
+        await wait(350)
 
         logger.info({ processName }, 'Done')
       } catch (err) {

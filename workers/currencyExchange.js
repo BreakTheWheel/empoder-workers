@@ -3,6 +3,7 @@ const CronJob = require('cron').CronJob;
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const alphavantage = require('../src/services/alphavantage')
+const { wait } = require('../src/utils/helperFuncs')
 
 const processName = 'currency-exchange'
 
@@ -13,7 +14,7 @@ async function updateCurrencyExchanges() {
   const currencies = result[0]
 
   for (const currency of currencies) {
-    logger.info({ processName }, `updateCurrencyExchanges Processing currency: ${currency}`)
+    logger.info({ processName }, `updateCurrencyExchanges Processing currency: ${currency.currency}`)
 
     const results = await alphavantage.exchangeRate({ fromCurrency: 'USD', toCurrency: currency.currency })
     const rate = results.data['Realtime Currency Exchange Rate']
@@ -40,6 +41,10 @@ async function updateCurrencyExchanges() {
         where: { currency: currency.currency },
       })
     }
+
+    logger.info({ processName, message: 'Done' })
+
+    await wait(60)
   }
 }
 

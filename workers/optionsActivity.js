@@ -58,7 +58,9 @@ async function updateStockOptions() {
       try {
         optionDates = await iexCloud.stockOptionDates({ symbol })
       } catch (err) {
-        if (err.response.data === 'Not found') { // symbol does not exist
+        const message = err.response && err.response.data
+
+        if (message === 'Not found' || message === 'Unknown symbol') { // symbol does not exist
           logger.error({ processName }, `Symbol ${symbol} not found in IEX`)
           break
         }
