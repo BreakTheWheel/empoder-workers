@@ -27,32 +27,6 @@ function wait(ms) {
   })
 }
 
-// const symbols = [
-//   'AAPL',
-//   'TSLA',
-//   'ROKU',
-//   'NVTA',
-//   'CRSP',
-//   'SQ',
-//   'TDOC',
-//   'Z',
-//   'SPOT',
-//   'EDIT',
-//   'SMG',
-//   'CRLBF',
-//   'GWPH',
-//   'GRWG',
-//   'TPB',
-//   'GNLN',
-//   'IIPR',
-//   'TLRY',
-//   'VFF',
-//   'CGC',
-//   'ACB',
-//   'APHA',
-//   'HEXO',
-// ]
-
 function getSubscriptionRequests(subscriptionType, symbols) {
   const syms = symbols.map(symbol => {
     return {
@@ -81,26 +55,6 @@ function handleTrade(obj) {
     logger.error({ err }, 'failed parsing data')
   }
 }
-
-function handleDailyVolume(obj) {
-  try {
-    let query = ''
-    for (const trade of obj.data) {
-      query += `
-        INSERT INTO daily_volume (symbol, volume, date)
-        VALUES('${trade.s}', ${trade.v}, '${moment.unix(trade.t / 1000).utc().format('YYYY-MM-DD')}') 
-        ON CONFLICT (symbol, date) 
-        DO  
-          UPDATE SET volume = daily_volume.volume + ${trade.v};
-    `
-    }
-
-    db.sequelize.query(query)
-  } catch (err) {
-    logger.error({ err }, 'failed parsing data')
-  }
-}
-
 
 function handleNews(obj) {
   try {
@@ -138,9 +92,9 @@ function connect(symbols) {
   client.onopen = () => {
     logger.info('Socket opened')
 
-    for (const sym of getSubscriptionRequests('subscribe', symbols)) {
-      client.send(JSON.stringify(sym))
-    }
+    // for (const sym of getSubscriptionRequests('subscribe', symbols)) {
+    //   client.send(JSON.stringify(sym))
+    // }
 
     for (const sym of getSubscriptionRequests('subscribe-news', symbols)) {
       client.send(JSON.stringify(sym))
@@ -189,7 +143,7 @@ module.exports = {
         connect(symbols)
       }
 
-      await wait(2000)
+      await wait(3000)
     }
   },
 }
