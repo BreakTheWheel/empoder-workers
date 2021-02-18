@@ -5,9 +5,11 @@ const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 
+const processName = 'news'
+
 function storeTrades(trades) {
   db.Trade.bulkCreate(trades).catch(err => {
-    logger.error({ err }, 'storing trades failed')
+    logger.error({ processName, err }, 'storing trades failed')
   })
 }
 
@@ -15,7 +17,7 @@ async function storeNews(newsArticles) {
   try {
     await db.NewsArticle.bulkCreate(newsArticles)
   } catch (err) {
-    logger.error({ err }, 'storing news failed')
+    logger.error({ processName, err }, 'storing news failed')
   }
 }
 
@@ -52,7 +54,7 @@ function handleTrade(obj) {
 
     storeTrades(trades)
   } catch (err) {
-    logger.error({ err }, 'failed parsing data')
+    logger.error({ processName, err }, 'failed parsing data')
   }
 }
 
@@ -74,7 +76,7 @@ function handleNews(obj) {
 
     storeNews(news)
   } catch (err) {
-    logger.error({ err }, 'failed parsing data')
+    logger.error({ processName, err }, 'failed parsing data')
   }
 }
 
@@ -85,7 +87,7 @@ function connect(symbols) {
   client = new w3cwebsocket(`wss://ws.finnhub.io?token=${process.env.FIN_HUB_TOKEN}`)
 
   client.onerror = event => {
-    logger.error({ event }, 'Connection error')
+    logger.error({ processName, event }, 'Connection error')
     client.close()
   }
 
@@ -102,7 +104,7 @@ function connect(symbols) {
   }
 
   client.onclose = event => {
-    logger.error({ event }, 'Connection closed')
+    logger.error({ processName, event }, 'Connection closed')
 
     client = null
   }
@@ -110,7 +112,7 @@ function connect(symbols) {
   client.onmessage = event => {
     const obj = JSON.parse(event.data)
 
-    logger.info({ event: obj }, 'incoming event')
+    logger.info({ processName, event: obj }, 'incoming event')
 
     if (obj.type === 'trade') {
       handleTrade(obj)
@@ -119,6 +121,8 @@ function connect(symbols) {
     }
   }
 }
+
+const startImmediately = process.env.START_IMMEDIATELY === 'true'
 
 module.exports = {
   start: async () => {
@@ -133,7 +137,7 @@ module.exports = {
       const stopped = process.env.STOPPED === 'true'
 
       if (stopped) {
-        logger.info('Stopped')
+        logger.info({ processName }, 'Stopped')
         await wait(20000)
 
         continue
@@ -146,4 +150,8 @@ module.exports = {
       await wait(3000)
     }
   },
+}
+
+if (startImmediately) {
+  module.exports.start()
 }
