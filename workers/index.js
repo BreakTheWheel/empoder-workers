@@ -19,6 +19,7 @@ const historicalPrices = require('./historicalPrices')
 // const ipoCalendar = require('./ipoCalendar')
 // const companyBasicFinancials = require('./companyBasicFinancials')
 const exchangeRates = require('./currencyExchange')
+const barchartOptions = require('./barchartOptions')
 
 // Pusher
 trades.start()
@@ -79,3 +80,6 @@ newsSentiment.updateNewsSentiment.start()  // FH
 
 // every 1 hour
 exchangeRates.updateCurrencyExchanges.start() // FH 
+
+// every 15min
+barchartOptions.updateStockOptions.start() // BC
