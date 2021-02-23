@@ -8,6 +8,8 @@ const { wait } = require('../src/utils/helperFuncs')
 
 // not used for now
 
+const processName = 'ipo-calendar'
+
 async function handleEarning(symbol, earning) {
   try {
     const exists = await db.EarningsCalendar.findOne({
@@ -33,7 +35,7 @@ async function handleEarning(symbol, earning) {
       })
     }
   } catch (err) {
-    logger.error({ err }, `Failed to store earnings calendar for symbol ${symbol}`)
+    logger.error({ processName, err }, `Failed to store earnings calendar for symbol ${symbol}`)
   }
 }
 
@@ -55,7 +57,7 @@ async function updateIpoCalendar() {
 
         earnings = await finhub.earningsCalendar({ symbol, from, to })
       } catch (err) {
-        logger.error({ err }, 'Failed to get earnings calendar')
+        logger.error({ processName, err }, 'Failed to get earnings calendar')
         await wait(2)
       }
     }
@@ -79,12 +81,12 @@ const stopped = process.env.STOPPED === 'true'
 
 module.exports.updateIpoCalendar = new CronJob('0 21 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info('Running every day at 9pm')
+    logger.info({ processName }, 'Running every day at 9pm')
 
     try {
       await updateIpoCalendar()
     } catch (err) {
-      logger.error({ err }, 'Failed in updating IPO calendar')
+      logger.error({ processName, err }, 'Failed in updating IPO calendar')
     }
 
     logger.info('Done')
