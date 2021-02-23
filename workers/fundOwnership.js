@@ -71,6 +71,9 @@ async function updateFundOwnership() {
         fundOwnership = await finhub.fundOwnership({ symbol })
       } catch (err) {
         logger.error({ processName, err }, `Failed to get fund ownership for ${symbol}`)
+        if (err.response && err.response.status === 401) {
+          break
+        }
         await wait(2)
       }
     }

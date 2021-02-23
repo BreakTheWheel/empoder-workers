@@ -80,10 +80,10 @@ async function updateFinancialStatements() {
         try {
           statements = await finhub.financialStatements({ symbol, type: type.type, freq: type.freq })
         } catch (err) {
+          logger.error({ processName, err }, 'Failed to get financial statements')
           if (err.response && err.response.status === 401) {
             break
           }
-          logger.error({ processName, err }, 'Failed to get financial statements')
           await wait(2)
         }
       }

@@ -35,6 +35,9 @@ async function updatePriceTargets() {
         priceTarget = await finhub.priceTarget({ symbol })
       } catch (err) {
         logger.error({ processName, err }, 'Failed on FN price target endpoint')
+        if (err.response && err.response.status === 401) {
+          break
+        }
         await wait(2)
       }
     }

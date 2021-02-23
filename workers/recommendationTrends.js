@@ -57,6 +57,9 @@ async function updateRecommendationTrends() {
         trends = await finhub.recommendationTrends({ symbol })
       } catch (err) {
         logger.error({ processName, err }, 'Failed to get trends')
+        if (err.response && err.response.status === 401) {
+          break
+        }
         await wait(2)
       }
     }

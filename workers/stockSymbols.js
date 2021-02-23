@@ -3,6 +3,7 @@ const CronJob = require('cron').CronJob;
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
+const { wait } = require('../src/utils/helperFuncs')
 
 const IN_PARALLEL = 500
 const processName = 'stock-symbols'
@@ -101,9 +102,10 @@ async function updateStockSymbols(exchange) {
     } catch (err) {
       logger.error({ processName, err })
 
-      if (err.resposne && err.response.status === 429) {
-        continue
+      if (err.response && err.response.status === 401) {
+        break
       }
+      await wait(3)
     }
   }
 

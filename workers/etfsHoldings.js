@@ -26,6 +26,9 @@ async function updateEtfsHoldings() {
         holdingsResult = await finhub.etfsHoldings({ symbol })
       } catch (err) {
         logger.error({ err, processName }, 'Failed to get holdings')
+        if (err.response && err.response.status === 401) {
+          break
+        }
         await wait(2)
       }
     }

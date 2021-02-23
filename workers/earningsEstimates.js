@@ -52,6 +52,9 @@ async function updateEarningsEstimates() {
         earnings = await finhub.earningsEstimate({ symbol })
       } catch (err) {
         logger.error({ processName, err }, 'Failed to get earnings estimate')
+        if (err.response && err.response.status === 401) {
+          break
+        }
         await wait(2)
       }
     }

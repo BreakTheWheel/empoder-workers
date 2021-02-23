@@ -68,6 +68,9 @@ async function updateNewsSentiment() {
         newsSentiment = await finhub.newsSentiment({ symbol })
       } catch (err) {
         logger.error({ processName, err }, 'Failed to get news sentiment')
+        if (err.response && err.response.status === 401) {
+          break
+        }
         await wait(2)
       }
     }

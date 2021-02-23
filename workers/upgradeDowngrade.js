@@ -53,6 +53,9 @@ async function updateUpgradeDowngrade() {
         upgradeDowngrade = await finhub.upgradeDowngrade({ symbol })
       } catch (err) {
         logger.error({ processName, err }, 'Failed on FN upgrade downgrade')
+        if (err.response && err.response.status === 401) {
+          break
+        }
         await wait(2)
       }
     }

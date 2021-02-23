@@ -58,6 +58,9 @@ async function updateIpoCalendar() {
         earnings = await finhub.earningsCalendar({ symbol, from, to })
       } catch (err) {
         logger.error({ processName, err }, 'Failed to get earnings calendar')
+        if (err.response && err.response.status === 401) {
+          break
+        }
         await wait(2)
       }
     }
