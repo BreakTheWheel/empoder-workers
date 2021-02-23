@@ -13,7 +13,6 @@ const types = [
   { type: 'ic', freq: 'ttm' },
   { type: 'bs', freq: 'quarterly' },
   { type: 'bs', freq: 'annual' },
-  // { type: 'bs', freq: 'ttm' },
 ]
 
 async function handleFinancialStatement(symbol, statement, type) {

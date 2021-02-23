@@ -43,4 +43,20 @@ module.exports = {
 
     return result.data
   },
+
+  incomeStatements: async ({ symbol, period }) => {
+    const result = await axios.default.get(`
+      ${baseUrl}/stable/stock/${symbol.toLowerCase()}/income?period=${period}&token=${token}
+    `)
+
+    return result.data
+  },
+
+  balanceSheet: async ({ symbol, period }) => {
+    const result = await axios.default.get(`
+      ${baseUrl}/stable/stock/${symbol.toLowerCase()}/balance-sheet?period=${period}&token=${token}
+    `)
+
+    return result.data
+  },
 }

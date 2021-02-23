@@ -36,6 +36,8 @@ const signalIncomeStatement = require('./signalIncomeStatement')
 const delayedQuote = require('./delayedQuote')
 const currencyExchangeRate = require('./currencyExchangeRate')
 const barchartOption = require('./barchartOption')
+const iexIncomeStatement = require('./iexIncomeStatement')
+const iexBalanceSheet = require('./iexBalanceSheet')
 
 const models = {
   administrator,
@@ -76,6 +78,8 @@ const models = {
   delayedQuote,
   currencyExchangeRate,
   barchartOption,
+  iexIncomeStatement,
+  iexBalanceSheet,
 }
 
 module.exports = models

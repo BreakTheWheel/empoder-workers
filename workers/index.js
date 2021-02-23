@@ -20,6 +20,8 @@ const historicalPrices = require('./historicalPrices')
 // const companyBasicFinancials = require('./companyBasicFinancials')
 const exchangeRates = require('./currencyExchange')
 const barchartOptions = require('./barchartOptions')
+const iexBalanceSheet = require('./iexBalanceSheets')
+const iexIncomeStatements = require('./iexIncomeStatements')
 
 // Pusher
 trades.start()
@@ -83,3 +85,7 @@ exchangeRates.updateCurrencyExchanges.start() // FH
 
 // every 15min
 barchartOptions.updateStockOptions.start() // BC
+
+iexBalanceSheet.updateIexBalanceSheets.start() // IEX
+
+iexIncomeStatements.updateIexIncomeStatements.start() // IEX
