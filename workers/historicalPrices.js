@@ -79,7 +79,7 @@ module.exports.updateHistoricalPrices = new CronJob('0 6 * * *', async () => {
 
     logger.info({ processName }, 'Done')
   }
-}, null, true, 'America/New_York');
+}, null, false, 'America/New_York');
 
 if (startImmediately) {
   (async function () {

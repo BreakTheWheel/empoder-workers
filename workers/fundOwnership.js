@@ -113,7 +113,7 @@ module.exports.fundOwnership = new CronJob('0 20 * * *', async () => {
 
     logger.info({ processName }, 'Done')
   }
-}, null, true, 'America/Los_Angeles');
+}, null, false, 'America/Los_Angeles');
 
 if (startImmediately) {
   (async function () {

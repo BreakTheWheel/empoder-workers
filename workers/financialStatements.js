@@ -121,7 +121,7 @@ module.exports.updateFinancialStatements = new CronJob('30 16 * * *', async () =
     logger.info({ processName }, 'Done')
 
   }
-}, null, true, 'America/New_York');
+}, null, false, 'America/New_York');
 
 
 if (startImmediately) {

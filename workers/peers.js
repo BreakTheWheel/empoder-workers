@@ -83,7 +83,7 @@ module.exports.updatePeers = new CronJob('0 22 * * *', async () => {
 
     logger.info('Done')
   }
-}, null, true, 'America/Los_Angeles');
+}, null, false, 'America/Los_Angeles');
 
 if (startImmediately) {
   (async function () {

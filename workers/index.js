@@ -24,7 +24,7 @@ const iexBalanceSheet = require('./iexBalanceSheets')
 const iexIncomeStatements = require('./iexIncomeStatements')
 const cleanup = require('./cleanup')
 
-// Pusher
+// // Pusher
 trades.start()
 realTimeQuote.start() //IEX
 delayedQuote.start()

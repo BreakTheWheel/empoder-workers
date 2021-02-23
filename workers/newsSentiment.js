@@ -91,7 +91,7 @@ module.exports.updateNewsSentiment = new CronJob('0 */5 * * *', async () => {
 
     logger.info({ processName }, 'Done')
   }
-}, null, true, 'America/Los_Angeles');
+}, null, false, 'America/Los_Angeles');
 
 if (startImmediately) {
   (async function () {

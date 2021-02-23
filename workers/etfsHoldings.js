@@ -154,7 +154,7 @@ module.exports.updateEtfsHoldings = new CronJob('0 23 * * *', async () => {
     logger.info({ processName }, 'Done')
   }
 
-}, null, true, 'America/New_York');
+}, null, false, 'America/New_York');
 
 if (startImmediately) {
   (async function () {

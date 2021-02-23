@@ -62,7 +62,7 @@ module.exports.updateCurrencyExchanges = new CronJob('0 */1 * * *', async () => 
       logger.error({ processName, err }, 'Failed in updating currency exchange')
     }
   }
-}, null, true, 'America/New_York');
+}, null, false, 'America/New_York');
 
 if (startImmediately) {
   (async function () {

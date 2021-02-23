@@ -81,7 +81,7 @@ module.exports.updateCompanyProfile = new CronJob('0 18 * * *', async () => {
     logger.info('Done')
   }
 
-}, null, true, 'America/New_York');
+}, null, false, 'America/New_York');
 
 if (startImmediately) {
   (async function () {
