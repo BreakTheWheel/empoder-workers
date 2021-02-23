@@ -22,6 +22,7 @@ const exchangeRates = require('./currencyExchange')
 const barchartOptions = require('./barchartOptions')
 const iexBalanceSheet = require('./iexBalanceSheets')
 const iexIncomeStatements = require('./iexIncomeStatements')
+const cleanup = require('./cleanup')
 
 // Pusher
 trades.start()
@@ -89,3 +90,5 @@ barchartOptions.updateStockOptions.start() // BC
 iexBalanceSheet.updateIexBalanceSheets.start() // IEX
 
 iexIncomeStatements.updateIexIncomeStatements.start() // IEX
+
+cleanup.cleanup.start()
