@@ -11,8 +11,15 @@ const processName = 'etfs-holdings'
 async function updateEtfsHoldings() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
-    where: { type: 'ETP' },
+    where: {
+      type: 'ETP',
+      [db.sequelize.Op.or]: [
+        { exchange: 'us' },
+        { exchange: 'to' },
+      ],
+    },
   })
+
   stockSymbols = stockSymbols.map(c => c.symbol)
 
   let counter = 1
@@ -29,7 +36,8 @@ async function updateEtfsHoldings() {
         if (err.response && err.response.status === 401) {
           break
         }
-        await wait(2)
+
+        await wait(3)
       }
     }
 

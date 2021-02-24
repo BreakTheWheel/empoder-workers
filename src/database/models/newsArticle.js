@@ -7,10 +7,6 @@ module.exports = (sequelize, Sequelize) => {
       autoIncrement: true,
       primaryKey: true,
     },
-    category: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
     datetime: {
       type: Sequelize.BIGINT,
       allowNull: false,
@@ -18,12 +14,6 @@ module.exports = (sequelize, Sequelize) => {
     headline: {
       allowNull: false,
       type: Sequelize.TEXT,
-    },
-    newsId: {
-      allowNull: false,
-      type: Sequelize.BIGINT,
-      field: 'news_id',
-      unique: true,
     },
     image: {
       allowNull: false,
@@ -40,6 +30,10 @@ module.exports = (sequelize, Sequelize) => {
     summary: {
       allowNull: false,
       type: Sequelize.TEXT,
+    },
+    lang: {
+      allowNull: true,
+      type: Sequelize.STRING,
     },
     url: {
       allowNull: false,
