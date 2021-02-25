@@ -41,7 +41,7 @@ module.exports = {
         items = await func()
       } catch (err) {
         if (tries === 5) {
-          logger.error({ processName }, 'Too many tries')
+          logger.error({ processName, err: err.response || err }, 'Too many tries')
 
           break
         }
@@ -59,7 +59,7 @@ module.exports = {
           break
         }
 
-        await wait(2)
+        await wait(3)
       }
     }
 
