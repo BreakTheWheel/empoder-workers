@@ -9,7 +9,6 @@ const processName = 'real-time-news'
 
 async function handleNews(newsArticle) {
   const exists = await db.NewsArticle.findOne({
-    attributes: ['id'],
     where: {
       url: newsArticle.url,
     },
