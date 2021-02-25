@@ -1,47 +1,33 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
-const moment = require('moment')
 const Promise = require('bluebird')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const { wait, requestHelper } = require('../src/utils/helperFuncs')
-const barchart = require('../src/services/barchart')
+const spacs = require('../src/services/spacs')
 
-const processName = 'barchart-options'
+const processName = 'spacs-filings'
 
-async function handleStockOption(option, now) {
-  const obj = {
-    period: now,
-    symbol: 'APHA',
-    code: option.symbol,
-  }
-
-  delete option.symbol
-
+async function handleFiling(filling) {
   try {
-    await db.BarchartOption.create({
-      ...obj,
-      ...option,
-    })
+    await db.SpacFiling.create(filling)
   } catch (err) {
     logger.error({ err }, 'Failed in storing barchart option')
   }
 }
 
-async function updateStockOptions() {
-  const now = moment.utc().toDate()
-
+async function updateCompanies() {
   logger.info({ processName })
-  const options = await requestHelper(processName, () => barchart.equityOptions({ symbol: 'APHA' }))
+  const filings = requestHelper(processName, () => spacs.latestFilings())
 
-  if (options) {
+  if (!filings) {
     return
   }
 
   let promises = []
 
-  for (const option of options.results) {
-    promises.push(handleStockOption(option, now))
+  for (const filling of filings) {
+    promises.push(handleFiling(filling))
 
     if (promises.length === 100) {
       await Promise.all(promises)
@@ -58,14 +44,14 @@ async function updateStockOptions() {
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.updateStockOptions = new CronJob('*/15 * * * *', async () => {
+module.exports.updateCompanies = new CronJob('0 18 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info({ processName }, 'Running every 15 minutes')
+    logger.info({ processName }, 'Running every day at 6pm')
 
     try {
-      await updateStockOptions()
+      await updateCompanies()
     } catch (err) {
-      logger.error({ processName, err }, 'Failed in updating stock options')
+      logger.error({ processName, err }, 'Failed in updating spac companies')
     }
 
     logger.info('Done')
@@ -75,7 +61,7 @@ module.exports.updateStockOptions = new CronJob('*/15 * * * *', async () => {
 if (startImmediately) {
   (async function () {
     try {
-      await updateStockOptions()
+      await updateCompanies()
       logger.info({ processName }, 'Done')
     } catch (err) {
       logger.error({ processName, err })

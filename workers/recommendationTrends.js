@@ -3,7 +3,7 @@ const CronJob = require('cron').CronJob;
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { requestHelper } = require('../src/utils/helperFuncs')
 
 const processName = 'recommendation-trends'
 
@@ -50,18 +50,10 @@ async function updateRecommendationTrends() {
   for (const symbol of stockSymbols) {
     logger.info({ processName }, `Recommendation trend: ${symbol}`)
 
-    let trends
+    const trends = await requestHelper(processName, () => finhub.recommendationTrends({ symbol }))
 
-    while (!trends) {
-      try {
-        trends = await finhub.recommendationTrends({ symbol })
-      } catch (err) {
-        logger.error({ processName, err }, 'Failed to get trends')
-        if (err.response && err.response.status === 401) {
-          break
-        }
-        await wait(2)
-      }
+    if (!trends) {
+      continue
     }
 
     for (const trend of trends) {

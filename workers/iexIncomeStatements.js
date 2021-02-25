@@ -3,7 +3,7 @@ const CronJob = require('cron').CronJob;
 const Promise = require('bluebird')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
-const { wait } = require('../src/utils/helperFuncs')
+const { requestHelper } = require('../src/utils/helperFuncs')
 const iexCloud = require('../src/services/iexCloud')
 
 const processName = 'iex-income-statements'
@@ -64,22 +64,7 @@ async function updateIexIncomeStatements() {
 
   for (const symbol of stockSymbols) {
     for (const type of types) {
-      let incomeStatements
-
-      while (!incomeStatements) {
-        try {
-          incomeStatements = await iexCloud.incomeStatements({ symbol, period: type })
-        } catch (err) {
-          const message = err.response && err.response.data
-
-          if (message === 'Unknown symbol') {
-            break
-          }
-
-          logger.error({ processName, err }, message)
-          await wait(2)
-        }
-      }
+      const incomeStatements = await requestHelper(processName, () => iexCloud.incomeStatements({ symbol, period: type }))
 
       if (!incomeStatements || Object.keys(incomeStatements).length === 0) {
         continue

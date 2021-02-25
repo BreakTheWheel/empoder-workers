@@ -4,7 +4,7 @@ const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { wait, requestHelper } = require('../src/utils/helperFuncs')
 
 // not used for now
 
@@ -46,23 +46,14 @@ async function updateIpoCalendar() {
   })
   stockSymbols = stockSymbols.map(c => c.symbol)
   let promises = []
+  const from = moment.utc().subtract(2, 'years').format('YYYY-MM-DD')
+  const to = moment.utc().add(1, 'year').format('YYYY-MM-DD')
 
   for (const symbol of stockSymbols) {
-    let earnings
+    const earnings = await requestHelper(processName, () => finhub.earningsCalendar({ symbol, from, to }))
 
-    while (!earnings) {
-      try {
-        const from = moment.utc().subtract(2, 'years').format('YYYY-MM-DD')
-        const to = moment.utc().add(1, 'year').format('YYYY-MM-DD')
-
-        earnings = await finhub.earningsCalendar({ symbol, from, to })
-      } catch (err) {
-        logger.error({ processName, err }, 'Failed to get earnings calendar')
-        if (err.response && err.response.status === 401) {
-          break
-        }
-        await wait(2)
-      }
+    if (!earnings) {
+      continue
     }
 
     for (const earning of earnings.earningsCalendar) {

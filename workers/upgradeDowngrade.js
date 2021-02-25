@@ -4,7 +4,7 @@ const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { wait, requestHelper } = require('../src/utils/helperFuncs')
 
 const processName = 'upgrade-downgrade'
 
@@ -46,18 +46,10 @@ async function updateUpgradeDowngrade() {
   stockSymbols = stockSymbols.map(s => s.symbol)
 
   for (const symbol of stockSymbols) {
-    let upgradeDowngrade
+    const upgradeDowngrade = await requestHelper(processName, () => finhub.upgradeDowngrade({ symbol }))
 
-    while (!upgradeDowngrade) {
-      try {
-        upgradeDowngrade = await finhub.upgradeDowngrade({ symbol })
-      } catch (err) {
-        logger.error({ processName, err }, 'Failed on FN upgrade downgrade')
-        if (err.response && err.response.status === 401) {
-          break
-        }
-        await wait(2)
-      }
+    if (!upgradeDowngrade) {
+      continue
     }
 
     let promises = []

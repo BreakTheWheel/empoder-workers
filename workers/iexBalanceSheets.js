@@ -3,7 +3,7 @@ const CronJob = require('cron').CronJob;
 const Promise = require('bluebird')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
-const { wait } = require('../src/utils/helperFuncs')
+const { wait, requestHelper } = require('../src/utils/helperFuncs')
 const iexCloud = require('../src/services/iexCloud')
 
 const processName = 'iex-balance-sheets'
@@ -64,22 +64,7 @@ async function updateIexBalanceSheets() {
 
   for (const symbol of stockSymbols) {
     for (const type of types) {
-      let balanceSheets
-
-      while (!balanceSheets) {
-        try {
-          balanceSheets = await iexCloud.balanceSheet({ symbol, period: type })
-        } catch (err) {
-          const message = err.response && err.response.data
-
-          if (message === 'Unknown symbol') {
-            break
-          }
-
-          logger.error({ processName, err }, message)
-          await wait(2)
-        }
-      }
+      const balanceSheets = await requestHelper(processName, () => iexCloud.balanceSheet({ symbol, period: type }))
 
       if (!balanceSheets || Object.keys(balanceSheets).length === 0) {
         continue

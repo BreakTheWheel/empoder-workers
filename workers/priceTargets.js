@@ -4,7 +4,7 @@ const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { requestHelper } = require('../src/utils/helperFuncs')
 
 const processName = 'price-targets'
 
@@ -28,19 +28,7 @@ async function updatePriceTargets() {
 
   for (const symbol of stockSymbols) {
     logger.info({ processName }, `updatePriceTargets Processing symbol: ${symbol}`)
-    let priceTarget
-
-    while (!priceTarget) {
-      try {
-        priceTarget = await finhub.priceTarget({ symbol })
-      } catch (err) {
-        logger.error({ processName, err }, 'Failed on FN price target endpoint')
-        if (err.response && err.response.status === 401) {
-          break
-        }
-        await wait(2)
-      }
-    }
+    const priceTarget = await requestHelper(processName, () => finhub.priceTarget({ symbol }))
 
     if (!priceTarget || !priceTarget.symbol) {
       continue

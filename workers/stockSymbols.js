@@ -3,7 +3,7 @@ const CronJob = require('cron').CronJob;
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { requestHelper } = require('../src/utils/helperFuncs')
 
 const IN_PARALLEL = 500
 const processName = 'stock-symbols'
@@ -94,21 +94,11 @@ async function storeSymbol(query) {
 
 async function updateStockSymbols(exchange) {
   const ex = exchange.trim().toLowerCase()
-  let symbols
+  const symbols = await requestHelper(processName, () => finhub.stockSymbols({ exchange: ex }))
 
-  while (!symbols) {
-    try {
-      symbols = await finhub.stockSymbols({ exchange: ex })
-    } catch (err) {
-      logger.error({ processName, err })
-
-      if (err.response && err.response.status === 401) {
-        break
-      }
-      await wait(3)
-    }
+  if (!symbols) {
+    return
   }
-
 
   let query = ''
   let counter = 0

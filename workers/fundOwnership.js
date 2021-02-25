@@ -4,7 +4,7 @@ const Promise = require('bluebird')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { wait, requestHelper } = require('../src/utils/helperFuncs')
 
 const processName = 'fund-ownership'
 
@@ -64,18 +64,10 @@ async function updateFundOwnership() {
   symbols = symbols.map(s => s.symbol)
 
   for (const symbol of symbols) {
-    let fundOwnership
+    const fundOwnership = await requestHelper(processName, () => finhub.fundOwnership({ symbol }))
 
-    while (!fundOwnership) {
-      try {
-        fundOwnership = await finhub.fundOwnership({ symbol })
-      } catch (err) {
-        logger.error({ processName, err }, `Failed to get fund ownership for ${symbol}`)
-        if (err.response && err.response.status === 401) {
-          break
-        }
-        await wait(2)
-      }
+    if (!fundOwnership) {
+      continue
     }
 
     try {

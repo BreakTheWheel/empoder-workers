@@ -3,7 +3,7 @@ const CronJob = require('cron').CronJob;
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { requestHelper } = require('../src/utils/helperFuncs')
 
 // obsolete
 
@@ -44,21 +44,16 @@ async function handleBasicFinancials(symbol, basicFinancials) {
 async function updateBasicFinancials() {
   let stockSymbols = await db.StockSymbol.findAll({
     attributes: ['symbol'],
-    // where: { tracking: true },
+    where: { tracking: true },
   })
   stockSymbols = stockSymbols.map(c => c.symbol)
 
   for (const symbol of stockSymbols) {
     logger.info({ processName }, `Basic financials: ${symbol}`)
-    let basicFinancials
+    const basicFinancials = await requestHelper(processName, () => finhub.basicFinancials({ symbol }))
 
-    while (!basicFinancials) {
-      try {
-        basicFinancials = await finhub.basicFinancials({ symbol })
-      } catch (err) {
-        logger.error({ processName, err })
-        await wait(2)
-      }
+    if (basicFinancials) {
+      continue
     }
 
     handleBasicFinancials(symbol, basicFinancials)

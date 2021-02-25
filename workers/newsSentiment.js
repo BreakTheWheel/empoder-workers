@@ -3,7 +3,7 @@ const CronJob = require('cron').CronJob;
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { wait, requestHelper } = require('../src/utils/helperFuncs')
 
 const processName = 'news-sentiment'
 
@@ -61,18 +61,10 @@ async function updateNewsSentiment() {
   for (const symbol of stockSymbols) {
     logger.info(`news sentiment: ${symbol}`)
 
-    let newsSentiment
+    const newsSentiment = requestHelper(processName, () => finhub.newsSentiment({ symbol }))
 
-    while (!newsSentiment) {
-      try {
-        newsSentiment = await finhub.newsSentiment({ symbol })
-      } catch (err) {
-        logger.error({ processName, err }, 'Failed to get news sentiment')
-        if (err.response && err.response.status === 401) {
-          break
-        }
-        await wait(2)
-      }
+    if (!newsSentiment) {
+      continue
     }
 
     handleSentiment(symbol, newsSentiment)

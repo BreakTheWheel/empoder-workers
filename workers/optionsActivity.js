@@ -3,7 +3,7 @@ const CronJob = require('cron').CronJob;
 const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
-const { wait } = require('../src/utils/helperFuncs')
+const { wait, requestHelper } = require('../src/utils/helperFuncs')
 const iexCloud = require('../src/services/iexCloud')
 
 const processName = 'options-activity'
@@ -52,38 +52,17 @@ async function updateStockOptions() {
 
   for (const symbol of stockSymbols) {
     logger.info({ processName }, `Processing symbol: ${symbol}`)
-    let optionDates
-
-    while (!optionDates) {
-      try {
-        optionDates = await iexCloud.stockOptionDates({ symbol })
-      } catch (err) {
-        const message = err.response && err.response.data
-
-        if (message === 'Not found' || message === 'Unknown symbol') { // symbol does not exist
-          logger.error({ processName }, `Symbol ${symbol} not found in IEX`)
-          break
-        }
-
-        logger.error({ processName, err }, 'Failed on IEX optionDates activity')
-        await wait(2)
-      }
-    }
+    const optionDates = await requestHelper(processName, () => iexCloud.stockOptionDates({ symbol }))
 
     if (!optionDates || !optionDates.length) {
       continue
     }
 
     for (const expiration of optionDates) {
-      let stockOptions
+      const stockOptions = await requestHelper(processName, () => iexCloud.stockOptions({ symbol, expiration }))
 
-      while (!stockOptions) {
-        try {
-          stockOptions = await iexCloud.stockOptions({ symbol, expiration })
-        } catch (err) {
-          logger.error({ processName, err }, 'Failed on IEX optionDates activity')
-          await wait(2)
-        }
+      if (!stockOptions) {
+        continue
       }
 
       let promises = []

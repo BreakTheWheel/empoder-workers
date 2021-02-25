@@ -3,7 +3,7 @@ const CronJob = require('cron').CronJob;
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { wait, requestHelper } = require('../src/utils/helperFuncs')
 
 const processName = 'financial-statements'
 
@@ -74,19 +74,7 @@ async function updateFinancialStatements() {
     logger.info({ processName }, `Statement for symbol: ${symbol}`)
 
     for (const type of types) {
-      let statements
-
-      while (!statements) {
-        try {
-          statements = await finhub.financialStatements({ symbol, type: type.type, freq: type.freq })
-        } catch (err) {
-          logger.error({ processName, err }, 'Failed to get financial statements')
-          if (err.response && err.response.status === 401) {
-            break
-          }
-          await wait(2)
-        }
-      }
+      const statements = await requestHelper(processName, () => finhub.financialStatements({ symbol, type: type.type, freq: type.freq }))
 
       if (!statements || !statements.financials) {
         continue

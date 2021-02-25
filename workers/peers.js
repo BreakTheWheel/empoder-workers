@@ -3,7 +3,9 @@ const CronJob = require('cron').CronJob;
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { wait, requestHelper } = require('../src/utils/helperFuncs')
+
+const processName = 'peers'
 
 async function handlePeer(symbol, peerSymbol) {
   try {
@@ -29,16 +31,11 @@ async function updatePeers() {
   const allPeers = new Set()
 
   for (const symbol of stockSymbols) {
-    let peers
+    const peers = await requestHelper(processName, () => finhub.stockPeers({ symbol }))
 
-    while (!peers) {
-      try {
-        peers = await finhub.stockPeers({ symbol })
-      } catch (err) {
-        await wait(2)
-      }
+    if (!peers) {
+      continue
     }
-    logger.info(`Peers: ${symbol}`)
 
     const filtered = peers.filter(p => p !== symbol) // original symbol returned as peer again
     let promises = []

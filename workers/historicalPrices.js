@@ -4,7 +4,7 @@ const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const iexCloud = require('../src/services/iexCloud')
-const { wait } = require('../src/utils/helperFuncs')
+const { wait, requestHelper } = require('../src/utils/helperFuncs')
 
 const processName = 'historical-prices'
 
@@ -44,15 +44,10 @@ async function updateHistoricalPrices() {
     const date = moment().subtract(1, 'day').format('YYYYMMDD')
     logger.info(`Historical price: ${symbol}, date: ${date}`)
 
-    let prices
+    const prices = await requestHelper(processName, () => iexCloud.historicalPrices({ symbol, date }))
 
-    while (!prices) {
-      try {
-        prices = await iexCloud.historicalPrices({ symbol, date })
-      } catch (err) {
-        logger.error({ processName, err: err.response }, 'Failed to get prices')
-        await wait(5)
-      }
+    if (!prices) {
+      continue
     }
 
     for (const price of prices) {
