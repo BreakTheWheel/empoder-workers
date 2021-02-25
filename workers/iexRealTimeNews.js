@@ -15,19 +15,17 @@ async function handleNews(newsArticle) {
     },
   })
 
-  if (exists) {
-    return
-  }
+  if (!exists) {
+    try {
+      await db.NewsArticle.create({
+        ...newsArticle,
+        related: newsArticle.related ? newsArticle.related.split(',') : [],
+      })
 
-  try {
-    await db.NewsArticle.create({
-      ...newsArticle,
-      related: newsArticle.related ? newsArticle.related.split(',') : [],
-    })
-
-    logger.info({ processName }, 'Updated news')
-  } catch (err) {
-    logger.error({ processName, err }, 'Failed to update quote')
+      logger.info({ processName }, 'Updated news')
+    } catch (err) {
+      logger.error({ processName, err }, 'Failed to update news article')
+    }
   }
 }
 

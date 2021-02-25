@@ -1,4 +1,4 @@
-const trades = require('./trades')
+//const trades = require('./trades')
 const companyProfile = require('./companyProfile')
 const fundOwnership = require('./fundOwnership')
 // const peers = require('./peers')
@@ -26,7 +26,7 @@ const iexIncomeStatements = require('./iexIncomeStatements')
 const cleanup = require('./cleanup')
 
 // // Pusher
-trades.start()
+// trades.start()
 realTimeQuote.start() //IEX
 delayedQuote.start()
 realTimeNews.start()
