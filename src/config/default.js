@@ -53,10 +53,9 @@ module.exports = env => ({
     options: {
       operatorsAliases: false,
       pool: {
-        max: 100000,
+        max: 500,
         min: 0,
-        idle: 2000000,
-        acquire: 10000000,
+        idle: 500,
       },
       dialectOptions: {
         ssl: process.env.NODE_ENV !== 'local' // false when its local database, otherwise true
