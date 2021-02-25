@@ -4,7 +4,7 @@ const moment = require('moment')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { requestHelper } = require('../src/utils/helperFuncs')
 
 const processName = 'earnings-calendar'
 
@@ -45,24 +45,11 @@ async function updateEarningsCalendar() {
 
   stockSymbols = stockSymbols.map(c => c.symbol)
   let promises = []
+  const from = moment.utc().subtract(2, 'years').format('YYYY-MM-DD')
+  const to = moment.utc().add(1, 'year').format('YYYY-MM-DD')
 
   for (const symbol of stockSymbols) {
-    let earnings
-
-    while (!earnings) {
-      try {
-        const from = moment.utc().subtract(2, 'years').format('YYYY-MM-DD')
-        const to = moment.utc().add(1, 'year').format('YYYY-MM-DD')
-
-        earnings = await finhub.earningsCalendar({ symbol, from, to })
-      } catch (err) {
-        if (err.response && err.response.status === 401) {
-          break
-        }
-        logger.error({ processName, err }, 'Failed to get earnings calendar')
-        await wait(2)
-      }
-    }
+    const earnings = await requestHelper(processName, () => finhub.earningsCalendar({ symbol, from, to }))
 
     if (!earnings || earnings.length === 0) {
       logger.info({ processName }, `Missing earnings calendar for ${symbol}`)

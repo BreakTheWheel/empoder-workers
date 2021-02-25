@@ -4,7 +4,7 @@ const CronJob = require('cron').CronJob
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { requestHelper } = require('../src/utils/helperFuncs')
 
 const processName = 'etfs-holdings'
 
@@ -26,22 +26,9 @@ async function updateEtfsHoldings() {
   for (const symbol of stockSymbols) {
     logger.info({ processName }, `etfsholdings processing symbol: ${symbol}, counter: ${counter++} of ${stockSymbols.length}`)
 
-    let holdingsResult
+    const holdingsResult = await requestHelper(processName, () => finhub.etfsHoldings({ symbol }))
 
-    while (!holdingsResult) {
-      try {
-        holdingsResult = await finhub.etfsHoldings({ symbol })
-      } catch (err) {
-        logger.error({ err, processName }, 'Failed to get holdings')
-        if (err.response && err.response.status === 401) {
-          break
-        }
-
-        await wait(3)
-      }
-    }
-
-    if (!holdingsResult.symbol) {
+    if (!holdingsResult || holdingsResult.symbol) {
       continue
     }
 

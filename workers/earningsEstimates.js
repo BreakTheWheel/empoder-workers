@@ -3,7 +3,7 @@ const CronJob = require('cron').CronJob;
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const finhub = require('../src/services/finHub')
-const { wait } = require('../src/utils/helperFuncs')
+const { wait, requestHelper } = require('../src/utils/helperFuncs')
 
 const processName = 'earnings-estimates'
 
@@ -45,18 +45,10 @@ async function updateEarningsEstimates() {
   let promises = []
 
   for (const symbol of stockSymbols) {
-    let earnings
+    const earnings = await requestHelper(processName, () => finhub.earningsEstimate({ symbol }))
 
-    while (!earnings) {
-      try {
-        earnings = await finhub.earningsEstimate({ symbol })
-      } catch (err) {
-        logger.error({ processName, err }, 'Failed to get earnings estimate')
-        if (err.response && err.response.status === 401) {
-          break
-        }
-        await wait(2)
-      }
+    if (!earnings) {
+      continue
     }
 
     for (const earning of earnings.data) {

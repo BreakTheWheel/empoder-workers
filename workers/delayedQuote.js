@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 const db = require('../src/database')
 const logger = require('../src/common/logger')
-const { wait } = require('../src/utils/helperFuncs')
+const { wait, requestHelper } = require('../src/utils/helperFuncs')
 const iexCloud = require('../src/services/iexCloud')
 
 const processName = 'delayed-quote'
@@ -36,23 +36,7 @@ async function updateDelayedQuote() {
   const symbols = result[0]
 
   for (const symbol of symbols) {
-    let delayedQuote
-
-    while (!delayedQuote) {
-      try {
-        delayedQuote = await iexCloud.delayedQuote({ symbol: symbol.symbol })
-      } catch (err) {
-        const message = err.response && err.response.data
-
-        if (message === 'Not found' || message === 'Unknown symbol') { // symbol does not exist
-          logger.error({ processName }, `Symbol ${symbol.symbol} not found in IEX`)
-          break
-        }
-
-        logger.error({ processName, err }, 'Failed on IEX delayed quote')
-        await wait(2)
-      }
-    }
+    const delayedQuote = await requestHelper(processName, () => iexCloud.delayedQuote({ symbol: symbol.symbol }))
 
     if (!delayedQuote || Object.keys(delayedQuote).length === 0) {
       continue
