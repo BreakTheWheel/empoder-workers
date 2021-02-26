@@ -54,6 +54,7 @@
     "koa-compress": "^2.0.0",
     "koa-router": "^7.4.0",
     "koa-static2": "^0.1.8",
+    "languagedetect": "^2.0.0",
     "lodash": "^4.17.11",
     "lorem-ipsum": "^2.0.3",
     "mocha": "^4.1.0",

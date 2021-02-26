@@ -13,7 +13,8 @@ const earningsCalendar = require('./earningsCalendar')
 const etfsHoldings = require('./etfsHoldings')
 const signals = require('./signals')
 const realTimeQuote = require('./realTimeQuote')
-const realTimeNews = require('./iexRealTimeNews')
+// const iexRealTimeNews = require('./iexRealTimeNews')
+const fhRealTimeNews = require('./fhRealTimeNews')
 const delayedQuote = require('./delayedQuote')
 const financialStatements = require('./financialStatements')
 const historicalPrices = require('./historicalPrices')
@@ -29,7 +30,8 @@ const cleanup = require('./cleanup')
 // trades.start()
 realTimeQuote.start() //IEX
 delayedQuote.start()
-realTimeNews.start()
+fhRealTimeNews.start() // FH
+// iexRealTimeNews.start() // IEX
 
 // non stop
 signals.start()
