@@ -1,17 +1,11 @@
 require('dotenv').config()
 
 const { w3cwebsocket } = require('websocket')
-const moment = require('moment')
+const LanguageDetect = require('languagedetect')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
-const LanguageDetect = require('languagedetect');
-const lngDetector = new LanguageDetect();
 
-function storeTrades(trades) {
-  db.Trade.bulkCreate(trades).catch(err => {
-    logger.error({ err }, 'storing trades failed')
-  })
-}
+const lngDetector = new LanguageDetect()
 
 async function storeNews(newsArticles) {
   try {
