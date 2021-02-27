@@ -25,6 +25,7 @@ const barchartOptions = require('./barchartOptions')
 const iexBalanceSheet = require('./iexBalanceSheets')
 const iexIncomeStatements = require('./iexIncomeStatements')
 const cleanup = require('./cleanup')
+const stockNews = require('./stockNews')
 
 // // Pusher
 // trades.start()
@@ -96,3 +97,5 @@ iexBalanceSheet.updateIexBalanceSheets.start() // IEX
 iexIncomeStatements.updateIexIncomeStatements.start() // IEX
 
 cleanup.cleanup.start()
+
+stockNews.updateStockNews.start()

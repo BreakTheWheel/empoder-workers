@@ -38,6 +38,7 @@ const currencyExchangeRate = require('./currencyExchangeRate')
 const barchartOption = require('./barchartOption')
 const iexIncomeStatement = require('./iexIncomeStatement')
 const iexBalanceSheet = require('./iexBalanceSheet')
+const stockNewsArticle = require('./stockNewsArticle')
 
 const models = {
   administrator,
@@ -80,6 +81,7 @@ const models = {
   barchartOption,
   iexIncomeStatement,
   iexBalanceSheet,
+  stockNewsArticle,
 }
 
 module.exports = models

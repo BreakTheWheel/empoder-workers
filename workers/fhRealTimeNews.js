@@ -7,11 +7,13 @@ const logger = require('../src/common/logger')
 
 const lngDetector = new LanguageDetect()
 
+const processName = 'fh-news'
+
 async function storeNews(newsArticles) {
   try {
     await db.NewsArticle.bulkCreate(newsArticles)
   } catch (err) {
-    logger.error({ err }, 'storing news failed')
+    logger.error({ processName, err }, 'storing news failed')
   }
 }
 
@@ -52,7 +54,7 @@ function handleNews(obj) {
 
     storeNews(news)
   } catch (err) {
-    logger.error({ err }, 'failed parsing data')
+    logger.error({ processName, err }, 'failed parsing data')
   }
 }
 
@@ -63,12 +65,12 @@ function connect(symbols) {
   client = new w3cwebsocket(`wss://ws.finnhub.io?token=${process.env.FIN_HUB_TOKEN}`)
 
   client.onerror = event => {
-    logger.error({ event }, 'Connection error')
+    logger.error({ processName, event }, 'Connection error')
     client.close()
   }
 
   client.onopen = () => {
-    logger.info('Socket opened')
+    logger.info({ processName }, 'Socket opened')
 
     for (const sym of getSubscriptionRequests('subscribe-news', symbols)) {
       client.send(JSON.stringify(sym))
@@ -76,7 +78,7 @@ function connect(symbols) {
   }
 
   client.onclose = event => {
-    logger.error({ event }, 'Connection closed')
+    logger.error({ processName, event }, 'Connection closed')
 
     client = null
   }
@@ -84,7 +86,7 @@ function connect(symbols) {
   client.onmessage = event => {
     const obj = JSON.parse(event.data)
 
-    logger.info({ event: obj }, 'incoming event')
+    logger.info({ processName, event: obj }, 'incoming event')
 
     if (obj.type !== 'ping') {
       handleNews(obj)
@@ -109,7 +111,7 @@ module.exports = {
       const stopped = process.env.STOPPED === 'true'
 
       if (stopped) {
-        logger.info('Stopped')
+        logger.info({ processName }, 'Stopped')
         await wait(20000)
 
         continue
