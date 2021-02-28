@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
-const CronJob = require('cron').CronJob;
+const { exec } = require('child_process')
+const CronJob = require('cron').CronJob
 const logger = require('../src/common/logger')
-const { exec } = require('child_process');
 
 const processName = 'cleanup'
 
@@ -9,7 +9,7 @@ function cleanup() {
   logger.info({ processName, currentPath: __dirname })
 
   return new Promise((resolve, reject) => {
-    exec('rm /var/log/messages*', (err, stdout, stderr) => {
+    exec('rm -f ../../../log/messages*', (err, stdout, stderr) => {
       if (err) {
         logger.error({ err })
         logger.error({ stderr })

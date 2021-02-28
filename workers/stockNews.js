@@ -19,7 +19,7 @@ async function handleStockNewsArticle(article) {
     try {
       await db.StockNewsArticle.create(article)
     } catch (err) {
-      logger.error({ err }, 'Failed to create stock news article')
+      logger.error({ processName, err }, 'Failed to create stock news article')
     }
   }
 }
