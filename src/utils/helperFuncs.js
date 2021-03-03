@@ -53,7 +53,7 @@ module.exports = {
           break
         }
 
-        const message = err.response && err.response.data
+        const message = err.response && err.response.data ? err.response.data : ''
 
         if (message === 'Unknown symbol' || message === 'Not found') {
           break

@@ -3,6 +3,7 @@ const CronJob = require('cron').CronJob;
 const Promise = require('bluebird')
 const { camelCase } = require('change-case')
 const moment = require('moment')
+const { requestHelper } = require('../src/utils/helperFuncs')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const morningstar = require('../src/services/morningstar')
@@ -69,14 +70,14 @@ async function updateIncomeStatements() {
     logger.info({ processName }, `Processing symbol ${symbol.symbol}`)
 
     for (const type of types) {
-      const incomeStatements = await morningstar.incomeStatements({
+      const incomeStatements = await requestHelper(processName, () => morningstar.incomeStatements({
         token,
         exchangeId: symbol.exchangeId,
         symbol: symbol.symbol,
         startDate: `01/${startYear}`,
         endDate: `12/${endYear}`,
         type,
-      })
+      }))
 
       if (!incomeStatements || !incomeStatements.IncomeStatementEntityList || Object.keys(incomeStatements.IncomeStatementEntityList).length === 0) {
         continue

@@ -4,6 +4,7 @@ const Promise = require('bluebird')
 const { camelCase } = require('change-case')
 const moment = require('moment')
 const db = require('../src/database')
+const { requestHelper } = require('../src/utils/helperFuncs')
 const logger = require('../src/common/logger')
 const morningstar = require('../src/services/morningstar')
 
@@ -68,13 +69,13 @@ async function updateMsBalanceSheets() {
     logger.info({ processName }, `Processing symbol ${symbol.symbol}`)
 
     for (const type of types) {
-      const balanceSheets = await morningstar.balanceSheets({
+      const balanceSheets = await requestHelper(processName, () => morningstar.balanceSheets({
         token,
         exchangeId: symbol.exchangeId,
         symbol: symbol.symbol,
         startDate: `01/${startYear}`,
         endDate: `12/${endYear}`,
-      })
+      }))
 
       if (!balanceSheets || !balanceSheets.BalanceSheetEntityList || Object.keys(balanceSheets.BalanceSheetEntityList).length === 0) {
         continue

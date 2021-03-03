@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
 const db = require('../src/database')
+const { requestHelper } = require('../src/utils/helperFuncs')
 const logger = require('../src/common/logger')
 const morningstar = require('../src/services/morningstar')
 
@@ -101,7 +102,7 @@ async function updateStockSymbols() {
 
   for (const exchange of exchanges) {
     logger.info({ processName, exchange: exchange.exchangeId })
-    const symbols = await morningstar.stocks({ exchangeId: exchange.exchangeId })
+    const symbols = await requestHelper(processName, () => morningstar.stocks({ exchangeId: exchange.exchangeId }))
 
     if (!symbols.StockExchangeSecurityEntityList) {
       logger.info({ processName, symbols }, 'No symbols for exchange')
@@ -138,7 +139,7 @@ async function updateStockSymbols() {
 
       if (counter === IN_PARALLEL) {
         await storeSymbol(query)
- 
+
         counter = 0
         query = ''
       }

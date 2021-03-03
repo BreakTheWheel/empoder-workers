@@ -1,7 +1,7 @@
 const axios = require('axios')
 
-const msEmail = 'dc@breakthewheel.com'
-const msPassword = 'Cristal4464!'
+const msEmail = process.env.MS_EMAIL
+const msPassword = process.env.MS_PASSWORD
 
 module.exports = {
   login: async () => {
