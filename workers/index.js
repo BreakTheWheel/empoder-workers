@@ -26,6 +26,9 @@ const iexBalanceSheet = require('./iexBalanceSheets')
 const iexIncomeStatements = require('./iexIncomeStatements')
 const cleanup = require('./cleanup')
 const stockNews = require('./stockNews')
+const msStockSymbols = require('./msStockSymbols')
+const msBalanceSheets = require('./msBalanceSheets')
+const msIncomeStatements = require('./msIncomeStatements')
 
 // // Pusher
 // trades.start()
@@ -99,3 +102,8 @@ iexIncomeStatements.updateIexIncomeStatements.start() // IEX
 cleanup.cleanup.start()
 
 stockNews.updateStockNews.start()
+
+// morning star
+msStockSymbols.stockSymbols.start()
+msIncomeStatements.updateIncomeStatements.start()
+msBalanceSheets.updateMsBalanceSheets.start()

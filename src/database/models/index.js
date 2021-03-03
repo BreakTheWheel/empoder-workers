@@ -39,6 +39,11 @@ const barchartOption = require('./barchartOption')
 const iexIncomeStatement = require('./iexIncomeStatement')
 const iexBalanceSheet = require('./iexBalanceSheet')
 const stockNewsArticle = require('./stockNewsArticle')
+const msExchange = require('./msExchange')
+const msRegion = require('./msRegion')
+const msStockSymbol = require('./msStockSymbol')
+const msBalanceSheet = require('./msBalanceSheet')
+const msIncomeStatement = require('./msIncomeStatement')
 
 const models = {
   administrator,
@@ -82,6 +87,11 @@ const models = {
   iexIncomeStatement,
   iexBalanceSheet,
   stockNewsArticle,
+  msRegion,
+  msExchange,
+  msStockSymbol,
+  msBalanceSheet,
+  msIncomeStatement,
 }
 
 module.exports = models

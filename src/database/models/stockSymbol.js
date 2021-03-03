@@ -33,7 +33,7 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: false,
     },
     sectorId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.ARRAY(Sequelize.INTEGER),
       allowNull: true,
       field: 'sector_id',
     },
