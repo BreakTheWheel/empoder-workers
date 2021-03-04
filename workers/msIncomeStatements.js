@@ -16,14 +16,14 @@ async function handleIncomeStatement(symbol, incomeStatement, type) {
   const exists = await db.MsIncomeStatement.findOne({
     where: {
       statementType: type,
-      symbol: symbol.symbol,
+      stockSymbolId: symbol.id,
       [db.sequelize.Op.and]: [
-        db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('report_date')), '=', incomeStatement.ReportDate),
+        db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('period_ending_date')), '=', incomeStatement.PeriodEndingDate),
       ],
     },
   })
 
-  const obj = { symbol: symbol.symbol }
+  const obj = { stockSymbolId: symbol.id }
 
   for (const key of Object.keys(incomeStatement)) {
     obj[camelCase(key)] = incomeStatement[key]
@@ -34,9 +34,9 @@ async function handleIncomeStatement(symbol, incomeStatement, type) {
       await db.MsIncomeStatement.update(obj, {
         where: {
           statementType: type,
-          symbol: symbol.symbol,
+          stockSymbolId: symbol.id,
           [db.sequelize.Op.and]: [
-            db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('report_date')), '=', incomeStatement.ReportDate),
+            db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('period_ending_date')), '=', incomeStatement.PeriodEndingDate),
           ],
         },
       })
@@ -56,7 +56,7 @@ async function handleIncomeStatement(symbol, incomeStatement, type) {
 async function updateIncomeStatements() {
   const token = await morningstar.login()
   const stockSymbols = await db.MsStockSymbol.findAll({
-    attributes: ['symbol', 'exchangeId'],
+    attributes: ['id', 'symbol', 'exchangeId'],
     where: { tracking: true },
     order: [
       ['sectorId', 'ASC'],

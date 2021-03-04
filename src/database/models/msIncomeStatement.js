@@ -7,12 +7,13 @@ module.exports = (sequelize, Sequelize) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    symbol: {
+    stockSymbolId: {
       type: Sequelize.STRING,
       allowNull: false,
+      field: 'stock_symbol_id',
       references: {
         model: 'ms_stock_symbols',
-        key: 'symbol',
+        key: 'id',
       },
     },
     reportDate: {

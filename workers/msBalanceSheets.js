@@ -16,14 +16,14 @@ async function handleBalanceSheet(symbol, balanceSheet, type) {
   const exists = await db.MsBalanceSheet.findOne({
     where: {
       statementType: type,
-      symbol: symbol.symbol,
+      stockSymbolId: symbol.id,
       [db.sequelize.Op.and]: [
-        db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('report_date')), '=', balanceSheet.ReportDate),
+        db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('period_ending_date')), '=', balanceSheet.PeriodEndingDate),
       ],
     },
   })
 
-  const obj = { symbol: symbol.symbol }
+  const obj = { stockSymbolId: symbol.id }
 
   for (const key of Object.keys(balanceSheet)) {
     obj[camelCase(key)] = balanceSheet[key]
@@ -34,9 +34,9 @@ async function handleBalanceSheet(symbol, balanceSheet, type) {
       await db.MsBalanceSheet.update(obj, {
         where: {
           statementType: type,
-          symbol: symbol.symbol,
+          stockSymbolId: symbol.id,
           [db.sequelize.Op.and]: [
-            db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('report_date')), '=', balanceSheet.ReportDate),
+            db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('period_ending_date')), '=', balanceSheet.PeriodEndingDate),
           ],
         },
       })
@@ -56,7 +56,7 @@ async function handleBalanceSheet(symbol, balanceSheet, type) {
 async function updateMsBalanceSheets() {
   const token = await morningstar.login()
   const stockSymbols = await db.MsStockSymbol.findAll({
-    attributes: ['symbol', 'exchangeId'],
+    attributes: ['symbol', 'id', 'exchangeId'],
     where: { tracking: true },
     order: [
       ['sectorId', 'ASC'],
@@ -75,6 +75,7 @@ async function updateMsBalanceSheets() {
         symbol: symbol.symbol,
         startDate: `01/${startYear}`,
         endDate: `12/${endYear}`,
+        type,
       }))
 
       if (!balanceSheets || !balanceSheets.BalanceSheetEntityList || Object.keys(balanceSheets.BalanceSheetEntityList).length === 0) {

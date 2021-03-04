@@ -27,15 +27,39 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: false,
     },
+    mic: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
+    figi: {
+      type: Sequelize.STRING,
+      allowNull: true,
+    },
     tracking: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: false,
     },
+    isSpac: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: 'is_spac',
+    },
     sectorId: {
       type: Sequelize.ARRAY(Sequelize.INTEGER),
       allowNull: true,
       field: 'sector_id',
+    },
+    delistingDate: {
+      type: Sequelize.DATE,
+      allowNull: true,
+      field: 'delisting_date',
+    },
+    delistingReason: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+      field: 'delisting_reason',
     },
     createdAt: {
       allowNull: false,

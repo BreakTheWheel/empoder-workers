@@ -106,7 +106,7 @@ async function updateStockSymbols(exchange) {
   for (const sym of symbols) {
     counter++
     query += `
-    INSERT INTO stock_symbols (symbol, display_symbol, currency, type, description, exchange, tracking, sector_id)
+    INSERT INTO stock_symbols (symbol, display_symbol, currency, type, description, exchange, figi, mic, tracking, sector_id)
     VALUES(
       '${sym.symbol}', 
       '${sym.display_symbol || ''}', 
@@ -114,12 +114,20 @@ async function updateStockSymbols(exchange) {
       '${sym.type || ''}', 
       '${escape(sym.description) || ''}', 
       '${ex}', 
+      '${sym.figi || ''}',
+      '${sym.mic || ''}',
       false,
       null
     ) 
     ON CONFLICT (symbol) 
     DO  
-      UPDATE SET display_symbol = '${sym.display_symbol || ''}', currency = '${sym.currency || ''}', description = '${escape(sym.description) || ''}', exchange = '${ex}';
+      UPDATE SET 
+        display_symbol = '${sym.display_symbol || ''}', 
+        currency = '${sym.currency || ''}', 
+        description = '${escape(sym.description) || ''}',
+        exchange = '${ex}',
+        figi = '${sym.figi || ''}',
+        mic = '${sym.mic || ''}';
   `
 
     if (counter === IN_PARALLEL) {

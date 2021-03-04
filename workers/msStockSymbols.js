@@ -5,7 +5,7 @@ const { requestHelper } = require('../src/utils/helperFuncs')
 const logger = require('../src/common/logger')
 const morningstar = require('../src/services/morningstar')
 
-const IN_PARALLEL = 500
+const IN_PARALLEL = 750
 const processName = 'ms-stock-symbols'
 
 function escape(str) {
@@ -110,13 +110,15 @@ async function updateStockSymbols() {
     }
 
     for (const sym of symbols.StockExchangeSecurityEntityList) {
-      if (!sym.Symbol) {
+      if (!sym.Symbol || !sym.ExchangeId) {
         continue
       }
 
       counter++
       query += `
-      INSERT INTO ms_stock_symbols (symbol, company_name, exchange_id, cik, isin, sedol, cusip, investment_type_id, stock_status, par_value, suspended_flag, market_data_id, tracking, sector_id)
+      INSERT INTO ms_stock_symbols (
+        symbol, company_name, exchange_id, cik, isin, sedol, cusip, investment_type_id, stock_status, par_value, suspended_flag, market_data_id, delisting_date, delisting_reason, tracking, sector_id
+      )
       VALUES(
         '${escape(sym.Symbol)}', 
         '${escape(sym.CompanyName)}', 
@@ -128,14 +130,20 @@ async function updateStockSymbols() {
         '${escape(sym.InvestmentTypeId) || ''}', 
         '${escape(sym.StockStatus) || ''}', 
         ${sym.ParValue ? escape(sym.ParValue) : null},
-        ${sym.SuspendedFlag ? sym.SuspendedFlag : null},
+        ${sym.SuspendedFlag ? sym.SuspendedFlag : 0},
         ${sym.MarketDataId ? `'${escape(sym.MarketDataId)}'` : null},
+        ${sym.DelistingDate ? `'${escape(sym.DelistingDate)}'` : null},
+        ${sym.DelistingReason ? `'${escape(sym.DelistingReason)}'` : null},
         false,
         null
       ) 
-      ON CONFLICT (symbol) 
+      ON CONFLICT (symbol, exchange_id, stock_status) 
       DO  
-        UPDATE SET stock_status = '${escape(sym.StockStatus) || ''}', company_name = '${escape(sym.CompanyName) || ''}';`
+        UPDATE SET 
+          stock_status = '${escape(sym.StockStatus) || ''}', 
+          delisting_date = ${sym.DelistingDate ? `'${escape(sym.DelistingDate)}'` : null},
+          delisting_reason = ${sym.DelistingReason ? `'${escape(sym.DelistingReason)}'` : null},
+          company_name = '${escape(sym.CompanyName) || ''}';`
 
       if (counter === IN_PARALLEL) {
         await storeSymbol(query)
@@ -159,8 +167,8 @@ const stopped = process.env.STOPPED === 'true'
 
 async function go() {
   const token = await morningstar.login()
-  await updateRegions(token)
-  await updateExchanges(token)
+  // await updateRegions(token)
+  // await updateExchanges(token)
   await updateStockSymbols(token)
 }
 

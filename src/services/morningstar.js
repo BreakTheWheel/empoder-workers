@@ -12,18 +12,17 @@ module.exports = {
     return data ? data.Token : null
   },
 
-  balanceSheets: async ({ token, exchangeId, symbol, startDate, endDate }) => {
+  balanceSheets: async ({ token, exchangeId, symbol, type, startDate, endDate }) => {
     const { data } = await axios.default.get(`
-      https://equityapi.morningstar.com/Webservice/CompanyFinancialsService.asmx/GetBalanceSheet?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&statementType=Annual&dataType=AOR&startDate=${startDate}&endDate=${endDate}&responseType=json&Token=${token}
+      https://equityapi.morningstar.com/Webservice/CompanyFinancialsService.asmx/GetBalanceSheet?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&statementType=${type}&dataType=AOR&startDate=${startDate}&endDate=${endDate}&responseType=json&Token=${token}
     `)
 
     return data
   },
 
   incomeStatements: async ({ token, exchangeId, symbol, startDate, endDate, type }) => {
-    const { data } = await axios.default.get(`
-      https://equityapi.morningstar.com/Webservice/CompanyFinancialsService.asmx/GetIncomeStatement?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&statementType=${type}&dataType=AOR&startDate=${startDate}&endDate=${endDate}&responseType=json&Token=${token}
-    `)
+    const url = `https://equityapi.morningstar.com/Webservice/CompanyFinancialsService.asmx/GetIncomeStatement?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&statementType=${type}&dataType=AOR&startDate=${startDate}&endDate=${endDate}&responseType=json&Token=${token}`
+    const { data } = await axios.default.get(url)
 
     return data
   },

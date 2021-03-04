@@ -1,10 +1,15 @@
 
 module.exports = (sequelize, Sequelize) => {
   const MsStockSymbol = sequelize.define('MsStockSymbol', {
+    id: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     symbol: {
       type: Sequelize.STRING,
       allowNull: false,
-      primaryKey: true,
     },
     companyName: {
       type: Sequelize.TEXT,
