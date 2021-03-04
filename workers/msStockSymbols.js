@@ -167,8 +167,8 @@ const stopped = process.env.STOPPED === 'true'
 
 async function go() {
   const token = await morningstar.login()
-  // await updateRegions(token)
-  // await updateExchanges(token)
+  await updateRegions(token)
+  await updateExchanges(token)
   await updateStockSymbols(token)
 }
 

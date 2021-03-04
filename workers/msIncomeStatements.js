@@ -1,12 +1,12 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
-const Promise = require('bluebird')
 const { camelCase } = require('change-case')
 const moment = require('moment')
 const { requestHelper } = require('../src/utils/helperFuncs')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const morningstar = require('../src/services/morningstar')
+const stockService = require('../src/services/stockService')
 
 const processName = 'ms-income-statements'
 
@@ -55,13 +55,7 @@ async function handleIncomeStatement(symbol, incomeStatement, type) {
 
 async function updateIncomeStatements() {
   const token = await morningstar.login()
-  const stockSymbols = await db.MsStockSymbol.findAll({
-    attributes: ['id', 'symbol', 'exchangeId'],
-    where: { tracking: true },
-    order: [
-      ['sectorId', 'ASC'],
-    ],
-  })
+  const stockSymbols = await stockService.getTrackingStocks()
 
   const startYear = moment().subtract(2, 'year').year()
   const endYear = moment().year()
@@ -83,21 +77,9 @@ async function updateIncomeStatements() {
         continue
       }
 
-      let promises = []
-
       for (const incomeStatement of incomeStatements.IncomeStatementEntityList) {
-        promises.push(await handleIncomeStatement(symbol, incomeStatement, type))
-
-        if (promises.length === 100) {
-          await Promise.all(promises)
-
-          promises = []
-        }
+       await  handleIncomeStatement(symbol, incomeStatement, type)
       }
-
-      await Promise.all(promises)
-
-      promises = []
     }
   }
 }

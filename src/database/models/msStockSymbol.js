@@ -79,5 +79,9 @@ module.exports = (sequelize, Sequelize) => {
     },
   )
 
+  MsStockSymbol.associate = models => {
+    MsStockSymbol.belongsTo(models.MsExchange, { as: 'exchange', foreignKey: 'exchangeId', targetKey: 'exchangeId' })
+  }
+
   return MsStockSymbol
 }

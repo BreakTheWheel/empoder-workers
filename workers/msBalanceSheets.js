@@ -1,12 +1,12 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
-const Promise = require('bluebird')
 const { camelCase } = require('change-case')
 const moment = require('moment')
 const db = require('../src/database')
 const { requestHelper } = require('../src/utils/helperFuncs')
 const logger = require('../src/common/logger')
 const morningstar = require('../src/services/morningstar')
+const stockService = require('../src/services/stockService')
 
 const processName = 'ms-balance-sheets'
 
@@ -55,13 +55,8 @@ async function handleBalanceSheet(symbol, balanceSheet, type) {
 
 async function updateMsBalanceSheets() {
   const token = await morningstar.login()
-  const stockSymbols = await db.MsStockSymbol.findAll({
-    attributes: ['symbol', 'id', 'exchangeId'],
-    where: { tracking: true },
-    order: [
-      ['sectorId', 'ASC'],
-    ],
-  })
+  const stockSymbols = await stockService.getTrackingStocks()
+
   const startYear = moment().subtract(2, 'year').year()
   const endYear = moment().year()
 
@@ -82,21 +77,10 @@ async function updateMsBalanceSheets() {
         continue
       }
 
-      let promises = []
 
       for (const balanceSheet of balanceSheets.BalanceSheetEntityList) {
-        promises.push(await handleBalanceSheet(symbol, balanceSheet, type))
-
-        if (promises.length === 100) {
-          await Promise.all(promises)
-
-          promises = []
-        }
+        await handleBalanceSheet(symbol, balanceSheet, type)
       }
-
-      await Promise.all(promises)
-
-      promises = []
     }
   }
 }
