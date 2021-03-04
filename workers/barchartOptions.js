@@ -34,7 +34,7 @@ async function updateStockOptions() {
   logger.info({ processName })
   const options = await requestHelper(processName, () => barchart.equityOptions({ symbol: 'APHA' }))
 
-  if (options) {
+  if (!options || !options.results) {
     return
   }
 
