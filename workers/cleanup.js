@@ -22,10 +22,9 @@ function cleanup() {
 }
 
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
-const stopped = process.env.STOPPED === 'true'
 
 module.exports.cleanup = new CronJob('*/15 * * * *', async () => {
-  if (!startImmediately && !stopped) {
+  if (!startImmediately) {
     logger.info({ processName }, 'Running every 15 minutes')
 
     try {

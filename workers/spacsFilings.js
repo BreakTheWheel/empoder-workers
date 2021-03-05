@@ -3,7 +3,7 @@ const CronJob = require('cron').CronJob;
 const Promise = require('bluebird')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
-const { wait, requestHelper } = require('../src/utils/helperFuncs')
+const { requestHelper } = require('../src/utils/helperFuncs')
 const spacs = require('../src/services/spacs')
 
 const processName = 'spacs-filings'
