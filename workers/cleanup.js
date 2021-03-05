@@ -5,11 +5,23 @@ const logger = require('../src/common/logger')
 
 const processName = 'cleanup'
 
-function cleanup() {
+async function cleanup() {
   logger.info({ processName, currentPath: __dirname })
 
-  return new Promise((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     exec('rm -f ../../../log/messages*', (err, stdout, stderr) => {
+      if (err) {
+        logger.error({ err })
+        logger.error({ stderr })
+        return reject(new Error('Failed'))
+      }
+
+      resolve()
+    })
+  })
+
+  await new Promise((resolve, reject) => {
+    exec('sudo service rsyslog restart', (err, stdout, stderr) => {
       if (err) {
         logger.error({ err })
         logger.error({ stderr })
