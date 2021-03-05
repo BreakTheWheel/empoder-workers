@@ -23,9 +23,9 @@ function cleanup() {
 
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 
-module.exports.cleanup = new CronJob('*/15 * * * *', async () => {
+module.exports.cleanup = new CronJob('*/5 * * * *', async () => {
   if (!startImmediately) {
-    logger.info({ processName }, 'Running every 15 minutes')
+    logger.info({ processName }, 'Running every 5 minutes')
 
     try {
       await cleanup()
@@ -33,7 +33,7 @@ module.exports.cleanup = new CronJob('*/15 * * * *', async () => {
       logger.error({ processName, err }, 'Failed to cleanup')
     }
 
-    logger.info('Done')
+    logger.info({ processName }, 'Done')
   }
 }, null, false, 'America/New_York');
 
