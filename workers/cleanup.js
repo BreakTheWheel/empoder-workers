@@ -35,9 +35,9 @@ async function cleanup() {
 
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 
-module.exports.cleanup = new CronJob('*/5 * * * *', async () => {
+module.exports.cleanup = new CronJob('*/30 * * * *', async () => {
   if (!startImmediately) {
-    logger.info({ processName }, 'Running every 5 minutes')
+    logger.info({ processName }, 'Running every 30 minutes')
 
     try {
       await cleanup()

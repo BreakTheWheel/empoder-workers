@@ -191,28 +191,32 @@ function connect(joined) {
 
 module.exports = {
   start: async () => {
-    let stopped = process.env.STOPPED === 'true'
+    try {
+      let stopped = process.env.STOPPED === 'true'
 
-    while (stopped) {
-      logger.info({ processName }, 'Real time quote stopped')
-      await wait(20)
+      while (stopped) {
+        logger.info({ processName }, 'Real time quote stopped')
+        await wait(20)
 
-      stopped = process.env.STOPPED === 'true'
-    }
+        stopped = process.env.STOPPED === 'true'
+      }
 
-    const symbols = await db.StockSymbol.findAll({
-      where: { tracking: true },
-    })
-    const arrayOfArrays = []
-    const mapped = symbols.map(s => s.symbol)
+      const symbols = await db.StockSymbol.findAll({
+        where: { tracking: true },
+      })
+      const arrayOfArrays = []
+      const mapped = symbols.map(s => s.symbol)
 
-    while (mapped.length) {
-      arrayOfArrays.push(mapped.splice(0, 30))
-    }
+      while (mapped.length) {
+        arrayOfArrays.push(mapped.splice(0, 30))
+      }
 
-    for (const arr of arrayOfArrays) {
-      connect(arr.join(','))
-      await wait(0.5)
+      for (const arr of arrayOfArrays) {
+        connect(arr.join(','))
+        await wait(0.5)
+      }
+    } catch (err) {
+      logger.error({ processName }, 'Failed globally')
     }
   },
 }

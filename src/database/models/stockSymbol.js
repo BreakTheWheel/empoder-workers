@@ -51,16 +51,6 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: true,
       field: 'sector_id',
     },
-    delistingDate: {
-      type: Sequelize.DATE,
-      allowNull: true,
-      field: 'delisting_date',
-    },
-    delistingReason: {
-      type: Sequelize.TEXT,
-      allowNull: true,
-      field: 'delisting_reason',
-    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE,

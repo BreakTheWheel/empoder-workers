@@ -71,6 +71,16 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: true,
       field: 'sector_id',
     },
+    delistingDate: {
+      type: Sequelize.DATE,
+      allowNull: true,
+      field: 'delisting_date',
+    },
+    delistingReason: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+      field: 'delisting_reason',
+    },
   },
     {
       tableName: 'ms_stock_symbols',
