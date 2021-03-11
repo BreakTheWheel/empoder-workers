@@ -172,9 +172,9 @@ async function go() {
   await updateStockSymbols(token)
 }
 
-module.exports.stockSymbols = new CronJob('0 11 * * *', async () => {
+module.exports.stockSymbols = new CronJob('0 18 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info({ processName }, 'Running every day at 11am')
+    logger.info({ processName }, 'Running every day at 6pm')
 
     try {
       await go()

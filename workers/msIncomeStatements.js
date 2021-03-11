@@ -78,7 +78,7 @@ async function updateIncomeStatements() {
       }
 
       for (const incomeStatement of incomeStatements.IncomeStatementEntityList) {
-       await  handleIncomeStatement(symbol, incomeStatement, type)
+        await handleIncomeStatement(symbol, incomeStatement, type)
       }
     }
   }
@@ -87,9 +87,9 @@ async function updateIncomeStatements() {
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.updateIncomeStatements = new CronJob('0 21 * * *', async () => {
+module.exports.updateIncomeStatements = new CronJob('0 20 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info({ processName }, 'Running every day at 9pm')
+    logger.info({ processName }, 'Running every day at 8pm')
 
     try {
       await updateIncomeStatements()

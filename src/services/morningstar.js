@@ -49,4 +49,18 @@ module.exports = {
 
     return result.data
   },
+
+  valuationRatios: async ({ exchangeId, symbol, token }) => {
+    const url = `https://equityapi.morningstar.com/Webservice/FinancialKeyRatiosService.asmx/GetValuationRatios?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&period=Snapshot&responseType=json&Token=${token}`
+    const result = await axios.default.get(url)
+
+    return result.data
+  },
+
+  marketCap: async ({ exchangeId, symbol, token }) => {
+    const url = `https://equityapi.morningstar.com/Webservice/MarketPerformanceService.asmx/GetCurrentMarketCapitalization?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&responseType=json&Token=${token}`
+    const result = await axios.default.get(url)
+
+    return result.data
+  },
 }

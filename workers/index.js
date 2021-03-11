@@ -1,10 +1,10 @@
-//const trades = require('./trades')
-const companyProfile = require('./companyProfile')
+// const trades = require('./trades')
+// const companyProfile = require('./companyProfile')
 const fundOwnership = require('./fundOwnership')
 // const peers = require('./peers')
 const priceTargets = require('./priceTargets')
 const recommendationTrends = require('./recommendationTrends')
-const stockSymbols = require('./stockSymbols')
+// const stockSymbols = require('./stockSymbols')
 const newsSentiment = require('./newsSentiment')
 // const upgradeDowngrade = require('./upgradeDowngrade')
 const optionsActivity = require('./optionsActivity')
@@ -16,7 +16,7 @@ const realTimeQuote = require('./realTimeQuote')
 // const iexRealTimeNews = require('./iexRealTimeNews')
 const fhRealTimeNews = require('./fhRealTimeNews')
 const delayedQuote = require('./delayedQuote')
-const financialStatements = require('./financialStatements')
+// const financialStatements = require('./financialStatements')
 const historicalPrices = require('./historicalPrices')
 // const ipoCalendar = require('./ipoCalendar')
 // const companyBasicFinancials = require('./companyBasicFinancials')
@@ -29,6 +29,8 @@ const stockNews = require('./stockNews')
 const msStockSymbols = require('./msStockSymbols')
 const msBalanceSheets = require('./msBalanceSheets')
 const msIncomeStatements = require('./msIncomeStatements')
+const msValuationRatios = require('./msValuationRatios')
+const msMarketCap = require('./msMarketCap')
 
 // // Pusher
 // trades.start()
@@ -41,7 +43,7 @@ fhRealTimeNews.start() // FH
 signals.start()
 
 // 18:00
-companyProfile.updateCompanyProfile.start() // FH  
+// companyProfile.updateCompanyProfile.start() // FH  
 
 // 18:00
 // companyBasicFinancials.updateCompanyProfile.start() 
@@ -65,7 +67,7 @@ earningsCalendar.updateEarningsCalendar.start() // FH
 recommendationTrends.updateRecommendationTrends.start() // FH 
 
 // 11:00
-stockSymbols.stockSymbols.start() // FH 
+// stockSymbols.stockSymbols.start() // FH 
 
 // 06:00
 historicalPrices.updateHistoricalPrices.start() // IEX 
@@ -84,13 +86,13 @@ earningsEstimates.updateEarningsEstimates.start()  // FH
 optionsActivity.updateStockOptions.start() // IEX
 
 // 16:30
-financialStatements.updateFinancialStatements.start()  // FH 
+// financialStatements.updateFinancialStatements.start()  // FH 
 
 // every 5 hours
 newsSentiment.updateNewsSentiment.start()  // FH 
 
 // every 1 hour
-exchangeRates.updateCurrencyExchanges.start() // FH 
+exchangeRates.updateCurrencyExchanges.start()
 
 // every 15min
 barchartOptions.updateStockOptions.start() // BC
@@ -107,3 +109,5 @@ stockNews.updateStockNews.start()
 msStockSymbols.stockSymbols.start()
 msIncomeStatements.updateIncomeStatements.start()
 msBalanceSheets.updateMsBalanceSheets.start()
+msValuationRatios.updateValuationRatios.start()
+msMarketCap.updateMarketCap.start()

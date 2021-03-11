@@ -88,9 +88,9 @@ async function updateMsBalanceSheets() {
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.updateMsBalanceSheets = new CronJob('0 19 * * *', async () => {
+module.exports.updateMsBalanceSheets = new CronJob('0 21 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info({ processName }, 'Running every day at 7pm')
+    logger.info({ processName }, 'Running every day at 9pm')
 
     try {
       await updateMsBalanceSheets()

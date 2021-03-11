@@ -66,6 +66,12 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.BOOLEAN,
       allowNull: true,
     },
+    isSpac: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: 'is_spac',
+    },
     sectorId: {
       type: Sequelize.ARRAY(Sequelize.INTEGER),
       allowNull: true,

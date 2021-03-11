@@ -44,6 +44,8 @@ const msRegion = require('./msRegion')
 const msStockSymbol = require('./msStockSymbol')
 const msBalanceSheet = require('./msBalanceSheet')
 const msIncomeStatement = require('./msIncomeStatement')
+const msValuationRatio = require('./msValuationRatio')
+const msMarketCap = require('./msMarketCap')
 
 const models = {
   administrator,
@@ -92,6 +94,8 @@ const models = {
   msStockSymbol,
   msBalanceSheet,
   msIncomeStatement,
+  msValuationRatio,
+  msMarketCap,
 }
 
 module.exports = models
