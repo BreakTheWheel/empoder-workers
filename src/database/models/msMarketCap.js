@@ -21,6 +21,11 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: true,
       field: 'market_cap_date',
     },
+    marketCap: {
+      type: Sequelize.FLOAT,
+      allowNull: true,
+      field: 'market_cap',
+    },
     enterpriseValue: {
       type: Sequelize.FLOAT,
       allowNull: true,

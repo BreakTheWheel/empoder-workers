@@ -27,6 +27,13 @@ module.exports = {
     return data
   },
 
+  incomeStatementsTTM: async ({ token, exchangeId, symbol, startDate, endDate }) => {
+    const url = `https://equityapi.morningstar.com/Webservice/CompanyFinancialsService.asmx/GetIncomeStatementTTM?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&startDate=${startDate}&endDate=${endDate}&responseType=json&Token=${token}`
+    const { data } = await axios.default.get(url)
+
+    return data
+  },
+
   regions: async ({ token }) => {
     const { data } = await axios.default.get(`
     https://equityapi.morningstar.com/WebService/GlobalMasterListsService.asmx/GetExchangeRegionList?responseType=json&Token=${token}

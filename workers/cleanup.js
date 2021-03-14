@@ -2,6 +2,7 @@
 const { exec } = require('child_process')
 const CronJob = require('cron').CronJob
 const logger = require('../src/common/logger')
+const { wait } = require('../src/utils/helperFuncs')
 
 const processName = 'cleanup'
 
@@ -13,6 +14,7 @@ async function cleanup() {
       if (err) {
         logger.error({ err })
         logger.error({ stderr })
+        logger.error({ stdout })
         return reject(new Error('Failed'))
       }
 
@@ -20,11 +22,14 @@ async function cleanup() {
     })
   })
 
+  await wait(5)
+
   await new Promise((resolve, reject) => {
     exec('sudo service rsyslog restart', (err, stdout, stderr) => {
       if (err) {
         logger.error({ err })
         logger.error({ stderr })
+        logger.error({ stdout })
         return reject(new Error('Failed'))
       }
 

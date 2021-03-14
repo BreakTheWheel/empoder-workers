@@ -10,7 +10,7 @@ const stockService = require('../src/services/stockService')
 
 const processName = 'ms-income-statements'
 
-const types = ['Annual', 'Quarterly']
+const types = ['Annual', 'Quarterly', 'TTM']
 
 async function handleIncomeStatement(symbol, incomeStatement, type) {
   const exists = await db.MsIncomeStatement.findOne({
@@ -64,14 +64,21 @@ async function updateIncomeStatements() {
     logger.info({ processName }, `Processing symbol ${symbol.symbol}`)
 
     for (const type of types) {
-      const incomeStatements = await requestHelper(processName, () => morningstar.incomeStatements({
+      let incomeStatements
+      const params = {
         token,
         exchangeId: symbol.exchangeId,
         symbol: symbol.symbol,
         startDate: `01/${startYear}`,
         endDate: `12/${endYear}`,
         type,
-      }))
+      }
+
+      if (type === 'TTM') {
+        incomeStatements = await requestHelper(processName, () => morningstar.incomeStatementsTTM(params))
+      } else {
+        incomeStatements = await requestHelper(processName, () => morningstar.incomeStatements(params))
+      }
 
       if (!incomeStatements || !incomeStatements.IncomeStatementEntityList || Object.keys(incomeStatements.IncomeStatementEntityList).length === 0) {
         continue
