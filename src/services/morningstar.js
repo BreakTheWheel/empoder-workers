@@ -70,4 +70,18 @@ module.exports = {
 
     return result.data
   },
+
+  fundHoldingsDetail: async ({ exchangeId, symbol, token }) => {
+    const url = `https://equityapi.morningstar.com/Webservice/OwnershipService.asmx/GetFundHoldingsDetail?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&minimumFundRating=0&minPercentChange=-50&maxPercentChange=50&zeroPercentChangeRejected=false&responseType=json&Token=${token}`
+    const result = await axios.default.get(url)
+
+    return result.data
+  },
+
+  fundHoldingsSummary: async ({ exchangeId, symbol, token }) => {
+    const url = `https://equityapi.morningstar.com/Webservice/OwnershipService.asmx/GetFundHoldingsSummary?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&responseType=json&Token=${token}`
+    const result = await axios.default.get(url)
+
+    return result.data
+  },
 }

@@ -14,7 +14,7 @@ const etfsHoldings = require('./etfsHoldings')
 const signals = require('./signals')
 const realTimeQuote = require('./realTimeQuote')
 // const iexRealTimeNews = require('./iexRealTimeNews')
-const fhRealTimeNews = require('./fhRealTimeNews')
+// const fhRealTimeNews = require('./fhRealTimeNews')
 const delayedQuote = require('./delayedQuote')
 // const financialStatements = require('./financialStatements')
 const historicalPrices = require('./historicalPrices')
@@ -31,12 +31,14 @@ const msBalanceSheets = require('./msBalanceSheets')
 const msIncomeStatements = require('./msIncomeStatements')
 const msValuationRatios = require('./msValuationRatios')
 const msMarketCap = require('./msMarketCap')
+const msFundHoldingsDetail = require('./msFundHoldingsDetail')
+const msFundHoldingsSummary = require('./msFundHoldingsSummary')
 
 // // Pusher
 // trades.start()
 realTimeQuote.start() //IEX
 delayedQuote.start()
-fhRealTimeNews.start() // FH
+// fhRealTimeNews.start() // FH
 // iexRealTimeNews.start() // IEX
 
 // non stop
@@ -111,3 +113,5 @@ msIncomeStatements.updateIncomeStatements.start()
 msBalanceSheets.updateMsBalanceSheets.start()
 msValuationRatios.updateValuationRatios.start()
 msMarketCap.updateMarketCap.start()
+msFundHoldingsDetail.updateFundHoldingsDetail.start()
+msFundHoldingsSummary.updateFundHoldingsSummary.start()
