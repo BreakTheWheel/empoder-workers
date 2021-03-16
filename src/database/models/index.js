@@ -48,6 +48,7 @@ const msValuationRatio = require('./msValuationRatio')
 const msMarketCap = require('./msMarketCap')
 const msFundHoldingsDetail = require('./msFundHoldingsDetail')
 const msFundHoldingsSummary = require('./msFundHoldingsSummary')
+const msInstitutionalHoldingsSummary = require('./msInstitutionalHoldingsSummary')
 
 const models = {
   administrator,
@@ -100,6 +101,7 @@ const models = {
   msMarketCap,
   msFundHoldingsDetail,
   msFundHoldingsSummary,
+  msInstitutionalHoldingsSummary,
 }
 
 module.exports = models

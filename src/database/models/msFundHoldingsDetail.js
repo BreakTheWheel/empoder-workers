@@ -57,17 +57,17 @@ module.exports = (sequelize, Sequelize) => {
       field: 'owner_symbol',
     },
     numberOfShares: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
       field: 'number_of_shares',
     },
     marketValue: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
       field: 'market_value',
     },
     shareChange: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true,
       field: 'share_change',
     },

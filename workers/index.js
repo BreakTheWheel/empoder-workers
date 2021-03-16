@@ -33,6 +33,7 @@ const msValuationRatios = require('./msValuationRatios')
 const msMarketCap = require('./msMarketCap')
 const msFundHoldingsDetail = require('./msFundHoldingsDetail')
 const msFundHoldingsSummary = require('./msFundHoldingsSummary')
+const msInstitutionalHoldingsSummary = require('./msInstitutionalHoldingsSummary')
 
 // // Pusher
 // trades.start()
@@ -115,3 +116,4 @@ msValuationRatios.updateValuationRatios.start()
 msMarketCap.updateMarketCap.start()
 msFundHoldingsDetail.updateFundHoldingsDetail.start()
 msFundHoldingsSummary.updateFundHoldingsSummary.start()
+msInstitutionalHoldingsSummary.updateInstitutionalHoldingsSummary()

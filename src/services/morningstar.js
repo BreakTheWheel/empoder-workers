@@ -84,4 +84,11 @@ module.exports = {
 
     return result.data
   },
+
+  institutionalHoldingsSummary: async ({ exchangeId, symbol, token }) => {
+    const url = `https://equityapi.morningstar.com/Webservice/OwnershipService.asmx/GetInstitutionalHoldingsSummary?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&responseType=json&Token=${token}`
+    const result = await axios.default.get(url)
+
+    return result.data
+  },
 }

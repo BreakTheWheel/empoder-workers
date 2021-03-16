@@ -1,20 +1,18 @@
 /* eslint-disable no-await-in-loop */
 const CronJob = require('cron').CronJob;
 const { camelCase } = require('change-case')
-const Promise = require('bluebird')
 const { requestHelper } = require('../src/utils/helperFuncs')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const morningstar = require('../src/services/morningstar')
 const stockService = require('../src/services/stockService')
 
-const processName = 'ms-fund-holdings-detail'
+const processName = 'ms-institutional-holdings-summary'
 
 async function handleItem(symbol, item) {
-  const exists = await db.MsFundHoldingsDetail.findOne({
+  const exists = await db.MsInstitutionalHoldingsSummary.findOne({
     where: {
       stockSymbolId: symbol.id,
-      secId: item.SecId,
       [db.sequelize.Op.and]: [
         db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('as_of_date')), '=', item.AsOfDate),
       ],
@@ -29,71 +27,58 @@ async function handleItem(symbol, item) {
 
   if (exists) {
     try {
-      await db.MsFundHoldingsDetail.update(obj, {
+      await db.MsInstitutionalHoldingsSummary.update(obj, {
         where: {
           stockSymbolId: symbol.id,
-          secId: item.SecId,
           [db.sequelize.Op.and]: [
             db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('as_of_date')), '=', item.AsOfDate),
           ],
         },
       })
     } catch (err) {
-      logger.error({ err }, 'Failed in storing MsfundHoldingsDetail option')
+      logger.error({ err }, 'Failed in storing MsInstitutionalHoldingsSummary option')
     }
   } else {
     try {
-      await db.MsFundHoldingsDetail.create(obj)
+      await db.MsInstitutionalHoldingsSummary.create(obj)
     } catch (err) {
-      logger.error({ err }, 'Failed in storing MsfundHoldingsDetail option')
+      logger.error({ err }, 'Failed in storing MsInstitutionalHoldingsSummary option')
     }
   }
 }
 
-async function updateFundHoldingsDetail() {
+async function institutionalHoldingsSummary() {
   const token = await morningstar.login()
   const stockSymbols = await stockService.getTrackingStocks()
 
   for (const symbol of stockSymbols) {
     logger.info({ processName }, `Processing symbol ${symbol.symbol}`)
 
-    const fundHoldingsDetail = await requestHelper(processName, () => morningstar.fundHoldingsDetail({
+    const summary = await requestHelper(processName, () => morningstar.institutionalHoldingsSummary({
       token,
       exchangeId: symbol.exchangeId,
       symbol: symbol.symbol,
     }))
 
-    if (!fundHoldingsDetail || !fundHoldingsDetail.FundHoldingsDetailEntityList || Object.keys(fundHoldingsDetail.FundHoldingsDetailEntityList).length === 0) {
+    if (!summary || !summary.InstitutionalHoldingsSummaryEntity || Object.keys(summary.InstitutionalHoldingsSummaryEntity).length === 0) {
       continue
     }
 
-    let promises = []
-
-    for (const item of fundHoldingsDetail.FundHoldingsDetailEntityList) {
-      promises.push(handleItem(symbol, item))
-
-      if (promises.length === 100) {
-        await Promise.all(promises)
-
-        promises = []
-      }
-    }
-
-    await Promise.all(promises)
+    await handleItem(symbol, summary.InstitutionalHoldingsSummaryEntity)
   }
 }
 
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 const stopped = process.env.STOPPED === 'true'
 
-module.exports.updateFundHoldingsDetail = new CronJob('0 16 * * *', async () => {
+module.exports.updateInstitutionalHoldingsSummary = new CronJob('0 17 * * *', async () => {
   if (!startImmediately && !stopped) {
-    logger.info({ processName }, 'Running every day at 4pm')
+    logger.info({ processName }, 'Running every day at 5pm')
 
     try {
-      await updateFundHoldingsDetail()
+      await institutionalHoldingsSummary()
     } catch (err) {
-      logger.error({ processName, err }, 'Failed in updating fund holdings detail cap')
+      logger.error({ processName, err }, 'Failed in updating institutional holdings detail cap')
     }
 
     logger.info('Done')
@@ -103,7 +88,7 @@ module.exports.updateFundHoldingsDetail = new CronJob('0 16 * * *', async () => 
 if (startImmediately) {
   (async function () {
     try {
-      await updateFundHoldingsDetail()
+      await institutionalHoldingsSummary()
       logger.info({ processName }, 'Done')
     } catch (err) {
       logger.error({ processName, err })

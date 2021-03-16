@@ -7,7 +7,7 @@ const logger = require('../src/common/logger')
 const morningstar = require('../src/services/morningstar')
 const stockService = require('../src/services/stockService')
 
-const processName = 'ms-market-cap'
+const processName = 'ms-fund-holdings-summary'
 
 async function handleItem(symbol, item) {
   const exists = await db.MsFundHoldingsSummary.findOne({
