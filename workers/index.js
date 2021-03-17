@@ -5,13 +5,13 @@
 const priceTargets = require('./priceTargets')
 const recommendationTrends = require('./recommendationTrends')
 // const stockSymbols = require('./stockSymbols')
-const newsSentiment = require('./newsSentiment')
+// const newsSentiment = require('./newsSentiment')
 // const upgradeDowngrade = require('./upgradeDowngrade')
 const optionsActivity = require('./optionsActivity')
 const earningsEstimates = require('./earningsEstimates')
 const earningsCalendar = require('./earningsCalendar')
 // const etfsHoldings = require('./etfsHoldings')
-const signals = require('./signals')
+// const signals = require('./signals')
 const realTimeQuote = require('./realTimeQuote')
 // const iexRealTimeNews = require('./iexRealTimeNews')
 // const fhRealTimeNews = require('./fhRealTimeNews')
@@ -43,7 +43,7 @@ delayedQuote.start()
 // iexRealTimeNews.start() // IEX
 
 // non stop
-signals.start()
+// signals.start()
 
 // 18:00
 // companyProfile.updateCompanyProfile.start() // FH  
@@ -92,7 +92,7 @@ optionsActivity.updateStockOptions.start() // IEX
 // financialStatements.updateFinancialStatements.start()  // FH 
 
 // every 5 hours
-newsSentiment.updateNewsSentiment.start()  // FH 
+// newsSentiment.updateNewsSentiment.start()  // FH 
 
 // every 1 hour
 exchangeRates.updateCurrencyExchanges.start()
@@ -116,4 +116,4 @@ msValuationRatios.updateValuationRatios.start()
 msMarketCap.updateMarketCap.start()
 msFundHoldingsDetail.updateFundHoldingsDetail.start()
 msFundHoldingsSummary.updateFundHoldingsSummary.start()
-msInstitutionalHoldingsSummary.updateInstitutionalHoldingsSummary()
+msInstitutionalHoldingsSummary.updateInstitutionalHoldingsSummary.start()
