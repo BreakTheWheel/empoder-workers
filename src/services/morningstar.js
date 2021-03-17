@@ -107,4 +107,11 @@ module.exports = {
 
     return result.data
   },
+
+  growthRatios: async ({ exchangeId, symbol, startDate, endDate, token, type }) => {
+    const url = `https://equityapi.morningstar.com/Webservice/FinancialKeyRatiosService.asmx/GetGrowthRatios?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&statementType=${type}&dataType=AOR&startDate=${startDate}&endDate=${endDate}&responseType=json&Token=${token}`
+    const result = await axios.default.get(url)
+
+    return result.data
+  },
 }
