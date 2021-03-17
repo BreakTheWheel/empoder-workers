@@ -2,6 +2,8 @@ const axios = require('axios')
 
 const msEmail = process.env.MS_EMAIL
 const msPassword = process.env.MS_PASSWORD
+const msMarketUsername = process.env.MS_MARKET_USERNAME
+const msMarketPassword = process.env.MS_MARKET_PASSWORD
 
 module.exports = {
   login: async () => {
@@ -87,6 +89,20 @@ module.exports = {
 
   institutionalHoldingsSummary: async ({ exchangeId, symbol, token }) => {
     const url = `https://equityapi.morningstar.com/Webservice/OwnershipService.asmx/GetInstitutionalHoldingsSummary?exchangeId=${exchangeId}&identifierType=Symbol&identifier=${symbol}&responseType=json&Token=${token}`
+    const result = await axios.default.get(url)
+
+    return result.data
+  },
+
+  getQuote: async ({ instrumentId }) => {
+    const url = `http://mstxml.tenfore.com/Index.php?username=${msMarketUsername}&password=${msMarketPassword}&Instrument=${instrumentId}T&JSONShort`
+    const result = await axios.default.get(url)
+
+    return result.data
+  },
+
+  symbolsGuide: async ({ exchangeId }) => {
+    const url = `http://mstxml.tenfore.com/symbolGuide?username=${msMarketUsername}&password=${msMarketPassword}&exchange=${exchangeId}&security=1&JSONShort`
     const result = await axios.default.get(url)
 
     return result.data

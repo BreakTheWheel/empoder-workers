@@ -5,6 +5,7 @@ const db = require('../src/database')
 const logger = require('../src/common/logger')
 const iexCloud = require('../src/services/iexCloud')
 const { wait, requestHelper } = require('../src/utils/helperFuncs')
+const stockService = require('../src/services/stockService')
 
 const processName = 'historical-prices'
 
@@ -31,13 +32,7 @@ async function handlePrice(symbol, price) {
 }
 
 async function updateHistoricalPrices() {
-  let stockSymbols = await db.StockSymbol.findAll({
-    attributes: ['symbol'],
-    where: { tracking: true },
-    order: [
-      ['sectorId', 'DESC'],
-    ],
-  })
+  let stockSymbols = await stockService.getTrackingStocks()
   stockSymbols = stockSymbols.map(c => c.symbol)
 
   for (const symbol of stockSymbols) {

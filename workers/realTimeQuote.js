@@ -4,6 +4,7 @@ const EventSource = require('eventsource')
 const db = require('../src/database')
 const logger = require('../src/common/logger')
 const { wait } = require('../src/utils/helperFuncs')
+const stockService = require('../src/services/stockService')
 
 const processName = 'real-time-quote'
 
@@ -181,7 +182,7 @@ const onMessage = event => {
 const startImmediately = process.env.START_IMMEDIATELY === 'true'
 
 function connect(joined) {
-  const es = new EventSource(`https://cloud-sse.iexapis.com/stable/stocksUSNoUTP1Second?symbols=${joined}&token=${process.env.IEX_CLOUD_TOKEN}`);
+  const es = new EventSource(`https://cloud-sse.iexapis.com/stable/stocksUSNoUTP1Second?symbols=${joined}&token=${process.env.IEX_CLOUD_TOKEN}`)
 
   es.addEventListener('open', onOpen)
   es.addEventListener('message', onMessage)
@@ -201,11 +202,9 @@ module.exports = {
         stopped = process.env.STOPPED === 'true'
       }
 
-      const symbols = await db.StockSymbol.findAll({
-        where: { tracking: true },
-      })
+      const stockSymbols = await stockService.getTrackingStocks()
       const arrayOfArrays = []
-      const mapped = symbols.map(s => s.symbol)
+      const mapped = stockSymbols.map(s => s.symbol)
 
       while (mapped.length) {
         arrayOfArrays.push(mapped.splice(0, 30))

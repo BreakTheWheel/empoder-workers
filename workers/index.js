@@ -1,6 +1,6 @@
 // const trades = require('./trades')
 // const companyProfile = require('./companyProfile')
-const fundOwnership = require('./fundOwnership')
+// const fundOwnership = require('./fundOwnership')
 // const peers = require('./peers')
 const priceTargets = require('./priceTargets')
 const recommendationTrends = require('./recommendationTrends')
@@ -10,7 +10,7 @@ const newsSentiment = require('./newsSentiment')
 const optionsActivity = require('./optionsActivity')
 const earningsEstimates = require('./earningsEstimates')
 const earningsCalendar = require('./earningsCalendar')
-const etfsHoldings = require('./etfsHoldings')
+// const etfsHoldings = require('./etfsHoldings')
 const signals = require('./signals')
 const realTimeQuote = require('./realTimeQuote')
 // const iexRealTimeNews = require('./iexRealTimeNews')
@@ -22,8 +22,8 @@ const historicalPrices = require('./historicalPrices')
 // const companyBasicFinancials = require('./companyBasicFinancials')
 const exchangeRates = require('./currencyExchange')
 const barchartOptions = require('./barchartOptions')
-const iexBalanceSheet = require('./iexBalanceSheets')
-const iexIncomeStatements = require('./iexIncomeStatements')
+// const iexBalanceSheet = require('./iexBalanceSheets')
+// const iexIncomeStatements = require('./iexIncomeStatements')
 const cleanup = require('./cleanup')
 const stockNews = require('./stockNews')
 const msStockSymbols = require('./msStockSymbols')
@@ -52,13 +52,13 @@ signals.start()
 // companyBasicFinancials.updateCompanyProfile.start() 
 
 // 20:00
-fundOwnership.fundOwnership.start() // FH 
+// fundOwnership.fundOwnership.start() // FH 
 
 // 22:00
 // peers.updatePeers.start()
 
 // 23:00
-etfsHoldings.updateEtfsHoldings.start() // FH 
+// etfsHoldings.updateEtfsHoldings.start() // FH 
 
 // 02:00
 priceTargets.priceTarget.start() // FH 
@@ -100,9 +100,9 @@ exchangeRates.updateCurrencyExchanges.start()
 // every 15min
 barchartOptions.updateStockOptions.start() // BC
 
-iexBalanceSheet.updateIexBalanceSheets.start() // IEX
+// iexBalanceSheet.updateIexBalanceSheets.start() // IEX
 
-iexIncomeStatements.updateIexIncomeStatements.start() // IEX
+// iexIncomeStatements.updateIexIncomeStatements.start() // IEX
 
 cleanup.cleanup.start()
 

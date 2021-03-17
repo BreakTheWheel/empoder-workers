@@ -3,6 +3,7 @@ const db = require('../src/database')
 const logger = require('../src/common/logger')
 const { wait, requestHelper } = require('../src/utils/helperFuncs')
 const iexCloud = require('../src/services/iexCloud')
+const { exchanges } = require('../src/services/stockService')
 
 const processName = 'delayed-quote'
 
@@ -28,9 +29,9 @@ async function handleDelayedQuote(quote) {
 async function updateDelayedQuote() {
   // stocks that we are tracking but are not in the real-time prices table. OTC stocks
   const result = await db.sequelize.query(`
-    SELECT * FROM stock_symbols where tracking = true and symbol NOT IN (
-      SELECT symbol FROM quotes
-    )
+  SELECT * FROM ms_stock_symbols where sector_id is not null AND exchange_id in (${exchanges.map(e => `'${e}'`).join(',')}) and symbol NOT IN (
+    SELECT symbol FROM quotes
+  )
   `)
 
   const symbols = result[0]
