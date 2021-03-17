@@ -37,6 +37,7 @@ async function updateDelayedQuote() {
   const symbols = result[0]
 
   for (const symbol of symbols) {
+    logger.info({ processName }, `Processing symbol: ${symbol.symbol}`)
     const delayedQuote = await requestHelper(processName, () => iexCloud.delayedQuote({ symbol: symbol.symbol }))
 
     if (!delayedQuote || Object.keys(delayedQuote).length === 0) {
@@ -64,10 +65,9 @@ module.exports = {
       try {
         logger.info({ processName }, 'Started')
         await updateDelayedQuote()
+        logger.info({ processName }, 'Done')
 
         await wait(350)
-
-        logger.info({ processName }, 'Done')
       } catch (err) {
         logger.error({ processName, err }, 'Failed in delayed quote')
       }

@@ -34,6 +34,16 @@ let query = ''
 let counter = 0
 let holdOn = false
 
+setInterval(() => {
+  if (query && counter !== 0) {
+    logger.info({ processName }, 'In setInterval func')
+    handleQuote(query)
+    query = ''
+    holdOn = false
+    counter = 0
+  }
+}, 5000)
+
 const onMessage = event => {
   if (holdOn) {
     return
@@ -165,17 +175,13 @@ const onMessage = event => {
     `
   }
 
-  // TODO: FIX!
   if (counter === 100) {
     holdOn = true
+    counter = 0
     handleQuote(query).then(() => {
       query = ''
       holdOn = false
-      counter = 0
     })
-    // query = ''
-    // // holdOn = false
-    // counter = 0
   }
 }
 

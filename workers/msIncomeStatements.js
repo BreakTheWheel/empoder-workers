@@ -12,10 +12,10 @@ const processName = 'ms-income-statements'
 
 const types = ['Annual', 'Quarterly', 'TTM']
 
-async function handleIncomeStatement(symbol, incomeStatement, type) {
+async function handleIncomeStatement(symbol, incomeStatement) {
   const exists = await db.MsIncomeStatement.findOne({
     where: {
-      statementType: type,
+      statementType: incomeStatement.StatementType,
       stockSymbolId: symbol.id,
       [db.sequelize.Op.and]: [
         db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('period_ending_date')), '=', incomeStatement.PeriodEndingDate),
@@ -33,7 +33,7 @@ async function handleIncomeStatement(symbol, incomeStatement, type) {
     try {
       await db.MsIncomeStatement.update(obj, {
         where: {
-          statementType: type,
+          statementType: incomeStatement.StatementType,
           stockSymbolId: symbol.id,
           [db.sequelize.Op.and]: [
             db.sequelize.where(db.sequelize.fn('date', db.sequelize.col('period_ending_date')), '=', incomeStatement.PeriodEndingDate),
@@ -41,7 +41,7 @@ async function handleIncomeStatement(symbol, incomeStatement, type) {
         },
       })
     } catch (err) {
-      logger.error({ err }, 'Failed in storing MsIncomeStatement option')
+      logger.error({ err }, 'Failed in updating MsIncomeStatement')
     }
     return
   }
@@ -49,7 +49,7 @@ async function handleIncomeStatement(symbol, incomeStatement, type) {
   try {
     await db.MsIncomeStatement.create(obj)
   } catch (err) {
-    logger.error({ err }, 'Failed in storing MsIncomeStatement option')
+    logger.error({ err }, 'Failed in storing MsIncomeStatement')
   }
 }
 
@@ -85,7 +85,7 @@ async function updateIncomeStatements() {
       }
 
       for (const incomeStatement of incomeStatements.IncomeStatementEntityList) {
-        await handleIncomeStatement(symbol, incomeStatement, type)
+        handleIncomeStatement(symbol, incomeStatement)
       }
     }
   }

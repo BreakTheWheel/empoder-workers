@@ -21,7 +21,7 @@ const historicalPrices = require('./historicalPrices')
 // const ipoCalendar = require('./ipoCalendar')
 // const companyBasicFinancials = require('./companyBasicFinancials')
 const exchangeRates = require('./currencyExchange')
-const barchartOptions = require('./barchartOptions')
+// const barchartOptions = require('./barchartOptions')
 // const iexBalanceSheet = require('./iexBalanceSheets')
 // const iexIncomeStatements = require('./iexIncomeStatements')
 const cleanup = require('./cleanup')
@@ -98,7 +98,7 @@ optionsActivity.updateStockOptions.start() // IEX
 exchangeRates.updateCurrencyExchanges.start()
 
 // every 15min
-barchartOptions.updateStockOptions.start() // BC
+// barchartOptions.updateStockOptions.start() // BC
 
 // iexBalanceSheet.updateIexBalanceSheets.start() // IEX
 
